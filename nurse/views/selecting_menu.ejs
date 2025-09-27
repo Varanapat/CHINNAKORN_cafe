@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/style_modal.css">
+    <!-- <script src="script.js"></script> -->
+</head>
+
+<body>
+    <!-- header -->
+    <%- include('header_category') %>
+    <br>
+
+        <!-- content  -->
+        <!-- <h1></h1>
+    <div class="container">
+
+        <% menu.forEach(item => { %>
+        <div class="menu">
+            <a>
+            <img class="img" src="/picture/<%= item.menu_image %>" alt="<%= item.menu_name %>">
+            <h3><%= item.menu_name %></h3>
+            </a>
+        </div>
+        <% }); %>
+     </div> -->
+        <!-- content 3 -->
+        <div class="container">
+            <% menu.forEach(item=> { %>
+                <!-- ปุ่มเปิด modal -->
+                <a class="menu" data-modal-target="#modal-<%= item.menu_id %>">
+                    <img class="img" src="/picture/<%= item.menu_image %>" alt="<%= item.menu_name %>">
+                    <h3>
+                        <%= item.menu_name %>
+                    </h3>
+                </a>
+
+                <!-- modal ของแต่ละเมนู -->
+                <div class="modal" id="modal-<%= item.menu_id %>">
+                    <div class="modal-header">
+                        <div class="title">
+                            <%= item.menu_name %>
+                        </div>
+                        <button data-close-button class="close-button">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container_menu">
+                            <div class="container_1">
+                                <img class="img" src="/picture/<%= item.menu_image %>" alt="<%= item.menu_name %>">
+                            </div>
+                            <div class="container_2">
+                                <b>รายละเอียดของเมนู </b><br><br>
+                                <%= item.menu_name %> ------ <%= item.base_price %> BAHT<br><br>
+                                <%= item.description %><br>
+                            </div>
+                        
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+        </div>
+
+        <!-- overlay มีแค่หนึ่งอัน -->
+        <div id="overlay"></div>
+        <script src="/script.js"></script>
+
+</body>
+
+</html>

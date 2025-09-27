@@ -1,0 +1,33 @@
+.container{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    gap: 10px;
+    /* width: 100%; */
+    justify-content: space-around;
+    align-content: space-around;
+    margin: auto;
+}
+.menu,
+.cate{
+    justify-content: space-around;
+    border: 1px solid rgb(234, 17, 17);
+    text-align: center;
+    padding: 10px 10px;
+
+}
+
+header{
+    position: sticky;
+    z-index: 10;
+    top: 0;
+}
+
+.img{
+    width: 250px;
+    height: 200px;
+    object-fit: cover;
+}
+
+h1{
+    text-align: center;
+}
