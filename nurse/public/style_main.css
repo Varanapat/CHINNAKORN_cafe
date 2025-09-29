@@ -1,0 +1,38 @@
+header{
+    position: static;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 120px;
+    background: #f1f5fc;
+    /* display: flex;
+    justify-content: space-between; */
+    align-items: center;
+    z-index: 100;
+    text-align: center;
+}
+.container{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    border: 1px solid rebeccapurple;
+    padding: 10px 10px ;
+    gap: 10px;
+}
+
+.cate{
+    border: 1px solid rgb(153, 51, 139);
+    margin: 1px;
+}
+
+.menu{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid salmon;
+}
+
+.menu .img{
+    /* height: 100px; */
+    width: 100%;
+    object-fit: cover;
+    margin: auto;
+}
