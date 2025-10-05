@@ -1,0 +1,262 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 120px;
+    background: #11141a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 25px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+nav a {
+    font-size: 18px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    margin-left: 35px;
+    transition: .3s;
+}
+
+header nav a:hover,
+header nav a.active {
+    color: #0ef;
+}
+
+section {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fbfbfb;
+    font-size: 1rem;
+    color: #110674;
+    /* font-weight: 700; */
+}
+
+
+/* section:nth-child(odd) {
+    background:#ffffff ;
+
+} */
+
+
+/* โครงสร้างแต่ละหมวด */
+
+.category-section {
+    display: flex;
+    flex-direction: column;
+    margin: 40px 0;
+    padding: 0 20px;
+}
+
+.category-title {
+    font-size: 1rem;
+    margin-bottom: 20px;
+    color: #3c3c3c;
+    border-left: 5px solid #4CAF50;
+    padding-left: 10px;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+
+/* กริดแสดงเมนู */
+
+.menu-container {
+    display: grid;
+    gap: 20px;
+    width: 100%;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+}
+
+
+/* การ์ดเมนู */
+
+.menu {
+    text-decoration: none;
+    color: inherit;
+}
+
+.menu-card {
+    /* background: #fff; */
+    border-radius: 12px;
+    /* box-shadow: 0 2px 8px rgba(0,0,0,0.1); */
+    padding: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid red;
+}
+
+.menu-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+
+/* รูปเมนู */
+
+.menu-img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+
+/* ชื่อเมนู */
+
+.menu-name {
+    margin-top: 10px;
+    font-size: 1.1rem;
+    text-align: center;
+    color: #444;
+}
+
+.main-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background: #fbfbfb;
+}
+
+
+/* ฝั่งซ้าย - เมนู */
+
+.menu-left {
+    flex: 1;
+    overflow-y: auto;
+}
+
+
+/* ฝั่งขวา - Sidebar */
+
+.right {
+    width: 300px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 100px;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* ปุ่มเลือกประเภทการสั่ง */
+
+.order-type {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.order-btn {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #ddd;
+    background: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.order-btn:hover {
+    background: #f0f0f0;
+}
+
+
+/* .order-btn.active {
+    background: #4CAF50;
+    color: #fff;
+    border-color: #4CAF50;
+    display: flex;
+} */
+
+
+/* เส้นแบ่ง */
+
+.right hr {
+    border: none;
+    border-top: 2px solid #e0e0e0;
+    margin: 20px 0;
+}
+
+section {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    background: #fbfbfb;
+    font-size: 1rem;
+    color: #110674;
+    padding-bottom: 50px;
+}
+
+
+/* คลังสินค้า */
+
+.inventory {
+    text-align: center;
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 15px;
+    margin-top: auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: color 0.3s, background 0.3s;
+}
+
+.inventory:hover {
+    background: #f0f0f0;
+}
+
+.inventory h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #3c3c3c;
+}
+
+
+/* .inventory {
+    text-decoration: none;
+    color: #444;
+    font-size: 16px;
+    transition: color 0.3s, background 0.3s;
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 8px;
+} */
+
+
+/* ไอคอน */
+
+.inventory i {
+    font-size: 5em;
+    color: #252529;
+    margin-bottom: 10px;
+    border: none;
+    outline: none;
+}

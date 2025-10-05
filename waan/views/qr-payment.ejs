@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR-Code Payments</title>
+    <link rel="stylesheet" href="style_qr_payment.css ">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <button class="back-btn" onclick="window.history.back()">←</button>
+            <h1 class="header-title">ข้อมูลการชำระเงิน</h1>
+        </div>
+
+        <!-- Main Content: Two Columns -->
+        <div class="main-content">
+            <!-- Left Column: QR Code Section -->
+            <div class="left-column">
+                <div class="qr-section">
+                    <div class="qr-label">THAI QR<br>PAYMENT</div>
+                    <div class="qr-container">
+                        <% if (qrData) { %>
+                            <img src="<%= qrData %>" alt="QR Code">
+                            <% } else { %>
+                                <div class="qr-placeholder">
+                                    กำลังสร้าง QR Code...
+                                </div>
+                                <% } %>
+                    </div>
+                    <div class="amount-display">฿
+                        <%= total.toFixed(2) %>
+                    </div>
+                </div>
+
+                <!-- Company Info -->
+                <div class="company-info">
+                    <div class="company-text">บริษัท CAFÉ PROTOTYPE SYSTEM (คณะเทคโนโลยีสารสนเทศ,ประเทศไทย) จำกัด</div>
+                    <div class="company-text">CAFÉ PROTOTYPE SYSTEM (INFORMATION TECHNOLOGY,THAILAND) CO.,IT</div>
+                    <div class="company-ref">หมายเลขอ้างอิง : CFPS0011609202S</div>
+                </div>
+
+                <!-- Payment Details -->
+                <div class="payment-details">
+                    <div class="detail-row">
+                        <span>ยอดชำระรวมทั้งหมด</span>
+                        <span class="amount-red">฿ <%= total.toFixed(2) %></span>
+                    </div>
+                    <div class="detail-row">
+                        <span>กรุณาชำระภายใน</span>
+                        <span class="amount-red">2 นาที</span>
+                    </div>
+                    <div class="timestamp">
+                        หมดเขตวันที่
+                        <%= new Date(Date.now() + 2*60000).toLocaleDateString('th-TH', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric', 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                        }) %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Instructions and Actions -->
+            <div class="right-column">
+                <!-- Instructions -->
+                <div class="instructions">
+                    <div class="instructions-title">กรุณาทำตามขั้นตอนที่แนะนำ</div>
+                    <ol>
+                        <li>เปิดแอปพลิเคชันธนาคารบนมือถือของท่าน</li>
+                        <li>สแกน QR Code ที่อยู่บนหน้าจอ</li>
+                        <li>กดยืนยัน</li>
+                        <li>คำสั่งซื้อจะใช้งานภายในหนึ่งชั่วโมงตั้งจากที่สร้างคำสั่งซื้อ</li>
+                    </ol>
+
+                    <div class="warning">
+                        หมายเหตุ: ช่องทางชำระเงินพร้อมเพย์ใช้ได้กับแอปพลิเคชันธนาคารหรือวอลเล็ตที่รองรับการชำระเงินด้วยพร้อมเพย์เท่านั้น
+                    </div>
+                </div>
+
+                <!-- Logo -->
+                <div class="logo-section">
+                    <div class="logo">CHINNAKORN CAFÉ </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-confirm" onclick="cancelOrder()">ยกเลิกคำสั่งซื้อ</button>
+                    <button class="btn btn-back" onclick="window.history.back()">กลับหน้าแรก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function cancelOrder() {
+            if (confirm('คุณต้องการยกเลิกคำสั่งซื้อใช่หรือไม่?')) {
+                window.location.href = '/';
+            }
+        }
+
+        function confirmPayment() {
+            if (confirm('ชำระเงินเสร็จสิ้นแล้วใช่หรือไม่?')) {
+                window.location.href = '/payment-success';
+            }
+        }
+    </script>
+</body>
+
+</html>

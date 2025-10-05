@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คลังสินค้า - Inventory</title>
+    <link rel="stylesheet" href="style_inventory.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="order-info">
+                <div class="order-number">4</div>
+                <div class="order-label">ออเดอร์</div>
+            </div>
+
+            <div class="inventory-icon">
+                <i class="bi bi-box-seam-fill"></i>
+                <div class="inventory-title">คลังสินค้า</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Column -->
+            <div class="product-section">
+                <h2 class="section-title">คลังสินค้า</h2>
+
+                <!-- Search & Category -->
+                <div class="search-bar">
+                    <button class="category-btn active" data-category="drinks">เครื่องดื่ม</button>
+                    <button class="category-btn" data-category="bakery">เบเกอรี่</button>
+                    <input type="text" id="searchInput" placeholder="ค้นหา...">
+                    <i class="bi bi-search"></i>
+                </div>
+
+                <!-- Drinks Section -->
+                <div id="drinks-section" class="product-grid">
+                    <% if (drinks && drinks.length > 0) { %>
+                        <% drinks.forEach(item => { %>
+                            <div class="product-card" data-id="<%= item.menu_id %>" data-type="drink">
+                                <img src="/picture/<%= item.menu_image || 'no_image.png' %>" alt="<%= item.menu_name %>">
+                                <div class="product-name">
+                                    <%= item.menu_name %>
+                                </div>
+                                <button class="toggle-stock <%= item.is_active ? 'active' : '' %>" data-id="<%= item.menu_id %>" onclick="toggleDrinkStatus('<%= item.menu_id %>', '<%= item.is_active ? 'true' : 'false' %>')">
+                                    <%= item.is_active ? 'ปิดการขาย' : 'เปิดการขาย' %>
+                                </button>
+
+
+
+                            </div>
+                            <% }) %>
+                                <% } else { %>
+                                    <div class="no-products">ไม่มีข้อมูลเครื่องดื่ม</div>
+                                    <% } %>
+                </div>
+
+                <!-- Bakery Section -->
+                <div id="bakery-section" class="product-grid hidden">
+                    <% if (bakery.length > 0) { %>
+                        <% bakery.forEach(item => { %>
+                            <div class="product-card" data-id="<%= item.menu_id %>" data-type="bakery">
+                                <img src="/picture/<%= item.menu_image || 'no_image.png' %>" alt="<%= item.menu_name %>">
+                                <div class="product-name">
+                                    <%= item.menu_name %>
+                                </div>
+                                <div class="stock-control">
+                                    <button onclick="updateStock('<%= item.menu_id %>', -1)">-</button>
+                                    <span id="stock-<%= item.menu_id %>"><%= item.stock_qty || 0 %></span>
+                                    <button onclick="updateStock('<%= item.menu_id %>', 1)">+</button>
+                                </div>
+                            </div>
+                            <% }) %>
+                                <% } else { %>
+                                    <div class="no-products">ไม่มีข้อมูลเบเกอรี่</div>
+                                    <% } %>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="selected-section">
+                <h3 class="selected-title">รายการที่เลือก</h3>
+                <div class="selected-items" id="selectedItems">
+                    <div class="empty-state">
+                        <p>กรุณาเลือกสินค้า</p>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-cancel" onclick="window.history.back()">ยกเลิก</button>
+                    <button class="btn btn-confirm" onclick="saveInventory()">บันทึก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle drinks section vs bakery
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const cat = this.dataset.category;
+                document.getElementById('drinks-section').classList.toggle('hidden', cat !== 'drinks');
+                document.getElementById('bakery-section').classList.toggle('hidden', cat !== 'bakery');
+            });
+        });
+
+        // Toggle drink active/inactive
+        function toggleDrinkStatus(id, isActiveStr) {
+            const isActive = isActiveStr === 'true'; // แปลงกลับเป็น boolean
+
+            fetch(`/inventory/toggle/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        is_active: !isActive
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) location.reload();
+                    else alert('ไม่สามารถเปลี่ยนสถานะได้');
+                })
+                .catch(err => console.error(err));
+        }
+
+
+
+        // Update bakery stock
+        function updateStock(id, delta) {
+            fetch(`/inventory/stock/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        change: delta
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById(`stock-${id}`).innerText = data.newStock;
+                    } else alert('อัปเดตจำนวนไม่สำเร็จ');
+                });
+        }
+    </script>
+</body>
+
+</html>

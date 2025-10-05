@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="stlye_pm_success.css ">
+    <title>Payment Success!</title>
+</head>
+
+<body>
+    <div class="success-container ">
+        <h1 class="header-title ">ชำระเงินสำเร็จ</h1>
+
+        <div class="logo ">
+            <span>CHINNAKORN</span>
+            <span>CAFÉ</span>
+            <div class="logo-icon "></div>
+        </div>
+
+        <div class="success-box ">
+            <div class="check-icon ">
+                <div class="checkmark "></div>
+            </div>
+
+            <div class="success-message ">
+                ยอดสำเร็จซื้อ
+                <%= total %> บาท
+            </div>
+
+            <div class="amount-display ">
+                ฿
+                <%= total %>
+            </div>
+
+            <div class="amount-label ">
+                ยอดรวมทั้งหมด
+            </div>
+        </div>
+
+        <button class="back-btn " onclick="window.location.href='/' ">
+            กลับหน้าแรก
+        </button>
+    </div>
+
+</body>
+
+</html>

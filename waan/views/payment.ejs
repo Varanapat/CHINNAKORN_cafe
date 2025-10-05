@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Payment</title>
+    <link rel="stylesheet" href="/style_main.css">
+
+</head>
+
+<body>
+    <h2>ยอดที่ต้องชำระ:
+        <%= total %> บาท</h2>
+
+    <!-- ชำระเงินสด -->
+    <form id="cashForm">
+        <input type="number" name="cashReceived" placeholder="กรอกจำนวนเงินที่ลูกค้าให้มา" required>
+        <button type="submit">จ่ายเงินสด</button>
+    </form>
+
+    <p id="cashResult"></p>
+
+    <!-- ชำระด้วย QR Code -->
+    <button id="qrBtn">ชำระด้วย QR Code</button>
+    <div id="qrContainer"></div>
+
+    <script>
+        // Event ชำระเงินสด
+        document.getElementById('cashForm').addEventListener('submit', async(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            const res = await fetch('/payment/cash', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+            if (result.success) {
+                document.getElementById('cashResult').innerText = `เงินทอน: ${result.change} บาท`;
+            } else {
+                document.getElementById('cashResult').innerText = result.message;
+            }
+        });
+
+        // Event QR Code
+        document.getElementById('qrBtn').addEventListener('click', async() => {
+            const res = await fetch('/payment/qr', {
+                method: 'POST'
+            });
+            const result = await res.json();
+            if (result.success) {
+                document.getElementById('qrContainer').innerHTML = `
+                    <p>ยอดชำระ: ${result.amount} บาท</p>
+                    <img src="${result.qrData}" alt="QR Code" />
+                `;
+            }
+        });
+    </script>
+</body>
+
+</html>
