@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/style_main.css">
+    <link rel="stylesheet" href="/style_modal.css">
+    <!-- <script src="script.js"></script> -->
+</head>
+<style>
+.option_container.unavailable {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.option_container.unavailable:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+</style>
+
+<body>
+    <!-- header -->
+    <%- include('selecting_menu_header') %>
+    <!-- content -->
+
+    <% cate.forEach(category=> { %>
+        <section id="<%= category.category_id %>" class="category-section">
+            <!-- หัวข้อหมวดหมู่ -->
+            <h2 class="category-title">
+                <%= category.category_name %>
+            </h2>
+
+            <!-- รายการเมนู -->
+            <div class="menu-container">
+                <% menu.filter(item_menu=> item_menu.category_id === category.category_id)
+                    .forEach(item_menu => { %>
+
+                     <% if (item_menu.is_available) { %>
+                        <!-- ถ้ามีของครบ เปิด modal ได้ -->
+                        <a class="menu" data-modal-target="#modal-<%= item_menu.menu_id %>">
+                            <div class="menu-card">
+                            <img class="menu-img" src="/picture/<%= item_menu.menu_image %>" alt="<%= item_menu.menu_name %>">
+                            <h3 class="menu-name">
+                                <span><%= item_menu.menu_name %></span>
+                                <span><%= item_menu.base_price %> ฿</span>
+                            </h3>
+                            </div>
+                        </a>
+                        <% } else { %>
+                        <!-- ถ้าของไม่พอ แสดงว่า “หมด” -->
+                        <div class="menu disabled">
+                            <div class="menu-card unavailable">
+                            <img class="menu-img unavailable" src="/picture/<%= item_menu.menu_image %>" alt="<%= item_menu.menu_name %>">
+                            <h3 class="menu-name">
+                                <span><%= item_menu.menu_name %></span>
+                                <span style="color:red;">หมด</span>
+                            </h3>
+                            </div>
+                        </div>
+                        <% } %>
+
+                    <div class="modal" id="modal-<%= item_menu.menu_id %>">
+                        <div class="modal-header">
+                            <div class="title">
+                                <%= item_menu.menu_name %>
+                            </div>
+                            <button data-close-button class="close-button">&times;</button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="container_menu">
+                                <!-- ฝั่งซ้าย -->
+                                <div class="container_left">
+                                    <img class="modal-img_left" src="/picture/<%= item_menu.menu_image %>"
+                                        alt="<%= item_menu.menu_name %>">
+                                </div>
+
+                                <!-- ฝั่งขวา -->
+                                <div class="container_right">
+                                    <div class="head_container_right">
+                                        <b>รายละเอียดของเมนู: </b>
+                                        <p class="menu-description">
+                                            <%= item_menu.description %>
+                                        </p>
+                                    </div>
+
+                                    <!-- ส่วนเลือก option -->
+                                    <!-- <form> -->
+                                    <form method="post" action="/add-to-cart" class="cart-form" data-menu-id="<%= item_menu.menu_id %>">
+                                        <div class="form">
+
+                                            <% slt.forEach(sl=> { %>
+                                                <% if (item_menu.menu_id===sl.menu_id) { %>
+                                                    <div class="option_selector">
+                                                        <fieldset>
+                                                            <legend>
+                                                                <% if (sl.is_required === 1) { %>
+                                                                    <span> <b style="color: #ff1414;"><%= sl.group_name %> *****</b></span>
+                                                                 <%}else {%>
+                                                                    <span> <%= sl.group_name %></span>
+                                                                    <%} %>
+                                                            </legend>
+<% itslt.forEach(itsl => { %>
+  <% if (sl.group_name === itsl.group_name) { 
+      const optKey = item_menu.menu_id + '_' + itsl.ingredient_id;
+      const isOptAvailable = optionAvailability && optionAvailability[optKey] !== false;
+  %>
+    <div class="option_container <%= !isOptAvailable ? 'unavailable' : '' %>">
+      <div class="option_left">
+        <input type="radio"
+               name="menu-<%= item_menu.menu_id %>-<%= itsl.group_name %>"
+               value="<%= itsl.option_name %>"
+               id="opt-<%= item_menu.menu_id %>-<%= itsl.option_name %>"
+               <%= !isOptAvailable ? 'disabled' : (sl.is_required ? 'required' : '') %> />
+        <label for="opt-<%= item_menu.menu_id %>-<%= itsl.option_name %>">
+          <%= itsl.option_name %>
+          <% if (!isOptAvailable) { %>
+            <span style="color:red;">(หมด)</span>
+          <% } %>
+        </label>
+      </div>
+      <span>
+        <% if (itsl.extra_price === 0) { %>
+          (ฟรี)
+        <% } else { %>
+          (+ <%= itsl.extra_price %> ฿)
+        <% } %>
+      </span>
+    </div>
+  <% } %>
+<% }) %>
+
+
+
+                                                        </fieldset>
+                                                    </div>
+                                                    <% } %>
+                                                        <% }) %>
+
+                                        </div>
+
+                                        <!-- ส่วนด้านล่าง -->
+                                        <div class="bottom_container_right">
+                                            <div class="price-container">
+                                                <p class="price" data-base-price="<%= item_menu.base_price %>">
+                                                    <%= item_menu.base_price %> ฿
+                                                </p>
+                                                <div class="selected-options"></div>
+                                            </div>
+
+                                            <!-- ปุ่มเพิ่ม/ลดจำนวน -->
+                                            <div class="quantity">
+                                                <button type="button" class="qty-btn minus">&minus;</button>
+                                                <span class="qty">1</span>
+                                                <button type="button" class="qty-btn plus">&plus;</button>
+                                            </div>
+
+                                            <!-- hidden fields -->
+                                            <input type="hidden" name="quantity" value="1">
+                                            <input type="hidden" name="options" value="">
+                                            <input type="hidden" name="totalPrice" value="">
+
+                                            <button type="submit" class="add-to-cart">เพิ่มลงตะกร้า</button>
+                                        </div>
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>
+            </div>
+        </section>
+        <% }) %>
+
+            <!-- overlay มีแค่หนึ่งอัน -->
+            <div id="overlay"></div>
+            <!-- เอ่อ อะไรไม่รู้ที่เขียนซ้ำทำไม วันเเรกคอมเม้นไว้ วันสองเขียนต่อ ฮา เหมือนไม่คุยกับตัวเอง -->
+            <!-- script -->
+            <!-- <script src="/script_modal.js"></script>
+            <script src="/script_quantity.js"></script> -->
+            <!-- <script src="/main_script.js"></script> -->
+
+            <script src="/script_modal.js"></script>
+            <script src="/script_main.js"></script>
+            <script src="/script_add_to_cart.js"></script>
+
+            <!-- <script src="/unselect.js"></script> -->
+            <!-- <script src="/script_quantity.js"></script> -->
+            <!-- <script src="/unselect.js"></script> -->
+            <!-- <script src="/script_all.js"></script> -->
+
+
+</body>
+
+</html>
