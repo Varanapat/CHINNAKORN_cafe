@@ -21,7 +21,7 @@ app.use(session({
 }));
 
 // const dbPath = path.join(__dirname, 'Database', 'CHINNAKORN_blueprint.db');
-const dbPath = path.join(__dirname, 'Database', 'CHINNAKORN_cafe_TH.db');
+const dbPath = path.join(__dirname, 'Database', 'CHINNAKORN_cafe_EN.db');
 
 let db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
@@ -581,137 +581,184 @@ app.get('/payment-success', (req, res) => {
 
 // GETหน้า Inventory
 // ======================= INVENTORY PAGE =======================
+// app.get('/inventory', (req, res) => {
+//     db.all("SELECT * FROM menu", [], (err, rows) => {
+//         if (err) return res.send(err.message);
+
+//         // แยกเครื่องดื่มกับเบเกอรี่
+//         const drinks = rows
+//             .filter(r => r.category === 'เครื่องดื่ม')
+//             .map(r => ({
+//                 ...r,
+//                 is_active: !!r.is_active // แปลงเป็น true/false
+//             }));
+
+//         const bakery = rows
+//             .filter(r => r.category === 'เบเกอรี่')
+//             .map(r => ({
+//                 ...r,
+//                 is_active: !!r.is_active
+//             }));
+
+//         res.render('inventory', { drinks, bakery });
+//     });
+// });
+
+// app.post('/inventory/toggle/:id', (req, res) => {
+//     const menu_id = req.params.id;
+//     const { is_active } = req.body; // boolean
+
+//     const sql = `UPDATE Menu SET is_active = ? WHERE menu_id = ?`;
+
+//     db.run(sql, [is_active ? 1 : 0, menu_id], function(err) {
+//         if (err) {
+//             console.error(err);
+//             return res.json({ success: false });
+//         }
+//         res.json({ success: true });
+//     });
+// });
+
+
+
+
+// // POST - บันทึกการอัพเดทสต็อก
+// app.post('/inventory/save', (req, res) => {
+//     const { products } = req.body;
+
+//     if (!products || Object.keys(products).length === 0) {
+//         return res.json({
+//             success: false,
+//             message: 'ไม่มีข้อมูลที่จะบันทึก'
+//         });
+//     }
+
+//     db.serialize(() => {
+//         db.run('BEGIN TRANSACTION');
+
+//         let hasError = false;
+//         let completed = 0;
+//         const totalUpdates = Object.keys(products).length;
+
+//         Object.keys(products).forEach(ingredientId => {
+//             const product = products[ingredientId];
+
+//             // อัพเดทสต็อก (เพิ่มจำนวน)
+//             const updateQuery = `
+//                 UPDATE Ingredient 
+//                 SET stock_qty = stock_qty + ?
+//                 WHERE ingredient_id = ? AND is_active = 1
+//             `;
+
+//             db.run(updateQuery, [product.quantity, ingredientId], function(err) {
+//                 completed++;
+
+//                 if (err) {
+//                     console.error('Update error:', err);
+//                     hasError = true;
+//                 }
+
+//                 // เมื่ออัพเดทครบทุกรายการ
+//                 if (completed === totalUpdates) {
+//                     if (hasError) {
+//                         db.run('ROLLBACK');
+//                         res.json({
+//                             success: false,
+//                             message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล'
+//                         });
+//                     } else {
+//                         db.run('COMMIT');
+//                         console.log('✅ Inventory updated successfully');
+//                         res.json({
+//                             success: true,
+//                             message: 'บันทึกข้อมูลสำเร็จ'
+//                         });
+//                     }
+//                 }
+//             });
+//         });
+//     });
+// });
+
+// // GET - ค้นหาวัตถุดิบ
+// app.get('/inventory/search/:keyword', (req, res) => {
+//     const keyword = req.params.keyword;
+
+//     const query = `
+//         SELECT 
+//             ingredient_id,
+//             ingredient_name,
+//             stock_qty,
+//             unit,
+//             is_active
+//         FROM Ingredient
+//         WHERE ingredient_name LIKE ? AND is_active = 1
+//         ORDER BY ingredient_name ASC
+//     `;
+
+//     db.all(query, [`%${keyword}%`], (err, ingredients) => {
+//         if (err) {
+//             return res.json({
+//                 success: false,
+//                 message: 'เกิดข้อผิดพลาดในการค้นหา'
+//             });
+//         }
+
+//         res.json({
+//             success: true,
+//             data: ingredients
+//         });
+//     });
+// });
+
+// GET - แสดงหน้า Inventory
 app.get('/inventory', (req, res) => {
-    db.all("SELECT * FROM menu", [], (err, rows) => {
+    const sql = `SELECT * FROM Menu`;
+    db.all(sql, [], (err, rows) => {
         if (err) return res.send(err.message);
 
-        // แยกเครื่องดื่มกับเบเกอรี่
-        const drinks = rows
-            .filter(r => r.category === 'เครื่องดื่ม')
-            .map(r => ({
-                ...r,
-                is_active: !!r.is_active // แปลงเป็น true/false
-            }));
+        const bakery = rows.filter(r => r.category_id === 7);
+        const drinks = rows.filter(r => r.category_id !== 7);
 
-        const bakery = rows
-            .filter(r => r.category === 'เบเกอรี่')
-            .map(r => ({
-                ...r,
-                is_active: !!r.is_active
-            }));
+        drinks.forEach(d => d.is_available = !!d.is_available);
+        bakery.forEach(b => b.is_available = !!b.is_available);
 
         res.render('inventory', { drinks, bakery });
     });
 });
 
+// POST - เปิด/ปิดการขายเครื่องดื่ม
 app.post('/inventory/toggle/:id', (req, res) => {
     const menu_id = req.params.id;
-    const { is_active } = req.body; // boolean
+    const { is_available } = req.body;
 
-    const sql = `UPDATE Menu SET is_active = ? WHERE menu_id = ?`;
-
-    db.run(sql, [is_active ? 1 : 0, menu_id], function(err) {
-        if (err) {
-            console.error(err);
-            return res.json({ success: false });
-        }
+    const sql = `UPDATE Menu SET is_available = ? WHERE menu_id = ?`;
+    db.run(sql, [is_available ? 1 : 0, menu_id], function(err) {
+        if (err) return res.json({ success: false });
+        console.log(`Updated menu_id ${menu_id} -> is_available = ${is_available ? 1 : 0}`);
         res.json({ success: true });
     });
 });
 
+// POST - เพิ่ม/ลดจำนวนสต็อกเบเกอรี่
+app.post('/inventory/stock/:id', (req, res) => {
+    const menu_id = req.params.id;
+    const { change } = req.body;
 
+    const getQuery = `SELECT stock_qty FROM Menu WHERE menu_id = ?`;
+    db.get(getQuery, [menu_id], (err, row) => {
+        if (err || !row) return res.json({ success: false, message: 'ไม่พบสินค้า' });
 
+        const newStock = Math.max(0, (row.stock_qty || 0) + Number(change));
+        const updateQuery = `UPDATE Menu SET stock_qty = ? WHERE menu_id = ?`;
 
-// POST - บันทึกการอัพเดทสต็อก
-app.post('/inventory/save', (req, res) => {
-    const { products } = req.body;
-
-    if (!products || Object.keys(products).length === 0) {
-        return res.json({
-            success: false,
-            message: 'ไม่มีข้อมูลที่จะบันทึก'
-        });
-    }
-
-    db.serialize(() => {
-        db.run('BEGIN TRANSACTION');
-
-        let hasError = false;
-        let completed = 0;
-        const totalUpdates = Object.keys(products).length;
-
-        Object.keys(products).forEach(ingredientId => {
-            const product = products[ingredientId];
-
-            // อัพเดทสต็อก (เพิ่มจำนวน)
-            const updateQuery = `
-                UPDATE Ingredient 
-                SET stock_qty = stock_qty + ?
-                WHERE ingredient_id = ? AND is_active = 1
-            `;
-
-            db.run(updateQuery, [product.quantity, ingredientId], function(err) {
-                completed++;
-
-                if (err) {
-                    console.error('Update error:', err);
-                    hasError = true;
-                }
-
-                // เมื่ออัพเดทครบทุกรายการ
-                if (completed === totalUpdates) {
-                    if (hasError) {
-                        db.run('ROLLBACK');
-                        res.json({
-                            success: false,
-                            message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล'
-                        });
-                    } else {
-                        db.run('COMMIT');
-                        console.log('✅ Inventory updated successfully');
-                        res.json({
-                            success: true,
-                            message: 'บันทึกข้อมูลสำเร็จ'
-                        });
-                    }
-                }
-            });
+        db.run(updateQuery, [newStock, menu_id], function(err) {
+            if (err) return res.json({ success: false, message: 'อัปเดตจำนวนไม่สำเร็จ' });
+            console.log(`Updated menu_id ${menu_id} -> stock_qty = ${newStock}`);
+            res.json({ success: true, newStock });
         });
     });
 });
-
-// GET - ค้นหาวัตถุดิบ
-app.get('/inventory/search/:keyword', (req, res) => {
-    const keyword = req.params.keyword;
-
-    const query = `
-        SELECT 
-            ingredient_id,
-            ingredient_name,
-            stock_qty,
-            unit,
-            is_active
-        FROM Ingredient
-        WHERE ingredient_name LIKE ? AND is_active = 1
-        ORDER BY ingredient_name ASC
-    `;
-
-    db.all(query, [`%${keyword}%`], (err, ingredients) => {
-        if (err) {
-            return res.json({
-                success: false,
-                message: 'เกิดข้อผิดพลาดในการค้นหา'
-            });
-        }
-
-        res.json({
-            success: true,
-            data: ingredients
-        });
-    });
-});
-
-
 
 //listen
 app.listen(port, (req, res) => {
