@@ -49,7 +49,7 @@
                 </div>
 
                 <!-- Bakery Section -->
-                <div id="bakery-section" class="product-grid hidden">
+                <div id="bakery-section" class="product-grid" style="display: none;">
                     <% if (bakery && bakery.length > 0) { %>
                         <% bakery.forEach(item => { %>
                             <div class="product-card" onclick="selectItem('<%= item.menu_id %>', '<%= item.menu_name %>', 'bakery', <%= item.is_available %>, <%= item.stock_qty || 0 %>)">

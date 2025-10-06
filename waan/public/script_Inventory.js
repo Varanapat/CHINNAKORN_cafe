@@ -33,16 +33,29 @@ function clearSelection() {
 }
 
 // เปลี่ยนแท็บ เครื่องดื่ม ↔ เบเกอรี่
-document.querySelectorAll('.category-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
+document.addEventListener('DOMContentLoaded', function() {
+    const drinks = document.getElementById('drinks-section');
+    const bakery = document.getElementById('bakery-section');
 
-        const cat = this.dataset.category;
-        document.getElementById('drinks-section').classList.toggle('hidden', cat !== 'drinks');
-        document.getElementById('bakery-section').classList.toggle('hidden', cat !== 'bakery');
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            const cat = this.dataset.category;
+
+            // กำหนด display ชัดเจน
+            if (cat === 'drinks') {
+                drinks.style.display = 'grid';
+                bakery.style.display = 'none';
+            } else if (cat === 'bakery') {
+                drinks.style.display = 'none';
+                bakery.style.display = 'grid';
+            }
+        });
     });
 });
+
 
 // เปิด/ปิดการขายเครื่องดื่ม
 function toggleDrinkStatus(id, isAvailable) {
