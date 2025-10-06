@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chinakorn Cafe</title>
+    <link rel="shortcut icon" href="/pictures/logo.PNG" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+
+<style>
+    body {
+        background: #FBF8F1;
+        font-family: 'Prompt', sans-serif;
+        color: #483434;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    img {
+        width: 70px;
+        height: 70px;
+    }
+
+    h4 {
+        margin-top: 10px;
+    }
+
+    a {
+        text-decoration: none;
+        color: #483434;
+    }
+
+    .sidebar {
+        width: 18%;
+        background: #fff;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        border-right: 1px solid #ddd;
+        padding: 30px;
+    }
+
+    .bartop {
+        padding-top: 2%;
+        padding-bottom: 2%;
+        border-bottom: solid black 2px;
+    }
+
+    .content {
+        margin-left: 20%;
+        padding: 20px;
+    }
+
+    .order-card {
+        width: 280px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        padding: 10px;
+        margin: 10px;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .order-header {
+        font-weight: bold;
+        font-size: 5rem;
+    }
+
+    .order-id {
+        margin-top: 10px;
+        font-size: 0.9rem;
+    }
+
+    .order-time {
+        margin-top: 10px;
+        font-size: 0.9rem;
+    }
+
+    .order-type {
+        margin-top: 10px;
+        font-size: 0.9rem;
+    }
+
+    .menu-name {
+        margin-top: 10px;
+        font-size: 0.9rem;
+    }
+
+    .option-name {
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: rgba(0, 0, 128, 0.575);
+        text-indent: 5%;
+    }
+
+    .complete-btn {
+        width: 100%;
+        margin-top: 5%;
+    }
+</style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="text-center bartop pb-4">
+            <a href="/">
+            <h1>
+                <%= data.length %>
+            </h1>
+            <h4>Orders</h4>
+            </a>
+        </div>
+        <div class="bartop text-center py-4">
+            <a href="/inventory">
+            <img src="/pictures/package-box.PNG" alt="box">
+            <h4>Inventory</h4>
+            </a>
+        </div>
+    </div>
+
+    <div class="container orders-container content text-between">
+        <% if (data && data.length> 0) { %>
+            <% data.forEach(row=> { %>
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-id">
+                            <%= row.order_id %>
+                        </div>
+                        <div class="order-time">
+                            <%= row.order_time %>
+                        </div>
+                    </div>
+                    <div class="order-type">
+                        <%= row.order_type %>
+                    </div>
+                    <div class="menu-name">
+                        <%= row.quantity %>
+                        <%= row.menu_name %>
+                    </div>
+                    <div class="option-name">
+                        <%= row.option_name %>
+                    </div>
+                    <button class="complete-btn">เสร็จสิ้น</button>
+                </div>
+                <% }) %>
+                    <% } else { %>
+                        <p>ยังไม่มีออเดอร์</p>
+                        <% } %>
+    </div>
+</body>
+
+</html>
