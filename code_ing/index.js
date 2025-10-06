@@ -201,23 +201,6 @@ app.post("/add-to-cart", (req, res) => {
   });
 });
 
-app.get('/cart_customer' , (req,res) =>{
-  // res.send('Is this all you need : ',req.session.cart)
-  // res.send('Total Price : ',req.session.total)
-  // console.log('Is this all you need : ',req.session.cart)
-  // console.log('Total Price : ',req.session.total)
-  // res.send('You are on the cart views')
-  // res.render('cart' ,{data :req.session.cart})
-  const cart = req.session.cart || [];
-  const total = req.session.total || 0;
-  res.render("cart_for_customer", { cart, total });
-
-  // console.log('This is Cart menu',cart)
-
-
-
-  
-});
 
 
 app.get('/cart' , (req,res) =>{
@@ -232,8 +215,6 @@ app.get('/cart' , (req,res) =>{
   res.render("cart", { cart, total });
 
   // console.log('This is Cart menu',cart)
-
-
 
   
 });
@@ -269,31 +250,7 @@ app.get('/pay_qr', async (req, res) => {
 });
 
 
-// app.post("/update-cart", (req, res) => {
-//     const { menu_id, options, quantity } = req.body;
-//     const qty = Number(quantity);
 
-//     if (!req.session.cart) req.session.cart = [];
-
-//     const optionsStr = JSON.stringify(options);
-//     const existingItem = req.session.cart.find(
-//         item => item.menu_id === menu_id && JSON.stringify(item.options) === optionsStr
-//     );
-
-//     if (existingItem) {
-//         existingItem.quantity = qty;
-//         existingItem.totalPrice_forMenu = existingItem.unitPrice * existingItem.quantity;
-//     }
-
-//     // คำนวณ total
-//     req.session.total = req.session.cart.reduce((sum, item) => sum + item.totalPrice_forMenu, 0);
-
-//     res.json({ success: true, cart: req.session.cart, total: req.session.total });
-//     console.log("✅ session cart for updating cart:", req.session.cart);
-//     console.log("✅ session total for updating cart:", req.session.total);
-
-
-// });
 app.post("/update-cart", (req, res) => {
     const { menu_id, options, quantity } = req.body;
     const qty = Number(quantity);
@@ -301,6 +258,8 @@ app.post("/update-cart", (req, res) => {
     if (!req.session.cart) req.session.cart = [];
 
     const optionsStr = JSON.stringify(options);
+
+    console.log(optionsStr)
     const existingItemIndex = req.session.cart.findIndex(
         item => item.menu_id === menu_id && JSON.stringify(item.options) === optionsStr
     );
@@ -454,9 +413,9 @@ LEFT JOIN ItemOptionIngredient ioi
                     // ถ้า stock ไม่พอ → false
                     if (stock_qty < quantity) optionAvailability[key] = false;
                   });
-                console.log(check_option); // ตรวจสอบ
+                // console.log(check_option); // ตรวจสอบ
 
-                console.log(optionAvailability); // ตรวจสอบ
+                // console.log(optionAvailability); // ตรวจสอบ
           res.render('main_for_cashier', {
             cart,
             total,
@@ -606,9 +565,9 @@ LEFT JOIN ItemOptionIngredient ioi
                     // ถ้า stock ไม่พอ → false
                     if (stock_qty < quantity) optionAvailability[key] = false;
                   });
-                console.log(check_option); // ตรวจสอบ
+                // console.log(check_option); // ตรวจสอบ
 
-                console.log(optionAvailability); // ตรวจสอบ
+                // console.log(optionAvailability); // ตรวจสอบ
           res.render('main_for_customer', {
             cart,
             total,
@@ -627,6 +586,8 @@ LEFT JOIN ItemOptionIngredient ioi
     });
   });
 });
+
+
 
 
 app.get('/canceled_order', (req, res) => {
@@ -648,7 +609,277 @@ app.get('/confirm_order', (req, res) => {
   });
 });
 
+
+app.get('/canceled_order', (req, res) => {
+    req.session.cart = [];
+    req.session.total = 0;
+    res.redirect(`/main_for_cashier`);
+});
+
+
+// app.get("/cash/:amount", async (req, res) => {
+//   try {
+//     const cart = req.session.cart || [];
+//     console.log('From the start',cart)
+//     const total = req.session.total || 0;
+//     const amount = parseInt(req.params.amount, 10);
+//     const left = amount - total;
+
+//     // 🕒 สร้าง prefix วันที่ เช่น "20251005"
+//     const now = new Date();
+//     const datePrefix = now.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
+
+//     // 🔍 หาค่า order ล่าสุดของวันนั้น
+//     db.get(
+//       `SELECT order_id FROM "Order"
+//        WHERE order_id LIKE ?
+//        ORDER BY order_time DESC LIMIT 1`,
+//       [`${datePrefix}-%`],
+//       (err, row) => {
+//         if (err) {
+//           console.error("❌ Query last order error:", err);
+//           return res.status(500).send("เกิดข้อผิดพลาดในการอ่านเลขคำสั่งซื้อ");
+//         }
+
+//         // คำนวณเลข running ใหม่
+//         let nextNumber = 1;
+//         if (row && row.order_id) {
+//           const lastNum = parseInt(row.order_id.split("-")[1], 10);
+//           nextNumber = lastNum + 1;
+//         }
+
+//         // ✅ สร้าง order_id ใหม่ เช่น 20251005-003
+//         const orderId = `${datePrefix}-${String(nextNumber).padStart(3, "0")}`;
+
+//         // --- สร้าง order ใหม่ ---
+//         db.run(
+//           `INSERT INTO "Order" (order_id, total_price, order_type)
+//            VALUES (?, ?, 'TAKEAWAY')`,
+//           [orderId, total],
+//           function (err) {
+//             if (err) {
+//               console.error("❌ Insert order error:", err);
+//               return res.status(500).send("บันทึกคำสั่งซื้อไม่สำเร็จ");
+//             }
+
+//             // --- เพิ่มแต่ละเมนูเข้า OrderItem ---
+//             cart.forEach((item) => {
+//               db.run(
+//                 `INSERT INTO "OrderItem" (order_id, menu_id, quantity, price)
+//                  VALUES (?, ?, ?, ?)`,
+//                 [orderId, item.menu_id, item.quantity, item.unitPrice],
+//                 function (err2) {
+//                   if (err2)
+//                     console.error("❌ Insert order item error:", err2);
+
+//                   const orderItemId = this.lastID;
+
+//                   // ถ้ามี options
+//                   if (item.options && item.options.length > 0) {
+//                     // item.options.forEach((opt) => {
+//                     //   db.run(
+//                     //     `INSERT INTO "OrderItemOption" (order_item_id, option_id, extra_price)
+//                     //      VALUES (?, ?, ?)`,
+//                     //     [orderItemId, opt.option_id, opt.extra_price || 0],
+//                     //     (err3) => {
+//                     //       if (err3)
+//                     //         console.error("❌ Insert option error:", err3.message);
+//                     //     }
+//                     //   );
+//                     // });
+
+
+//                     const selectedOptions = item.options || [];
+//                       console.log("🧩 item.options:", selectedOptions);
+//                     console.log('asdasdasdasdasdsad',selectedOptions)
+//                     const cart = req.session.cart
+//                     console.log("🧠 req.session.cart ทั้งหมด:", cart);
+
+//                       selectedOptions.forEach(opt => {
+//                         db.get(
+//                           `SELECT option_id, extra_price FROM ItemOption WHERE option_name = ?`,
+//                           [opt.name],
+//                           (err, row) => {
+//                             if (err) {
+//                               console.error("❌ Error finding option:", err.message);
+//                             } else if (row) {
+//                               const finalExtra = opt.extra || row.extra_price || 0; // ถ้า extra จาก frontend ไม่ว่าง จะใช้ค่านั้นแทน
+//                               db.run(
+//                                 `INSERT INTO "OrderItemOption" (order_item_id, option_id, extra_price)
+//                                 VALUES (?, ?, ?)`,
+//                                 [orderItemId, row.option_id, finalExtra],
+//                                 (err2) => {
+//                                   if (err2) console.error("❌ Insert option error:", err2.message);
+//                                 }
+//                               );
+//                             } else {
+//                               console.warn("ไม่พบ option ในฐานข้อมูล:", opt.name);
+//                             }
+//                           }
+//                         );
+//                       });
+//                   }
+//                 }
+//               );
+//             });
+
+//             // --- เคลียร์ตะกร้าใน session ---
+//             req.session.cart = [];
+//             req.session.total = 0;
+
+//             // --- แสดงผลในหน้าชำระเงินสำเร็จ ---
+//             res.render("payment_success", {
+//               total,
+//               left,
+//               orderId,
+//             });
+
+//             console.log("✅ Order saved:", orderId);
+//           }
+//         );
+//       }
+//     );
+//   } catch (err) {
+//     console.error("❌ Error inserting order:", err);
+//     res.status(500).send("เกิดข้อผิดพลาดระหว่างบันทึกข้อมูลคำสั่งซื้อ");
+//   }
+// });
+
+
+
+
+
+
+
 //listen
+
+app.get("/cash/:amount", async (req, res) => {
+  try {
+    const cart = req.session.cart || [];
+    const total = req.session.total || 0;
+    const amount = parseInt(req.params.amount, 10);
+    const left = amount - total;
+
+    console.log("🛒 เริ่มบันทึกคำสั่งซื้อ, ตะกร้าปัจจุบัน:", JSON.stringify(cart, null, 2));
+
+    if (cart.length === 0) {
+      return res.status(400).send("ไม่มีสินค้าในตะกร้า");
+    }
+
+    // 🕒 สร้าง prefix วันที่ เช่น 20251006
+    const now = new Date();
+    const datePrefix = now.toISOString().slice(0, 10).replace(/-/g, "");
+
+    // 🔍 หาคำสั่งซื้อสุดท้ายของวันเดียวกัน
+    db.get(
+  `SELECT order_id FROM "Order"
+   WHERE order_id LIKE ?
+   ORDER BY order_id DESC LIMIT 1`,
+  [`${datePrefix}-%`],
+  (err, row) => {
+    if (err) {
+      console.error("❌ Query last order error:", err);
+      return res.status(500).send("เกิดข้อผิดพลาดในการอ่านเลขคำสั่งซื้อ");
+    }
+
+    let nextNumber = 1;
+    if (row && row.order_id) {
+      const lastNum = parseInt(row.order_id.split("-")[1], 10);
+      nextNumber = lastNum + 1;
+    }
+
+    const orderId = `${datePrefix}-${String(nextNumber).padStart(3, "0")}`;
+    console.log("🆕 สร้าง orderId:", orderId);
+
+    db.run(
+      `INSERT INTO "Order" (order_id, total_price, order_type)
+       VALUES (?, ?, 'TAKEAWAY')`,
+      [orderId, total],
+      function (err) {
+        if (err) {
+          console.error("❌ Insert order error:", err);
+          return res.status(500).send("บันทึกคำสั่งซื้อไม่สำเร็จ");
+        }
+
+            // --- บันทึกเมนูแต่ละรายการในตะกร้า ---
+            cart.forEach((item) => {
+              db.run(
+                `INSERT INTO "OrderItem" (order_id, menu_id, quantity, price)
+                 VALUES (?, ?, ?, ?)`,
+                [orderId, item.menu_id, item.quantity, item.unitPrice],
+                function (err2) {
+                  if (err2) {
+                    console.error("❌ Insert order item error:", err2);
+                    return;
+                  }
+
+                  const orderItemId = this.lastID;
+                  console.log(`📦 เพิ่มเมนู ${item.menu_name} (order_item_id=${orderItemId})`);
+
+                  // --- ถ้ามี options ---
+                  if (item.options && item.options.length > 0) {
+                    console.log(`🧩 เมนู ${item.menu_name} มี options:`, item.options);
+
+                    item.options.forEach((opt) => {
+                      db.get(
+                        `SELECT option_id, extra_price FROM ItemOption WHERE option_name = ?`,
+                        [opt.name],
+                        (err3, row2) => {
+                          if (err3) {
+                            console.error("❌ Error finding option:", err3.message);
+                            return;
+                          }
+
+                          if (row2) {
+                            const finalExtra = opt.extra || row2.extra_price || 0;
+                            db.run(
+                              `INSERT INTO "OrderItemOption" (order_item_id, option_id, extra_price)
+                               VALUES (?, ?, ?)`,
+                              [orderItemId, row2.option_id, finalExtra],
+                              (err4) => {
+                                if (err4) {
+                                  console.error("❌ Insert option error:", err4.message);
+                                } else {
+                                  console.log(
+                                    `✅ เพิ่ม option '${opt.name}' (option_id=${row2.option_id}) extra=${finalExtra}`
+                                  );
+                                }
+                              }
+                            );
+                          } else {
+                            console.warn("⚠️ ไม่พบ option ในฐานข้อมูล:", opt.name);
+                          }
+                        }
+                      );
+                    });
+                  }
+                }
+              );
+            });
+
+            // --- เคลียร์ session หลังบันทึกเสร็จ ---
+            req.session.cart = [];
+            req.session.total = 0;
+
+            // --- แสดงหน้า payment_success ---
+            res.render("payment_success", {
+              total,
+              left,
+              orderId,
+            });
+
+            console.log("✅ บันทึกคำสั่งซื้อสำเร็จ:", orderId);
+          }
+        );
+      }
+    );
+  } catch (err) {
+    console.error("❌ Error inserting order:", err);
+    res.status(500).send("เกิดข้อผิดพลาดระหว่างบันทึกข้อมูลคำสั่งซื้อ");
+  }
+});
+
+
 app.listen(port, (req, res) => {
     console.log(`Starting on port ${port}`)
 })

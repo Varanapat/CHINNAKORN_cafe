@@ -148,6 +148,9 @@
   </style>
 </head>
 <body>
+  <div class="header">
+        <a href="confirm_order">&#11013;</a>
+    </div>
   <div class="page">
     <div class="title">ข้อมูลการชำระเงิน</div>
     <div class="main">
@@ -186,8 +189,8 @@
 
     <!-- ปุ่ม -->
     <div class="btns">
-      <a href="/" class="btn btn-back">กลับหน้าแรก</a>
-      <a href="/cancel" class="btn btn-cancel">ยกเลิกคำสั่งซื้อ</a>
+      <a href="/cash/<%=amount%>" class="btn btn-back">กลับหน้าแรก</a>
+      <a href="/canceled_order" class="btn btn-cancel">ยกเลิกคำสั่งซื้อ</a>
     </div>
   </div>
 </body>

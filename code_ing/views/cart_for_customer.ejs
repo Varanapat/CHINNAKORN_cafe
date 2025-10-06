@@ -1,132 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ตะกร้าสินค้า</title>
-    <link rel="stylesheet" href="/style_cart.css">
-<style>
-    /* ไอคอนตะกร้า */
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ตะกร้าสินค้า</title>
+  <style>
     .cart-icon {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        cursor: pointer;
-        font-size: 28px;
-        z-index: 1001;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      cursor: pointer;
+      font-size: 28px;
+      z-index: 1001;
     }
-
-    /* modal overlay */
     .modal {
-        display: none; /* ซ่อนก่อน */
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: auto;
-        background-color: rgba(0,0,0,0.4);
-        justify-content: flex-end; /* ปรับให้ modal ด้านล่าง */
-        align-items: flex-end;
-        z-index: 1000;
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.4);
+      justify-content: flex-end;
+      align-items: flex-end;
+      z-index: 1000;
     }
-
-    /* modal content แบบ bottom sheet */
     .modal-content {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 16px 16px 0 0; /* มุมบนโค้ง */
-        width: 90%;
-        /* max-width: 500px; */
-        max-height: 60vh; /* สูงสุดประมาณ 60% ของจอ */
-        overflow-y: auto;
-        position: fixed;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 16px 16px 0 0;
+      width: 90%;
+      max-height: 60vh;
+      overflow-y: auto;
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
     }
-
     .close-btn {
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        cursor: pointer;
-        font-size: 24px;
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      cursor: pointer;
+      font-size: 24px;
     }
-
-    #cart-list img {
-        width: 50px;
-        height: 50px;
-        object-fit: cover;
-    }
-
-    #cart-list li {
-        margin-bottom: 10px;
-        border-bottom: 1px solid #ccc;
-        padding-bottom: 5px;
-    }
-</style>
+  </style>
 </head>
 <body>
+  <div class="cart-icon" id="cart-icon">🛒</div>
 
-<!-- ไอคอนตะกร้า -->
-<div class="cart-icon" id="cart-icon">🛒</div>
-
-<!-- Modal -->
-<div class="modal" id="cart-modal">
+  <div class="modal" id="cart-modal">
     <div class="modal-content">
-        <span class="close-btn" id="close-modal">&times;</span>
-        <h2>ตะกร้าสินค้า</h2>
-
-        <% if (cart.length === 0) { %>
-            <p>ยังไม่มีสินค้าในตะกร้า</p>
-        <% } else { %>
-            <ul id="cart-list">
-                <% cart.forEach((item, index) => { %>
-                    <li data-menu-id="<%= item.menu_id %>" data-options='<%= JSON.stringify(item.options) %>'>
-                        <img class="img" src="/picture/<%= item.menu_image %>" alt="<%= item.menu_name %>">
-                        <strong><%= item.menu_name %></strong><br>
-                        จำนวน: 
-                        <button type="button" class="qty-btn minus">&minus;</button>
-                        <span class="qty"><%= item.quantity %></span>
-                        <button type="button" class="qty-btn plus">&plus;</button>
-                        | ราคา/ชิ้น: <%= item.unitPrice %> | รวม: <span class="totalPrice"><%= item.totalPrice_forMenu %></span>
-                        <br>
-                        ตัวเลือก: 
-                        <%= item.options.map(opt => opt.name + (opt.extra && opt.extra > 0 ? ` (+${opt.extra})` : "")).join(" | ") %>
-                    </li>
-                <% }) %>
-            </ul>
-            <!-- <p>รวมทั้งหมด: <span id="cart-total"><%= total %></span> บาท</p> -->
-        <% } %>
-
-        <a href="/confirm_order">ยืนยันคำสั่งซื้อ</a> | 
-        <a href="/canceled_order">ยกเลิกคำสั่งซื้อ</a>
+      <span class="close-btn" id="close-modal">&times;</span>
+      <h2>ตะกร้าสินค้า</h2>
+      <% if (cart.length === 0) { %>
+        <p>ยังไม่มีสินค้าในตะกร้า</p>
+      <% } else { %>
+        <ul id="cart-list">
+          <% cart.forEach((item) => { %>
+            <li><%= item.menu_name %> x <%= item.quantity %></li>
+          <% }) %>
+        </ul>
+      <% } %>
     </div>
-</div>
-
-<script>
-    const cartIcon = document.getElementById('cart-icon');
-    const modal = document.getElementById('cart-modal');
-    const closeBtn = document.getElementById('close-modal');
-
-    // เปิด modal
-    cartIcon.addEventListener('click', () => {
-        modal.style.display = 'block';
-    });
-
-    // ปิด modal
-    closeBtn.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-
-    // คลิกรอบ ๆ modal ปิด
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-</script>
-<script src="/script_cart.js"></script>
+  </div>
 </body>
 </html>

@@ -145,6 +145,32 @@
         position: absolute;
         color: #000;
     }
+
+
+
+  .amount-buttons button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .cash.active {
+    background-color: #4CAF50;
+    color: white;
+  }
+
+  .amount-buttons a.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    text-decoration: none;
+    cursor: not-allowed;
+  }
+
+  .cash.active {
+    background-color: #4CAF50;
+    color: white;
+  }
+
+
   </style>
 </head>
 <body>
@@ -205,19 +231,77 @@
         
         <button class="cash">เงินสด</button>
         <!-- <button class="qr">QR พร้อมเพย์</button> -->
-        <a href="/pay_qr">QR พร้อมเพย์</a>
+        <a class="qr" href="/pay_qr">QR พร้อมเพย์</a>
       </div>
 
-      <p>ชำระ (<%= total %>)</p>
-      <div class="amount-buttons">
-        <button><%= total %></button>
-        <button>400</button>
-        <button>500</button>
-        <button>1000</button>
-      </div>
+     <p>ชำระ (<%= total %>)</p>
+    <div class="amount-buttons">
+      <%
+        function roundUpExclusive(value, base, excludeList = []) {
+          let result = (value % base === 0) ? value + base : Math.ceil(value / base) * base;
+          while (excludeList.includes(result)) {
+            result += base;
+          }
+          return result;
+        }
 
-      <button class="custom-btn">กำหนดเอง</button>
+        const total1 = roundUpExclusive(total, 10);
+        const total2 = roundUpExclusive(total, 50, [total1]);
+        const total3 = roundUpExclusive(total, 100, [total1, total2]);
+      %>
+
+      <a href="/cash/<%= total %>"><%= total %></a>
+      <a href="/cash/<%= total1 %>"><%= total1 %></a>
+      <a href="/cash/<%= total2 %>"><%= total2 %></a>
+      <a href="/cash/<%= total3 %>"><%= total3 %></a>
+      <a href="/cash/12200">กำหนดเอง</a>
+    </div>
     </div>
   </div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const cashButton = document.querySelector(".cash");
+    const qrLink = document.querySelector(".qr");
+    const amountLinks = document.querySelectorAll(".amount-buttons a");
+
+    let cashEnabled = false;
+
+    // ปิดลิงก์โดยการดัก event ไว้ก่อน
+    amountLinks.forEach((link) => {
+      link.addEventListener("click", function (e) {
+        if (!cashEnabled) {
+          e.preventDefault(); // ปิดไม่ให้ลิงก์ทำงาน
+          alert("กรุณาเลือก 'เงินสด' ก่อนทำรายการ");
+        }
+      });
+
+      // เพิ่ม class เพื่อทำให้ดู disabled (ถ้าต้องการ)
+      link.classList.add("disabled");
+    });
+
+    // เมื่อคลิกเงินสด ให้เปิดการใช้งานลิงก์
+    cashButton.addEventListener("click", function () {
+      cashEnabled = true;
+
+      amountLinks.forEach((link) => {
+        link.classList.remove("disabled");
+      });
+
+      cashButton.classList.add("active");
+    });
+
+    // ถ้าคลิก QR พร้อมเพย์ ให้ปิดการใช้งานลิงก์อีกครั้ง
+    qrLink.addEventListener("click", function () {
+      cashEnabled = false;
+
+      amountLinks.forEach((link) => {
+        link.classList.add("disabled");
+      });
+
+      cashButton.classList.remove("active");
+    });
+  });
+</script>
+
 </body>
 </html>
