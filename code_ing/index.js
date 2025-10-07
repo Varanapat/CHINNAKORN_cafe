@@ -13,12 +13,48 @@ app.use(express.urlencoded({ extended: true }));
 
 // // session
 const session = require('express-session');
+
 app.use(session({
     secret: 'your-secret-key',
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false }
 }));
+
+
+
+// // สำหรับ cashier
+// const cashierStore = new session.MemoryStore();
+// const cashierSession = session({
+//   name: 'cashier_sid',           // ชื่อ cookie แยก
+//   secret: 'cashier-secret-key',
+//   resave: false,
+//   saveUninitialized: true,
+//   store: cashierStore,
+//   cookie: { path: '/main_for_cashier', secure: false }
+// });
+
+// // สำหรับ customer
+// const customerStore = new session.MemoryStore();
+// const customerSession = session({
+//   name: 'customer_sid',          // ชื่อ cookie แยก
+//   secret: 'customer-secret-key',
+//   resave: false,
+//   saveUninitialized: true,
+//   store: customerStore,
+//   cookie: { path: '/main_for_customer', secure: false }
+// });
+
+
+// app.use('/main_for_cashier', cashierSession);
+// app.use('/add-to-cart', cashierSession);
+// app.use('/update-cart', cashierSession);
+
+// app.use('/main_for_customer', customerSession);
+// app.use('/add-to-cart-customer', customerSession);
+// app.use('/update-cart-customer', cashierSession);
+
+
 
 // const dbPath = path.join(__dirname, 'Database', 'CHINNAKORN_blueprint.db');
 const dbPath = path.join(__dirname, 'Database', 'CHINNAKORN_cafe_TH.db');
@@ -880,6 +916,10 @@ app.get("/cash/:amount", async (req, res) => {
 });
 
 
-app.listen(port, (req, res) => {
-    console.log(`Starting on port ${port}`)
-})
+// app.listen(port, (req, res) => {
+//     console.log(`Starting on port ${port}`)
+// })
+
+
+app.listen(3000, () => console.log('Cashier running on port 3000'));
+app.listen(4000, () => console.log('Customer running on port 4000'));

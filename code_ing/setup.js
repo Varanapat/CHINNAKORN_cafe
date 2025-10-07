@@ -10,7 +10,7 @@ try {
   execSync("npm init -y", { stdio: "inherit" });
 
   console.log("Installing dependencies...");
-  execSync("npm install promptpay-qr qrcode express ejs express-session cookie-parser", { stdio: "inherit" });
+  execSync("npm install promptpay-qr qrcode express ejs express-session cookie-parser nodemon sqlite3", { stdio: "inherit" });
 
   console.log("✅ Setup completed successfully!");
 } catch (err) {
