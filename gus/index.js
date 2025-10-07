@@ -2,7 +2,11 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
+const http = require("http");
+const { Server } = require("socket.io");
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 const PORT = 3000;
 
 
@@ -29,21 +33,25 @@ app.get('/', function (req, res) {
     const query = `
         SELECT 
             o.order_id,
-            time(o.order_time) AS order_time, 
-            o.order_type, 
-            oi.quantity, 
-            m.menu_name, 
-            i.option_name
+            time(o.order_time) AS order_time,
+            o.order_type,
+            json_group_array(
+                json_object(
+                    'quantity', oi.quantity,
+                    'menu_name', m.menu_name,
+                    'option_name', i.option_name
+                )
+            ) AS items
         FROM Orders o
-        LEFT JOIN OrderItem oi
-            ON oi.order_id = o.order_id
-        LEFT JOIN Menu m
-            ON oi.menu_id = m.menu_id
-        LEFT JOIN OrderItemOption oip
-            ON oip.order_item_id = oi.order_item_id
-        LEFT JOIN ItemOption i
-            ON i.option_id = oip.option_id
+        LEFT JOIN OrderItem oi 
+        ON oi.order_id = o.order_id
+        LEFT JOIN Menu m 
+        ON oi.menu_id = m.menu_id
+        LEFT JOIN OrderItemOption oip 
+        ON oip.order_item_id = oi.order_item_id
+        LEFT JOIN ItemOption i ON i.option_id = oip.option_id
         WHERE m.category_id != 7
+        GROUP BY o.order_id
         ORDER BY o.order_time
     `;
 
@@ -56,25 +64,44 @@ app.get('/', function (req, res) {
 });
 
 
+//จำลอง event เมื่อมีออเดอร์ใหม่ (ในของจริงจะเรียกตอน insert)
+app.post("/new-order", (req, res) => {
+    const newOrder = { order_id: Date.now(), menu_name: "Latte" };
+    io.emit("newOrder", newOrder); // แจ้งทุก client
+    res.json({ success: true });
+});
+
+
+// Socket.io เชื่อมต่อ
+io.on("connection", (socket) => {
+    console.log("Client connected:", socket.id);
+});
+
+
+// แสดงออเดอร์ทั้งหมด
 app.get('/inventory', function (req, res) {
     const query = `
         SELECT 
             o.order_id,
-            time(o.order_time) AS order_time, 
-            o.order_type, 
-            oi.quantity, 
-            m.menu_name, 
-            i.option_name
+            time(o.order_time) AS order_time,
+            o.order_type,
+            json_group_array(
+                json_object(
+                    'quantity', oi.quantity,
+                    'menu_name', m.menu_name,
+                    'option_name', i.option_name
+                )
+            ) AS items
         FROM Orders o
-        LEFT JOIN OrderItem oi
-            ON oi.order_id = o.order_id
-        LEFT JOIN Menu m
-            ON oi.menu_id = m.menu_id
-        LEFT JOIN OrderItemOption oip
-            ON oip.order_item_id = oi.order_item_id
-        LEFT JOIN ItemOption i
-            ON i.option_id = oip.option_id
+        LEFT JOIN OrderItem oi 
+        ON oi.order_id = o.order_id
+        LEFT JOIN Menu m 
+        ON oi.menu_id = m.menu_id
+        LEFT JOIN OrderItemOption oip 
+        ON oip.order_item_id = oi.order_item_id
+        LEFT JOIN ItemOption i ON i.option_id = oip.option_id
         WHERE m.category_id != 7
+        GROUP BY o.order_id
         ORDER BY o.order_time
     `;
 
@@ -87,22 +114,7 @@ app.get('/inventory', function (req, res) {
 });
 
 
-// endpoint mark เสร็จสิ้น (ลบออเดอร์)
-// app.post('/orders/complete/:id', (req, res) => {
-//   const id = req.params.id;
-
-//   db.run(`DELETE FROM order_items WHERE order_id = ?`, [id], function(err) {
-//     if (err) return res.json({ success: false, error: err.message });
-
-//     db.run(`DELETE FROM orders WHERE id = ?`, [id], function(err) {
-//       if (err) return res.json({ success: false, error: err.message });
-//       res.json({ success: true });
-//     });
-//   });
-// });
-
-
 // Start server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });

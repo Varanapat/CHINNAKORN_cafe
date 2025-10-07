@@ -41,116 +41,231 @@
         left: 0;
         border-right: 1px solid #ddd;
         padding: 30px;
+        z-index: 1000;
     }
 
     .bartop {
         padding-top: 2%;
         padding-bottom: 2%;
-        border-bottom: solid black 2px;
+        border-bottom: solid #483434 2px;
     }
 
     .content {
         margin-left: 20%;
         padding: 20px;
+        display: flex;
+        flex-direction: row;
+        gap: 25px;
+        white-space: nowrap;
+        flex-wrap: wrap;
     }
 
     .order-card {
+        flex: 0 0 auto;
         width: 280px;
         background: #fff;
         border-radius: 10px;
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 3px 6px #483434;
         padding: 10px;
-        margin: 10px;
-        display: inline-block;
-        vertical-align: top;
+        margin: 10px 0;
     }
 
     .order-header {
         font-weight: bold;
         font-size: 5rem;
+        background-color: #5682b1;
+        width: 100%;
+        color: white;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
     }
 
     .order-id {
-        margin-top: 10px;
         font-size: 0.9rem;
     }
 
     .order-time {
-        margin-top: 10px;
         font-size: 0.9rem;
     }
 
     .order-type {
-        margin-top: 10px;
         font-size: 0.9rem;
+        border-bottom: solid #483434 1px;
     }
 
     .menu-name {
-        margin-top: 10px;
         font-size: 0.9rem;
     }
 
     .option-name {
-        margin-top: 10px;
         font-size: 0.9rem;
         color: rgba(0, 0, 128, 0.575);
         text-indent: 5%;
     }
 
-    .complete-btn {
+    .menuqua {
+        text-indent: 5%;
+    }
+
+    .bgqua {
+        background-color: #483434;
+        color: white;
+    }
+
+    .btn {
         width: 100%;
-        margin-top: 5%;
+        height: 100%;
+        margin-bottom: 3%;
+        background-color: #5682b1;
+        color: white;
+    }
+
+    .chinnakorn {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-30deg);
+        font-size: 5rem;
+        color: rgba(0, 0, 0, 0.05);
+        pointer-events: none;
+        z-index: 0;
+        user-select: none;
+        white-space: nowrap;
     }
 </style>
 </head>
 
 <body>
+    <p class="chinnakorn">CHINNAKORN CAFE</p>
     <div class="sidebar">
         <div class="text-center bartop pb-4">
             <a href="/">
-            <h1>
-                <%= data.length %>
-            </h1>
-            <h4>Orders</h4>
+                <h1>
+                    <% if (data && data.length) { %>
+                        <%= data.length %>
+                            <% } else { %>
+                                0
+                                <% } %>
+                </h1>
+                <h4>Orders</h4>
             </a>
         </div>
         <div class="bartop text-center py-4">
             <a href="/inventory">
-            <img src="/pictures/package-box.PNG" alt="box">
-            <h4>Inventory</h4>
+                <img src="/pictures/package-box.PNG" alt="box">
+                <h4>Inventory</h4>
             </a>
         </div>
     </div>
 
-    <div class="container orders-container content text-between">
+    <div class="container content text-between">
         <% if (data && data.length> 0) { %>
             <% data.forEach(row=> { %>
-                <div class="order-card">
-                    <div class="order-header">
+                <div class="order-card card">
+                    <div class="card-body order-header">
                         <div class="order-id">
-                            <%= row.order_id %>
+                            <h3>
+                                <%= row.order_id %>
+                            </h3>
                         </div>
                         <div class="order-time">
-                            <%= row.order_time %>
+                            <h5>
+                                <%= row.order_time %>
+                            </h5>
                         </div>
                     </div>
-                    <div class="order-type">
-                        <%= row.order_type %>
+                    <div class="card-body order-type">
+                        <h5>
+                            <%= row.order_type %>
+                        </h5>
                     </div>
-                    <div class="menu-name">
-                        <%= row.quantity %>
-                        <%= row.menu_name %>
+                    <div class="card-body order-details d-flex flex-column">
+                        <% JSON.parse(row.items).forEach(item=> { %>
+                            <div class="d-flex">
+                                <h6 class="bgqua px-1">
+                                    <%= item.quantity %>
+                                </h6>
+                                <h6 class="menuqua">
+                                    <%= item.menu_name %>
+                                </h6>
+                            </div>
+                            <% if (item.option_name) { %>
+                                <div class="option-name">
+                                    <h6>
+                                        <%= item.option_name %>
+                                    </h6>
+                                </div>
+                                <% } %>
+                                    <% }) %>
                     </div>
-                    <div class="option-name">
-                        <%= row.option_name %>
+                    <div class="card-footer text-center bg-white p-0 border-0">
+                        <button class="btn ">เสร็จสิ้น</button>
                     </div>
-                    <button class="complete-btn">เสร็จสิ้น</button>
                 </div>
                 <% }) %>
                     <% } else { %>
-                        <p>ยังไม่มีออเดอร์</p>
                         <% } %>
     </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        function updateOrderCount() {
+            const countElement = document.querySelector(".sidebar h1");
+            const orderCards = document.querySelectorAll(".order-card");
+            countElement.textContent = orderCards.length;
+        }
+
+        // ฟังก์ชันลบการ์ดเมื่อกดปุ่มเสร็จสิ้น
+        function addCompleteListener(card) {
+            const btn = card.querySelector('.btn');
+            btn.addEventListener('click', () => {
+                // แสดง pop-up ยืนยัน
+                const confirmDelete = confirm("ยืนยันเสร็จสิ้นออเดอร์? เมื่อยืนยันจะไม่สามารถย้อนกลับได้");
+                if (confirmDelete) {
+                    card.remove();       // ลบการ์ดออกจาก DOM
+                    updateOrderCount();  // อัปเดตจำนวนออเดอร์
+                }
+            });
+        }
+
+        // สำหรับออเดอร์ที่โหลดจาก server ตอนแรก
+        document.querySelectorAll('.order-card').forEach(card => {
+            addCompleteListener(card);
+        });
+
+        // สำหรับออเดอร์ใหม่ที่มาจาก socket
+        socket.on("newOrder", (order) => {
+            const container = document.querySelector(".content");
+
+            const card = document.createElement("div");
+            card.className = "order-card card";
+
+            card.innerHTML = `
+            <div class="card-body order-header">
+                <div class="order-id"><h3>${order.order_id}</h3></div>
+                <div class="order-time"><h5>${order.order_time || '–'}</h5></div>
+            </div>
+            <div class="card-body order-type"><h5>${order.order_type || '–'}</h5></div>
+            <div class="card-body order-details d-flex flex-column">
+                <div class="d-flex">
+                    <h6 class="bgqua px-1">${order.quantity || 1}</h6>
+                    <h6 class="menuqua">${order.menu_name}</h6>
+                </div>
+                ${order.option_name ? `<div class="option-name"><h6>${order.option_name}</h6></div>` : ''}
+            </div>
+            <div class="card-footer text-center bg-white p-0 border-0">
+                <button class="btn">เสร็จสิ้น</button>
+            </div>
+        `;
+
+            container.append(card);
+            addCompleteListener(card); // เพิ่ม listener ให้ปุ่มใหม่
+            updateOrderCount();
+        });
+    </script>
+
 </body>
 
 </html>
