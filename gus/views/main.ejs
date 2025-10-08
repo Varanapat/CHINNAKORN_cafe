@@ -8,131 +8,14 @@
     <link rel="shortcut icon" href="/pictures/logo.PNG" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="/style_main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bungee&family=Cormorant+Unicase:wght@300;400;500;600;700&family=Inknut+Antiqua:wght@300;400;500;600;700;800;900&family=Mitr:wght@200;300;400;500;600;700&family=Noto+Serif+Thai:wght@100..900&family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
+        rel="stylesheet">
 </head>
 
-<style>
-    body {
-        background: #FBF8F1;
-        font-family: 'Prompt', sans-serif;
-        color: #483434;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    img {
-        width: 70px;
-        height: 70px;
-    }
-
-    h4 {
-        margin-top: 10px;
-    }
-
-    a {
-        text-decoration: none;
-        color: #483434;
-    }
-
-    .sidebar {
-        width: 18%;
-        background: #fff;
-        height: 100vh;
-        position: fixed;
-        top: 0;
-        left: 0;
-        border-right: 1px solid #ddd;
-        padding: 30px;
-        z-index: 1000;
-    }
-
-    .bartop {
-        padding-top: 2%;
-        padding-bottom: 2%;
-        border-bottom: solid #483434 2px;
-    }
-
-    .content {
-        margin-left: 20%;
-        padding: 20px;
-        display: flex;
-        flex-direction: row;
-        gap: 25px;
-        white-space: nowrap;
-        flex-wrap: wrap;
-    }
-
-    .order-card {
-        flex: 0 0 auto;
-        width: 280px;
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 3px 6px #483434;
-        padding: 10px;
-        margin: 10px 0;
-    }
-
-    .order-header {
-        font-weight: bold;
-        font-size: 5rem;
-        background-color: #5682b1;
-        width: 100%;
-        color: white;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-    }
-
-    .order-id {
-        font-size: 0.9rem;
-    }
-
-    .order-time {
-        font-size: 0.9rem;
-    }
-
-    .order-type {
-        font-size: 0.9rem;
-        border-bottom: solid #483434 1px;
-    }
-
-    .menu-name {
-        font-size: 0.9rem;
-    }
-
-    .option-name {
-        font-size: 0.9rem;
-        color: rgba(0, 0, 128, 0.575);
-        text-indent: 5%;
-    }
-
-    .menuqua {
-        text-indent: 5%;
-    }
-
-    .bgqua {
-        background-color: #483434;
-        color: white;
-    }
-
-    .btn {
-        width: 100%;
-        height: 100%;
-        margin-bottom: 3%;
-        background-color: #5682b1;
-        color: white;
-    }
-
-    .chinnakorn {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(-30deg);
-        font-size: 5rem;
-        color: rgba(0, 0, 0, 0.05);
-        pointer-events: none;
-        z-index: 0;
-        user-select: none;
-        white-space: nowrap;
-    }
-</style>
 </head>
 
 <body>
@@ -140,20 +23,20 @@
     <div class="sidebar">
         <div class="text-center bartop pb-4">
             <a href="/">
-                <h1>
+                <h1 class="cormorant">
                     <% if (data && data.length) { %>
                         <%= data.length %>
                             <% } else { %>
                                 0
                                 <% } %>
                 </h1>
-                <h4>Orders</h4>
+                <h4 class="cormorant">Orders</h4>
             </a>
         </div>
         <div class="bartop text-center py-4">
             <a href="/inventory">
                 <img src="/pictures/package-box.PNG" alt="box">
-                <h4>Inventory</h4>
+                <h4 class="cormorant">Inventory</h4>
             </a>
         </div>
     </div>
@@ -199,7 +82,7 @@
                                     <% }) %>
                     </div>
                     <div class="card-footer text-center bg-white p-0 border-0">
-                        <button class="btn ">เสร็จสิ้น</button>
+                        <button class="btn">Confirm</button>
                     </div>
                 </div>
                 <% }) %>
@@ -222,7 +105,7 @@
             const btn = card.querySelector('.btn');
             btn.addEventListener('click', () => {
                 // แสดง pop-up ยืนยัน
-                const confirmDelete = confirm("ยืนยันเสร็จสิ้นออเดอร์? เมื่อยืนยันจะไม่สามารถย้อนกลับได้");
+                const confirmDelete = confirm("Confirm order completion? Once confirmed, this action cannot be undone.");
                 if (confirmDelete) {
                     card.remove();       // ลบการ์ดออกจาก DOM
                     updateOrderCount();  // อัปเดตจำนวนออเดอร์

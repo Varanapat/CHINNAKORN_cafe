@@ -78,9 +78,9 @@ io.on("connection", (socket) => {
 });
 
 
-// แสดงออเดอร์ทั้งหมด
-app.get('/inventory', function (req, res) {
-    const query = `
+app.get('/inventory', (req, res) => {
+    // Query ออเดอร์
+    const orderQuery = `
         SELECT 
             o.order_id,
             time(o.order_time) AS order_time,
@@ -94,24 +94,103 @@ app.get('/inventory', function (req, res) {
             ) AS items
         FROM Orders o
         LEFT JOIN OrderItem oi 
-        ON oi.order_id = o.order_id
+            ON oi.order_id = o.order_id
         LEFT JOIN Menu m 
-        ON oi.menu_id = m.menu_id
+            ON oi.menu_id = m.menu_id
         LEFT JOIN OrderItemOption oip 
-        ON oip.order_item_id = oi.order_item_id
-        LEFT JOIN ItemOption i ON i.option_id = oip.option_id
+            ON oip.order_item_id = oi.order_item_id
+        LEFT JOIN ItemOption i 
+            ON i.option_id = oip.option_id
         WHERE m.category_id != 7
         GROUP BY o.order_id
         ORDER BY o.order_time
     `;
 
-    db.all(query, (err, rows) => {
-        if (err) {
-            console.log(err.message);
-        }
-        res.render('inventory', { data: rows });
+    // Query เมนู
+    const menuQuery = `SELECT * FROM Menu`;
+
+    // รัน query ออเดอร์ก่อน
+    db.all(orderQuery, (err, data) => {
+        if (err) return res.send(err.message);
+
+        // รัน query เมนู
+        db.all(menuQuery, (err, menus) => {
+            if (err) return res.send(err.message);
+
+            // แยก bakery / drinks
+            const bakery = menus.filter(m => m.category_id === 7);
+            const drinks = menus.filter(m => m.category_id !== 7);
+
+            bakery.forEach(b => b.is_available = !!b.is_available);
+            drinks.forEach(d => d.is_available = !!d.is_available);
+
+            // ส่ง data ทั้งหมดไป render
+            res.render('inventory', {
+                data,   // ออเดอร์ทั้งหมด
+                drinks,   // เมนูเครื่องดื่ม
+                bakery    // เมนู bakery
+            });
+        });
     });
 });
+
+
+//  toggle เครื่องดื่ม
+app.post('/inventory/toggle/:id', (req, res) => {
+  const id = req.params.id;
+  const { is_available } = req.body;
+
+  if (typeof is_available === 'undefined') {
+    return res.status(400).json({ success: false, message: 'Missing is_available field' });
+  }
+
+  // ใช้ตาราง Menu และ column is_avaliable
+  const sql = `UPDATE Menu SET is_avaliable = ? WHERE menu_id = ?`;
+  db.run(sql, [is_available ? 1 : 0, id], function (err) {
+    if (err) {
+      console.error('DB Error:', err);
+      return res.status(500).json({ success: false, message: 'Database update failed' });
+    }
+
+    res.json({ success: true, is_available });
+  });
+});
+
+
+//  เพิ่ม/ลดจำนวนเบเกอรี่
+app.post('/inventory/stock/:id', (req, res) => {
+  const id = req.params.id;
+  const { change } = req.body;
+
+  if (typeof change === 'undefined') {
+    return res.status(400).json({ success: false, message: 'Missing change value' });
+  }
+
+  // ใช้ตาราง Menu และ column stock_qty
+  const sqlGet = `SELECT stock_qty FROM Menu WHERE menu_id = ? AND category_id = 7`; // 7 = bakery
+  db.get(sqlGet, [id], (err, row) => {
+    if (err) {
+      console.error('DB Error:', err);
+      return res.status(500).json({ success: false, message: 'Database query failed' });
+    }
+
+    if (!row) {
+      return res.status(404).json({ success: false, message: 'Bakery not found' });
+    }
+
+    const newStock = Math.max(0, row.stock_qty + change); // ป้องกันติดลบ
+    const sqlUpdate = `UPDATE Menu SET stock_qty = ? WHERE menu_id = ?`;
+    db.run(sqlUpdate, [newStock, id], function (err2) {
+      if (err2) {
+        console.error('DB Error:', err2);
+        return res.status(500).json({ success: false, message: 'Database update failed' });
+      }
+
+      res.json({ success: true, newStock });
+    });
+  });
+});
+
 
 
 // Start server
