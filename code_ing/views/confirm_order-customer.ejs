@@ -169,7 +169,38 @@
     background-color: #4CAF50;
     color: white;
   }
+ .promotion-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
 
+  .promotion-radio {
+    display: none; /* ซ่อนปุ่ม radio ปกติ */
+  }
+
+  .promotion-btn {
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: 0.2s;
+    background: #f9f9f9;
+    font-size: 14px;
+  }
+
+  /* เมื่อ hover */
+  .promotion-btn:hover {
+    background: #eee;
+    border-color: #999;
+  }
+
+  /* เมื่อถูกเลือก */
+  .promotion-radio:checked + .promotion-btn {
+    background: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+  }
 
   </style>
 </head>
@@ -218,9 +249,14 @@
         <span>vat :</span>
        <span><%= vat.toFixed(2) %> ฿</span>
       </div> 
+
+
+
+
       <div class="total-box">
         <span>ยอดรวม :</span>
-        <span><%= total %> ฿</span>
+        <span id="total-display"><%= total %> ฿</span>
+
       </div>
     </div>
 
@@ -232,9 +268,18 @@
       </div>
 
      <p>ชำระ (<%= total %>)</p>
+
+
+
+    
+    </div>
  
     </div>
+
+
+    
   </div>
+
 
 </body>
 </html>

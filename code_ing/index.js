@@ -445,11 +445,19 @@ app.get('/confirm_order', (req, res) => {
   if (!req.session.cart || req.session.cart.length === 0) {
     return res.redirect('/main_for_cashier');
   }
-  // ส่งข้อมูลไป render
+  const promotion_sql = `SELECT * FROM Promotion`;
+  db.all(promotion_sql, (err,promotion) =>{
+    if (err) return console.log(err.message);
+    // console.log(promotion)
+
+    // ส่งข้อมูลไป render
   res.render('confirm_order', {
     cart: req.session.cart,
-    total:  req.session.total
+    total:  req.session.total,
+    pro: promotion
   });
+
+  })
 });
 app.get("/cash/:amount", async (req, res) => {
   try {
@@ -610,12 +618,19 @@ app.get('/confirm_order-customer', (req, res) => {
   if (!req.session.cart || req.session.cart.length === 0) {
     return res.redirect('/main_for_customer');
   }
-  // ส่งข้อมูลไป render
-  res.render('confirm_order-customer', {
-    cart: req.session.cart,
-    total:  req.session.total
-  });
+
+  
+
 });
+
+app.post('/update-total', (req, res) => {
+  const { promotion_id, discountedTotal, discountValue } = req.body;
+  req.session.total = discountedTotal;
+  req.session.promotion_id = promotion_id;
+  req.session.discount = discountValue;
+  res.json({ success: true });
+});
+
 
 app.get("/cash-customer/:amount", async (req, res) => {
   try {

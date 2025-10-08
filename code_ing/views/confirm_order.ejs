@@ -170,6 +170,39 @@
     color: white;
   }
 
+  .promotion-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .promotion-radio {
+    display: none; /* ซ่อนปุ่ม radio ปกติ */
+  }
+
+  .promotion-btn {
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: 0.2s;
+    background: #f9f9f9;
+    font-size: 14px;
+  }
+
+  /* เมื่อ hover */
+  .promotion-btn:hover {
+    background: #eee;
+    border-color: #999;
+  }
+
+  /* เมื่อถูกเลือก */
+  .promotion-radio:checked + .promotion-btn {
+    background: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+  }
+
 
   </style>
 </head>
@@ -210,7 +243,7 @@
         %>
 
 
-      <div class="total-box_not-final">
+       <div class="total-box_not-final">
         <span>ยอดรวมก่อน vat :</span>
        <span><%= beforeVAT.toFixed(2) %> ฿</span>
       </div> 
@@ -218,6 +251,10 @@
         <span>vat :</span>
        <span><%= vat.toFixed(2) %> ฿</span>
       </div> 
+      <div class="total-box_not-final" id="discount-box" style="display: none;">
+        <span>ส่วนลด :</span>
+        <span id="discount-amount">0 ฿</span>
+      </div>
       <div class="total-box">
         <span>ยอดรวม :</span>
         <span><%= total %> ฿</span>
@@ -256,6 +293,25 @@
       <a href="/cash/<%= total3 %>"><%= total3 %></a>
       <a href="/cash/12200">กำหนดเอง</a>
     </div>
+         <div class="promotion">
+        <h3>Promotion</h3>
+<form class="promotion-form">
+  <% pro.forEach(proele => { %>
+    <% if (proele.active == 1) { %>
+      <input 
+        type="radio"
+        name="promotion"
+        value="<%= proele.promotion_id %>" 
+        id="promotion_<%= proele.promotion_id %>" 
+        class="promotion-radio" />
+
+      <label for="promotion_<%= proele.promotion_id %>" class="promotion-btn">
+        <%= proele.promotion_name %> 
+        - <%= proele.discount_value %><%= proele.discount_type === 'percent' ? '%' : '฿' %>
+      </label>
+    <% } %>
+  <% }); %>
+</form>
     </div>
   </div>
 <script>
@@ -302,6 +358,62 @@
     });
   });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const radios = document.querySelectorAll(".promotion-radio");
+  const totalDisplay = document.getElementById("total-display");
+  const discountBox = document.getElementById("discount-box");
+  const discountAmountEl = document.getElementById("discount-amount");
+  let originalTotal = <%= total %>; // ยอดรวมก่อนส่วนลด
+
+  radios.forEach(radio => {
+    radio.addEventListener("change", async (e) => {
+      const selected = e.target;
+      const promoId = selected.value;
+      const promoEl = selected.nextElementSibling;
+
+      // ดึงค่าจาก label เช่น "ลด 10%" หรือ "ลด 20฿"
+      const text = promoEl.innerText;
+      const value = parseFloat(text.match(/- (\d+(\.\d+)?)/)[1]);
+      const isPercent = text.includes('%');
+
+      // คำนวณส่วนลด
+      let discountValue = isPercent
+        ? (originalTotal * value / 100)
+        : value;
+      if (discountValue > originalTotal) discountValue = originalTotal;
+
+      const discountedTotal = originalTotal - discountValue;
+
+      // แสดงส่วนลด + ยอดรวมใหม่
+      discountBox.style.display = "flex";
+      discountAmountEl.textContent = `- ${discountValue.toFixed(2)} ฿`;
+      totalDisplay.textContent = `${discountedTotal.toFixed(2)} ฿`;
+
+      // อัปเดต session.total ทาง backend
+      try {
+        const res = await fetch("/update-total", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            promotion_id: promoId,
+            discountedTotal,
+            discountValue
+          })
+        });
+
+        if (!res.ok) {
+          console.error("ไม่สามารถอัปเดต session.total ได้");
+        }
+      } catch (err) {
+        console.error("เกิดข้อผิดพลาด:", err);
+      }
+    });
+  });
+});
+</script>
+
 
 </body>
 </html>
