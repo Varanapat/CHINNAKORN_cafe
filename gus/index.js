@@ -3,10 +3,10 @@ const cookieParser = require("cookie-parser");
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 const http = require("http");
-const { Server } = require("socket.io");
+// const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+// const io = new Server(server);
 const PORT = 3000;
 
 
