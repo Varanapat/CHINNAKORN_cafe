@@ -62,9 +62,9 @@ function escapeHtml(str) {
 }
 
 // ฟังก์ชันเลือกสินค้า (เบเกอรี่ + เครื่องดื่ม)
-function selectItem(id, name, category, isAvailable, stockQty) {
-  isAvailable = toBool(isAvailable);
-  selectedItem = { id, name, category, isAvailable, stockQty };
+function selectItem(id, name, category, isAvaliable, stockQty) {
+  isAvaliable = toBool(isAvaliable);
+  selectedItem = { id, name, category, isAvaliable, stockQty };
 
   const rightPanel = document.getElementById('selectedItems');
   let html = `<h3>${escapeHtml(name)}</h3><hr>`;
@@ -75,8 +75,8 @@ function selectItem(id, name, category, isAvailable, stockQty) {
       <button 
         class="btn btn-toggle btn-primary" 
         data-id="${id}" 
-        onclick="toggleDrinkStatus(${JSON.stringify(id)}, ${isAvailable})">
-        ${isAvailable ? 'Close Sale' : 'Open Sale'}
+        onclick="toggleDrinkStatus(${(id)}, ${isAvaliable})">
+        ${isAvaliable ? 'Close Sale' : 'Open Sale'}
       </button>
     `;
   } else if (category === 'bakery') {
@@ -94,18 +94,20 @@ function selectItem(id, name, category, isAvailable, stockQty) {
 }
 
 function toggleDrinkStatus(id, currentStatus) {
+  console.log("btn click");
+  
   const newStatus = !currentStatus;
   fetch(`/inventory/toggle/${id}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ is_available: newStatus })
+    body: JSON.stringify({ is_avaliable: newStatus })
   })
   .then(res => res.json())
   .then(data => {
     if (data.success) {
       const card = document.querySelector(`.product-card[data-id="${id}"]`);
-      if (card) card.classList.toggle('unavailable', !data.is_available);
-      selectItem(id, selectedItem.name, 'drink', data.is_available, selectedItem.stockQty);
+      if (card) card.classList.toggle('unavaliable', !data.is_avaliable);
+      selectItem(id, selectedItem.name, 'drink', data.is_avaliable, selectedItem.stockQty);
     } else {
       alert('Update failed: ' + (data.message || 'Unknown'));
     }

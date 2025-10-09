@@ -152,10 +152,9 @@ body {
     background: #fff5f5;
 }
 
-.product-card.unavailable {
+.product-card.unavaliable {
   filter: grayscale(100%);
   opacity: 0.5;
-  pointer-events: none; /* ป้องกันคลิก */
   transition: 0.3s ease;
 }
 

@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
-
+app.use(express.json());
 
 // Connect DB
 const db = new sqlite3.Database("CHINNAKORN_cafe_EN.db", (err) => {
@@ -120,14 +120,28 @@ app.get('/inventory', (req, res) => {
             // แยก bakery / drinks
             const bakery = menus.filter(m => m.category_id === 7);
             const drinks = menus.filter(m => m.category_id !== 7);
+            // console.log(bakery);
+            
 
             bakery.forEach(b => b.is_available = !!b.is_available);
-            drinks.forEach(d => d.is_available = !!d.is_available);
+            // drinks.forEach(d => d.is_available = !!d.is_available);
 
+            // console.log(drinks);
+            
+
+            const format_drink = drinks.map(d => ({
+                menu_image: d.menu_image,
+                menu_id: d.menu_id,
+                menu_name: d.menu_name,
+                base_price: d.base_price,
+                is_avaliable: d.is_avaliable === 1 ? true : false,
+                stock_qty: d.stock_qty
+            }));
+            
             // ส่ง data ทั้งหมดไป render
             res.render('inventory', {
                 data,   // ออเดอร์ทั้งหมด
-                drinks,   // เมนูเครื่องดื่ม
+                drinks : format_drink,   // เมนูเครื่องดื่ม
                 bakery    // เมนู bakery
             });
         });
@@ -138,21 +152,22 @@ app.get('/inventory', (req, res) => {
 //  toggle เครื่องดื่ม
 app.post('/inventory/toggle/:id', (req, res) => {
   const id = req.params.id;
-  const { is_available } = req.body;
+  
+  const { is_avaliable } = req.body;
 
-  if (typeof is_available === 'undefined') {
+  if (typeof is_avaliable === 'undefined') {
     return res.status(400).json({ success: false, message: 'Missing is_available field' });
   }
 
   // ใช้ตาราง Menu และ column is_avaliable
   const sql = `UPDATE Menu SET is_avaliable = ? WHERE menu_id = ?`;
-  db.run(sql, [is_available ? 1 : 0, id], function (err) {
+  db.run(sql, [is_avaliable ? 1 : 0, id], function (err) {
     if (err) {
       console.error('DB Error:', err);
       return res.status(500).json({ success: false, message: 'Database update failed' });
     }
 
-    res.json({ success: true, is_available });
+    res.json({ success: true, is_avaliable });
   });
 });
 

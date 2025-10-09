@@ -121,13 +121,14 @@
                         <div id="drinks-section" class="product-grid">
                             <% if (drinks && drinks.length> 0) { %>
                                 <% drinks.forEach(item=> { %>
-                                    <div class="product-card <%= !item.is_available ? 'unavailable' : '' %>"
+                                    <div class="product-card <%= !item.is_avaliable ? 'unavaliable' : '' %>"
                                         data-id="<%= item.menu_id %>"
-                                        onclick="selectItem('<%= item.menu_id %>', '<%= item.menu_name %>', 'drink', '<%= item.is_available %>', '<%= item.stock_qty || 0 %>')">
+                                        onclick="selectItem('<%= item.menu_id %>', '<%= item.menu_name %>', 'drink', '<%= item.is_avaliable %>', '<%= item.stock_qty || 0 %>')">
                                         <img src="/menu_pictures/<%= item.menu_image || 'no_image.png' %>"
                                             alt="<%= item.menu_name %>">
                                         <div class="product-name">
                                             <%= item.menu_name %>
+                                            <%= !item.is_avaliable %>
                                         </div>
                                         <div class="price">
                                             <%= item.base_price %> ฿
@@ -144,7 +145,7 @@
                             <% if (bakery && bakery.length> 0) { %>
                                 <% bakery.forEach(item=> { %>
                                     <div class="product-card"
-                                        onclick="selectItem('<%= item.menu_id %>', '<%= item.menu_name %>', 'bakery', '<%= item.is_available %>','<%= item.stock_qty || 0 %>')">
+                                        onclick="selectItem('<%= item.menu_id %>', '<%= item.menu_name %>', 'bakery', '<%= item.is_avaliable %>','<%= item.stock_qty || 0 %>')">
                                         <img src="/menu_pictures/<%= item.menu_image || 'no_image.png' %>"
                                             alt="<%= item.menu_name %>">
                                         <div class="product-name">
@@ -177,6 +178,8 @@
             </div>
         </div>
     </div>
+
+    <script src="/socket.io/socket.io.js"></script>
 
 </body>
 
