@@ -50,7 +50,7 @@ app.get('/', function (req, res) {
         LEFT JOIN OrderItemOption oip 
         ON oip.order_item_id = oi.order_item_id
         LEFT JOIN ItemOption i ON i.option_id = oip.option_id
-        WHERE m.category_id != 7
+        WHERE m.category_id != 7 and o.status = 'pending'
         GROUP BY o.order_id
         ORDER BY o.order_time
     `;
@@ -63,19 +63,31 @@ app.get('/', function (req, res) {
     });
 });
 
+app.post("/complete-order/:id", (req, res) => {
+    const orderId = req.params.id;
+    const sql = `UPDATE Orders SET status = 'Complete' WHERE order_id = ?`;
+
+    db.run(sql, [orderId], function(err) {
+        if (err) {
+            console.error(err.message);
+            return res.json({ success: false, error: err.message });
+        }
+        res.json({ success: true });
+    });
+});
 
 //จำลอง event เมื่อมีออเดอร์ใหม่ (ในของจริงจะเรียกตอน insert)
-app.post("/new-order", (req, res) => {
-    const newOrder = { order_id: Date.now(), menu_name: "Latte" };
-    io.emit("newOrder", newOrder); // แจ้งทุก client
-    res.json({ success: true });
-});
+// app.post("/new-order", (req, res) => {
+//     const newOrder = { order_id: Date.now(), menu_name: "Latte" };
+//     io.emit("newOrder", newOrder); // แจ้งทุก client
+//     res.json({ success: true });
+// });
 
 
-// Socket.io เชื่อมต่อ
-io.on("connection", (socket) => {
-    console.log("Client connected:", socket.id);
-});
+// // Socket.io เชื่อมต่อ
+// io.on("connection", (socket) => {
+//     console.log("Client connected:", socket.id);
+// });
 
 
 app.get('/inventory', (req, res) => {
@@ -101,7 +113,7 @@ app.get('/inventory', (req, res) => {
             ON oip.order_item_id = oi.order_item_id
         LEFT JOIN ItemOption i 
             ON i.option_id = oip.option_id
-        WHERE m.category_id != 7
+        WHERE m.category_id != 7 and o.status = 'pending'
         GROUP BY o.order_id
         ORDER BY o.order_time
     `;
@@ -152,14 +164,12 @@ app.get('/inventory', (req, res) => {
 //  toggle เครื่องดื่ม
 app.post('/inventory/toggle/:id', (req, res) => {
   const id = req.params.id;
-  
   const { is_avaliable } = req.body;
 
   if (typeof is_avaliable === 'undefined') {
-    return res.status(400).json({ success: false, message: 'Missing is_available field' });
+    return res.status(400).json({ success: false, message: 'Missing is_avaliable field' });
   }
 
-  // ใช้ตาราง Menu และ column is_avaliable
   const sql = `UPDATE Menu SET is_avaliable = ? WHERE menu_id = ?`;
   db.run(sql, [is_avaliable ? 1 : 0, id], function (err) {
     if (err) {
@@ -172,36 +182,52 @@ app.post('/inventory/toggle/:id', (req, res) => {
 });
 
 
-//  เพิ่ม/ลดจำนวนเบเกอรี่
+// ดึง stock จาก DB
+app.get('/api/stock/:id', (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  const sql = `SELECT stock_qty FROM ingredient WHERE ingredient_name = (select menu_name from menu where menu_id = ?)`;
+  console.log(sql);
+
+  db.get(sql, [id], (err, row) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ stock_qty: row ? row.stock_qty : 0 });
+  });
+});
+
+
+// เพิ่ม/ลดจำนวนเบเกอรี่ (เก็บ stock ที่ Ingredient)
 app.post('/inventory/stock/:id', (req, res) => {
   const id = req.params.id;
   const { change } = req.body;
 
-  if (typeof change === 'undefined') {
-    return res.status(400).json({ success: false, message: 'Missing change value' });
+  if (typeof change !== 'number') {
+    return res.status(400).json({ success: false, message: 'Invalid or missing change value' });
   }
 
-  // ใช้ตาราง Menu และ column stock_qty
-  const sqlGet = `SELECT stock_qty FROM Menu WHERE menu_id = ? AND category_id = 7`; // 7 = bakery
+  const sqlGet = `
+    SELECT m.menu_id, m.menu_name, i.stock_qty 
+    FROM Menu m
+    JOIN Ingredient i ON i.ingredient_name = m.menu_name
+    WHERE m.menu_id = ? AND m.category_id = 7
+  `;
+
   db.get(sqlGet, [id], (err, row) => {
-    if (err) {
-      console.error('DB Error:', err);
-      return res.status(500).json({ success: false, message: 'Database query failed' });
-    }
+    if (err) return res.status(500).json({ success: false, message: 'Database query failed' });
+    if (!row) return res.status(404).json({ success: false, message: 'Bakery not found' });
 
-    if (!row) {
-      return res.status(404).json({ success: false, message: 'Bakery not found' });
-    }
+    const newStock = Math.max(0, row.stock_qty + change);
 
-    const newStock = Math.max(0, row.stock_qty + change); // ป้องกันติดลบ
-    const sqlUpdate = `UPDATE Menu SET stock_qty = ? WHERE menu_id = ?`;
-    db.run(sqlUpdate, [newStock, id], function (err2) {
-      if (err2) {
-        console.error('DB Error:', err2);
-        return res.status(500).json({ success: false, message: 'Database update failed' });
-      }
+    const sqlUpdate = `UPDATE Ingredient SET stock_qty = ? WHERE ingredient_name = ?`;
+    db.run(sqlUpdate, [newStock, row.menu_name], function (err2) {
+      if (err2) return res.status(500).json({ success: false, message: 'Database update failed' });
 
-      res.json({ success: true, newStock });
+      res.json({
+        success: true,
+        menu_id: row.menu_id,
+        menu_name: row.menu_name,
+        newStock
+      });
     });
   });
 });

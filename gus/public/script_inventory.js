@@ -62,76 +62,97 @@ function escapeHtml(str) {
 }
 
 // ฟังก์ชันเลือกสินค้า (เบเกอรี่ + เครื่องดื่ม)
-function selectItem(id, name, category, isAvaliable, stockQty) {
+async function selectItem(id, name, category, isAvaliable, stock_qty) {
   isAvaliable = toBool(isAvaliable);
-  selectedItem = { id, name, category, isAvaliable, stockQty };
+  selectedItem = { id, name, category, isAvaliable, stock_qty };
 
   const rightPanel = document.getElementById('selectedItems');
   let html = `<h3>${escapeHtml(name)}</h3><hr>`;
 
   if (category === 'drink') {
     html += `
-      <p><strong>Stock:</strong> ${stockQty ?? '-'}</p>
       <button 
-        class="btn btn-toggle btn-primary" 
+        class="btn btn-bg" 
         data-id="${id}" 
-        onclick="toggleDrinkStatus(${(id)}, ${isAvaliable})">
+        onclick="toggleDrinkStatus(${id}, ${isAvaliable})">
         ${isAvaliable ? 'Close Sale' : 'Open Sale'}
       </button>
     `;
   } else if (category === 'bakery') {
-    html += `
-      <p><strong>Stock:</strong> <span id="stock-${id}">${stockQty ?? 0}</span></p>
-      <div class="stock-controls">
-        <button class="btn btn-sm btn-danger" onclick="updateStock(${id}, -1)">–</button>
-        <button class="btn btn-sm btn-success" onclick="updateStock(${id}, 1)">+</button>
-        <button class="btn btn-sm btn-warning" onclick="editStock(${id})">Edit</button>
-      </div>
-    `;
-}
+    try {
+      // 🔹 ดึงข้อมูล stock จากฐานข้อมูล
+      const res = await fetch(`/api/stock/${id}`);
+      const data = await res.json();
+      const dbStock = data.stock_qty ?? 0;
+
+      html += `
+  <h5><strong>Stock:</strong> <span id="stock-${id}">${dbStock}</span></h5>
+  <div class="stock-controls">
+    <div class="d-flex gap-2 mb-2 mt-5">
+      <button class="btn btn-sm btn-long flex-fill" onclick="updateStock(${id}, -1)">–</button>
+      <button class="btn btn-sm btn-long flex-fill" onclick="updateStock(${id}, 1)">+</button>
+      <button class="btn btn-sm btn-long flex-fill" onclick="editStock(${id})">Edit</button>
+    </div>
+    <button class="btn btn-bg btn-lg w-100 mt-4" onclick="saveStock(${id})">
+      Save
+    </button>
+  </div>
+`;
+    } catch (err) {
+      console.error('Error loading stock:', err);
+      html += `<p><strong>Stock:</strong> <span style="color:red;">Error</span></p>`;
+    }
+  }
 
   rightPanel.innerHTML = html;
 }
 
+
 function toggleDrinkStatus(id, currentStatus) {
-  console.log("btn click");
-  
+  // console.log("btn click");
+
   const newStatus = !currentStatus;
   fetch(`/inventory/toggle/${id}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ is_avaliable: newStatus })
   })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      const card = document.querySelector(`.product-card[data-id="${id}"]`);
-      if (card) card.classList.toggle('unavaliable', !data.is_avaliable);
-      selectItem(id, selectedItem.name, 'drink', data.is_avaliable, selectedItem.stockQty);
-    } else {
-      alert('Update failed: ' + (data.message || 'Unknown'));
-    }
-  });
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        const card = document.querySelector(`.product-card[data-id="${id}"]`);
+        if (card) card.classList.toggle('unavaliable', !data.is_avaliable);
+        selectItem(id, selectedItem.name, 'drink', data.is_avaliable, selectedItem.stockQty);
+      } else {
+        alert('Update failed: ' + (data.message || 'Unknown'));
+      }
+    })
+    .finally(() => {
+      window.location.reload();
+    })
 }
 
+
 // ฟังก์ชันเพิ่ม/ลด stock (เรียก backend)
-function updateStock(id, delta) {
-  fetch(`/inventory/stock/${id}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ change: delta })
-  })
-  .then(res => res.json())
-  .then(data => {
+async function updateStock(id, change) {
+  try {
+    const res = await fetch(`/inventory/stock/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ change })
+    });
+    const data = await res.json();
+
     if (data.success) {
-      // อัปเดตเลข stock ใน span
-      document.getElementById(`stock-${id}`).innerText = data.newStock;
+      document.getElementById(`stock-${id}`).textContent = data.newStock;
     } else {
-      alert('Update Failed: ' + (data.message || 'Unknown'));
+      alert(data.message);
     }
-  })
-  .catch(err => console.error('updateStock error:', err));
+  } catch (err) {
+    console.error('Update stock error:', err);
+  }
 }
+
 
 // ฟังก์ชันแก้ไข stock แบบกรอกจำนวน
 function editStock(id) {
@@ -150,4 +171,28 @@ function clearSelection() {
         <div class="empty-state">
             <p>Please Select Products</p>
         </div>`;
+}
+
+
+async function saveStock(id) {
+  const currentStock = parseInt(document.getElementById(`stock-${id}`).innerText);
+
+  try {
+    const res = await fetch(`/inventory/stock/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ change: 0 }) // ไม่เปลี่ยนค่า แค่บันทึก
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert(`✅ Stock saved successfully!\n\nCurrent stock: ${currentStock}`);
+    } else {
+      alert(`❌ Save failed: ${data.message || "Unknown error"}`);
+    }
+  } catch (err) {
+    console.error('Save stock error:', err);
+    alert('⚠️ Error saving stock. Please try again.');
+  }
 }

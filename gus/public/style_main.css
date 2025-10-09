@@ -7,7 +7,6 @@
 body {
     background: #FBF8F1;
     color: #483434;
-    -webkit-overflow-scrolling: touch;
     font-family: Cormorant Unicase;
     font-weight: 800;
 }

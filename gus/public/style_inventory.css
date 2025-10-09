@@ -6,8 +6,6 @@
 
 body {
     background-color: #fbf8f1;
-    width: 100%;
-    height: 100%;
     margin: 0;
     padding: 0;
 }
@@ -26,6 +24,7 @@ body {
     gap: 25px;
     white-space: nowrap;
     flex-wrap: wrap;
+    max-width: 100vw;
 }
 
 .back-btn {
@@ -129,6 +128,7 @@ body {
     overflow-y: auto;
     padding: 10px;
     padding-bottom: 50px;
+    max-height: fit-content;
 }
 
 .product-card {
@@ -139,6 +139,7 @@ body {
     cursor: pointer;
     transition: all 0.3s;
     position: relative;
+    max-height: fit-content;
 }
 
 .product-card:hover {
@@ -278,16 +279,30 @@ body {
     transition: all 0.3s;
 }
 
+.btn-bg {
+    background-color: #5682b1;
+    color: white;
+}
+
+.btn-long {
+    background-color: whitesmoke;
+    color: gray;
+}
+
+.btn-long:hover {
+    background-color: lightgray;
+}
+
 .btn-cancel {
     background: #d0d0d0;
-    color: #666;
+    color: white;
 }
 
 .btn-cancel:hover {
     background: #c0c0c0;
 }
 
-.btn-confirm {
+.btn-confirm , .btn-confirm:hover{
     background: #5B9BD5;
     color: white;
     position: relative;
