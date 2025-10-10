@@ -1265,6 +1265,16 @@ app.post('/inventory/stock/:id', (req, res) => {
   });
 });
 
-
-app.listen(3000, () => console.log(' running on port 3000'));
+// app.listen(3000, () => console.log(' running on port 3000'));
 // app.listen(4000, () => console.log('Customer running on port 4000'));
+
+const os = require("os");
+const ip = Object.values(os.networkInterfaces())
+  .flat()
+  .find(i => i.family === "IPv4" && !i.internal)?.address;
+
+
+
+app.listen(3000, "0.0.0.0", () => {
+  console.log(`✅ Server running on http://${ip}:3000`);
+});
