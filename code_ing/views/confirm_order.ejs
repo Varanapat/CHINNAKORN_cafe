@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>สรุปรายการ</title>
+  <link rel="stylesheet" href="/style_confirm_order.css">
+
+</head>
+<body>
+  <div class="header">
+    <a href="/">&#11013;</a>
+    <h2>สรุปรายการ ( <%= cart.length %> รายการ )</h2>
+  </div>
+ 
+  <div class="container">
+    <!-- สรุปรายการ -->
+    <div class="order-summary">
+      <% cart.forEach(item => { %>
+      <div class="menu-item">
+        <img src="/picture/<%= item.menu_image %>" alt="<%= item.menu_name %>">
+        <div class="details">
+          <div class="name_order">
+            <div class="name"><h3><%= item.menu_name %></h3></div>
+            <div class="quantity"><%= item.quantity %> X</div>
+          </div>
+          <ul>
+            <% if (item.options && item.options.length > 0) { %>
+              <% item.options.forEach(opt => { %>
+                <li><%= opt.name %><%= opt.extra && opt.extra > 0 ? ` (+${opt.extra})` : "" %></li>
+              <% }) %>
+            <% } %>
+          </ul>
+          <div class="price"><%= item.totalPrice_forMenu %> ฿</div>
+        </div>
+      </div>
+      <% }) %>
+
+      <% 
+        let beforeVAT = (total * 100) / 107;
+        let vat = total - beforeVAT;
+      %>
+      <div class="total-box_not-final">
+        <span>ยอดรวมก่อน VAT :</span>
+        <span><%= beforeVAT.toFixed(2) %> ฿</span>
+      </div> 
+      <div class="total-box_not-final">
+        <span>VAT :</span>
+        <span><%= vat.toFixed(2) %> ฿</span>
+      </div> 
+      <div class="total-box_not-final" id="discount-box" style="display: none;">
+        <span>ส่วนลด :</span>
+        <span id="discount-amount">0 ฿</span>
+      </div>
+      <div class="total-box">
+        <span>ยอดรวม :</span>
+        <span id="total-display"><%= total %> ฿</span>
+      </div>
+    </div>
+
+    <!-- ฝั่งขวา -->
+    <div class="payment">
+      <h3>วิธีการชำระเงิน</h3>
+      <div class="pay-buttons">
+        <button class="cash">เงินสด</button>
+        <a class="qr" href="/pay_qr">QR พร้อมเพย์</a>
+      </div>
+
+      <p>ชำระ (<%= total %>)</p>
+      <div class="amount-buttons">
+        <%
+          function roundUpExclusive(value, base, excludeList = []) {
+            let result = (value % base === 0) ? value + base : Math.ceil(value / base) * base;
+            while (excludeList.includes(result)) {
+              result += base;
+            }
+            return result;
+          }
+          const total1 = roundUpExclusive(total, 10);
+          const total2 = roundUpExclusive(total, 50, [total1]);
+          const total3 = roundUpExclusive(total, 100, [total1, total2]);
+        %>
+
+        <a href="/cash/<%= total %>"><%= total %></a>
+        <a href="/cash/<%= total1 %>"><%= total1 %></a>
+        <a href="/cash/<%= total2 %>"><%= total2 %></a>
+        <a href="/cash/<%= total3 %>"><%= total3 %></a>
+        <button class="custom-btn" id="custom-cash">กำหนดเอง</button>
+      </div>
+
+      <div class="promotion">
+        <h3>Promotion</h3>
+        <form class="promotion-form">
+          <% pro.forEach(proele => { %>
+            <% if (proele.active == 1) { %>
+              <input 
+                type="radio"
+                name="promotion"
+                value="<%= proele.promotion_id %>" 
+                id="promotion_<%= proele.promotion_id %>" 
+                class="promotion-radio" />
+              <label 
+                for="promotion_<%= proele.promotion_id %>" 
+                class="promotion-btn"
+                data-discount="<%= proele.discount_value %>"
+                data-type="<%= proele.discount_type %>">
+                <%= proele.promotion_name %> 
+                - <%= proele.discount_value %><%= proele.discount_type === 'percent' ? '%' : '฿' %>
+              </label>
+            <% } %>
+          <% }); %>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script>
+    // ✅ ควบคุมปุ่มเงินสด / QR
+    document.addEventListener("DOMContentLoaded", function () {
+      const cashButton = document.querySelector(".cash");
+      const qrLink = document.querySelector(".qr");
+      const amountLinks = document.querySelectorAll(".amount-buttons a");
+      const customCash = document.getElementById("custom-cash");
+      let cashEnabled = false;
+
+      amountLinks.forEach((link) => {
+        link.addEventListener("click", function (e) {
+          if (!cashEnabled) {
+            e.preventDefault();
+            alert("กรุณาเลือก 'เงินสด' ก่อนทำรายการ");
+          }
+        });
+        link.classList.add("disabled");
+      });
+
+      cashButton.addEventListener("click", function () {
+        cashEnabled = true;
+        amountLinks.forEach((link) => link.classList.remove("disabled"));
+        cashButton.classList.add("active");
+      });
+
+      qrLink.addEventListener("click", function () {
+        cashEnabled = false;
+        amountLinks.forEach((link) => link.classList.add("disabled"));
+        cashButton.classList.remove("active");
+      });
+
+      // ✅ ปุ่มกำหนดเอง
+      customCash.addEventListener("click", () => {
+        if (!cashEnabled) {
+          alert("กรุณาเลือก 'เงินสด' ก่อนทำรายการ");
+          return;
+        }
+        const amount = prompt("กรอกจำนวนเงินที่ลูกค้าชำระ:");
+        if (amount && !isNaN(amount)) {
+          window.location.href = `/cash/${amount}`;
+        }
+      });
+    });
+  </script>
+
+  <script>
+    // ✅ ระบบโปรโมชั่นแบบ data-attribute
+    document.addEventListener("DOMContentLoaded", () => {
+      const radios = document.querySelectorAll(".promotion-radio");
+      const totalDisplay = document.getElementById("total-display");
+      const discountBox = document.getElementById("discount-box");
+      const discountAmountEl = document.getElementById("discount-amount");
+      let originalTotal = '<%= total %>';
+
+      radios.forEach(radio => {
+        radio.addEventListener("change", async (e) => {
+          const label = e.target.nextElementSibling;
+          const discountValue = parseFloat(label.dataset.discount);
+          const type = label.dataset.type;
+
+          let discount = (type === "percent")
+            ? (originalTotal * discountValue / 100)
+            : discountValue;
+          if (discount > originalTotal) discount = originalTotal;
+
+          const newTotal = originalTotal - discount;
+
+          discountBox.style.display = "flex";
+          discountAmountEl.textContent = `- ${discount.toFixed(2)} ฿`;
+          totalDisplay.textContent = `${newTotal.toFixed(2)} ฿`;
+
+          try {
+            await fetch("/update-total", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                promotion_id: e.target.value,
+                discountedTotal: newTotal,
+                discountValue: discount
+              })
+            });
+          } catch (err) {
+            console.error("เกิดข้อผิดพลาด:", err);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
