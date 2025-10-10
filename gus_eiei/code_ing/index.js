@@ -1108,6 +1108,8 @@ app.get('/pay_qr-customer', async (req, res) => {
       });
   });
 
+
+
 app.post("/complete-order/:id", (req, res) => {
     const orderId = req.params.id;
     const sql = `UPDATE 'Order' SET status = 'complete' WHERE order_id = ?`;
@@ -1204,6 +1206,7 @@ app.get('/inventory_for_barrista', (req, res) => {
         });
     });
 });
+
 //  toggle เครื่องดื่ม
 app.post('/inventory/toggle/:id', (req, res) => {
   const id = req.params.id;
@@ -1224,6 +1227,7 @@ app.post('/inventory/toggle/:id', (req, res) => {
     res.json({ success: true, is_avaliable });
   });
 });
+
 // ดึง stock จาก DB
 app.get('/api/stock/:id', (req, res) => {
   const id = req.params.id;
@@ -1274,6 +1278,7 @@ app.post('/inventory/stock/:id', (req, res) => {
     });
   });
 });
+
 
 // inventory_for_cashier
 app.get('/inventory_for_cashier', (req, res) => {
