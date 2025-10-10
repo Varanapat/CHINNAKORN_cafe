@@ -104,35 +104,35 @@
                                                                     <span> <%= sl.group_name %></span>
                                                                     <%} %>
                                                             </legend>
-<% itslt.forEach(itsl => { %>
-  <% if (sl.group_name === itsl.group_name) { 
-      const optKey = item_menu.menu_id + '_' + itsl.ingredient_id;
-      const isOptAvailable = optionAvailability && optionAvailability[optKey] !== false;
-  %>
-    <div class="option_container <%= !isOptAvailable ? 'unavailable' : '' %>">
-      <div class="option_left">
-        <input type="radio"
-               name="menu-<%= item_menu.menu_id %>-<%= itsl.group_name %>"
-               value="<%= itsl.option_name %>"
-               id="opt-<%= item_menu.menu_id %>-<%= itsl.option_name %>"
-               <%= !isOptAvailable ? 'disabled' : (sl.is_required ? 'required' : '') %> />
-        <label for="opt-<%= item_menu.menu_id %>-<%= itsl.option_name %>">
-          <%= itsl.option_name %>
-          <% if (!isOptAvailable) { %>
-            <span style="color:red;">(หมด)</span>
-          <% } %>
-        </label>
-      </div>
-      <span>
-        <% if (itsl.extra_price === 0) { %>
-          (ฟรี)
-        <% } else { %>
-          (+ <%= itsl.extra_price %> ฿)
-        <% } %>
-      </span>
-    </div>
-  <% } %>
-<% }) %>
+                                                                <% itslt.forEach(itsl => { %>
+                                                                <% if (sl.group_name === itsl.group_name) { 
+                                                                    const optKey = item_menu.menu_id + '_' + itsl.ingredient_id;
+                                                                    const isOptAvailable = optionAvailability && optionAvailability[optKey] !== false;
+                                                                %>
+                                                                    <div class="option_container <%= !isOptAvailable ? 'unavailable' : '' %>">
+                                                                    <div class="option_left">
+                                                                        <input type="radio"
+                                                                            name="menu-<%= item_menu.menu_id %>-<%= itsl.group_name %>"
+                                                                            value="<%= itsl.option_name %>"
+                                                                            id="opt-<%= item_menu.menu_id %>-<%= itsl.option_name %>"
+                                                                            <%= !isOptAvailable ? 'disabled' : (sl.is_required ? 'required' : '') %> />
+                                                                        <label for="opt-<%= item_menu.menu_id %>-<%= itsl.option_name %>">
+                                                                        <%= itsl.option_name %>
+                                                                        <% if (!isOptAvailable) { %>
+                                                                            <span style="color:red;">(หมด)</span>
+                                                                        <% } %>
+                                                                        </label>
+                                                                    </div>
+                                                                    <span>
+                                                                        <% if (itsl.extra_price === 0) { %>
+                                                                        (ฟรี)
+                                                                        <% } else { %>
+                                                                        (+ <%= itsl.extra_price %> ฿)
+                                                                        <% } %>
+                                                                    </span>
+                                                                    </div>
+                                                                <% } %>
+                                                                <% }) %>
 
 
 

@@ -6,39 +6,7 @@
   <title>ร้านกาแฟ</title>
   <link rel="stylesheet" href="/style_main.css">
   <link rel="stylesheet" href="/style_modal.css">
-  <style>
-    .modal {
-  display: none;
-}
-.modal.active {
-  display: block;
-}
-#overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-}
-#overlay.active {
-  display: block;
-}
-
-.cart-icon {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    cursor: pointer;
-    font-size: 40px;        /* ใหญ่ขึ้น */
-    padding: 10px;          /* เพิ่มพื้นที่คลิก */
-    z-index: 2000;          /* ให้อยู่บนสุด */
-    background: #fff;       /* อาจเพิ่มพื้นหลังให้เห็นชัด */
-    border-radius: 50%;     
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-}
-
-
-
-  </style>
+  <link rel="stylesheet" href="/style_main_for_customer.css">
 </head>
 
 <body>
@@ -74,7 +42,7 @@
             </ul>
         <% } %>
         <a href="/confirm_order-customer">ยืนยันคำสั่งซื้อ</a>
-        <a href="/canceled_order">ยกเลิกคำสั่งซื้อ</a>
+        <a href="/canceled_order-customer">ยกเลิกคำสั่งซื้อ</a>
   </div>
 </div>
 
