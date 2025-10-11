@@ -1061,46 +1061,41 @@ app.get('/pay_qr-customer', async (req, res) => {
 // // console.log(cart)
 //   res.send(cart)
 });
-
 // ================== bartender ==================
 // แสดงออเดอร์ทั้งหมด
+app.get('/bartender', function (req, res) {
+    const query = `
+        SELECT 
+            o.order_id,
+            time(o.order_time) AS order_time,
+            o.order_type,
+            json_group_array(
+                json_object(
+                    'quantity', oi.quantity,
+                    'menu_name', m.menu_name,
+                    'option_name', i.option_name
+                )
+            ) AS items
+        FROM 'Order' o
+        LEFT JOIN OrderItem oi 
+        ON oi.order_id = o.order_id
+        LEFT JOIN Menu m 
+        ON oi.menu_id = m.menu_id
+        LEFT JOIN OrderItemOption oip 
+        ON oip.order_item_id = oi.order_item_id
+        LEFT JOIN ItemOption i ON i.option_id = oip.option_id
+        WHERE m.category_id != 7 and o.status = 'pending'
+        GROUP BY o.order_id
+        ORDER BY o.order_time
+    `;
 
-
-// แสดงออเดอร์ทั้งหมด
-  app.get('/bartender', function (req, res) {
-      const query = `
-          SELECT 
-              o.order_id,
-              time(o.order_time) AS order_time,
-              o.order_type,
-              json_group_array(
-                  json_object(
-                      'quantity', oi.quantity,
-                      'menu_name', m.menu_name,
-                      'option_name', i.option_name
-                  )
-              ) AS items
-          FROM 'Order' o
-          LEFT JOIN OrderItem oi 
-          ON oi.order_id = o.order_id
-          LEFT JOIN Menu m 
-          ON oi.menu_id = m.menu_id
-          LEFT JOIN OrderItemOption oip 
-          ON oip.order_item_id = oi.order_item_id
-          LEFT JOIN ItemOption i ON i.option_id = oip.option_id
-          WHERE m.category_id != 7 and o.status = 'pending'
-          GROUP BY o.order_id
-          ORDER BY o.order_time
-      `;
-
-      db.all(query, (err, rows) => {
-          if (err) {
-              console.log(err.message);
-          }
-          res.render('main', { data: rows });
-      });
-  });
-
+    db.all(query, (err, rows) => {
+        if (err) {
+            console.log(err.message);
+        }
+        res.render('main', { data: rows });
+    });
+});
 app.post("/complete-order/:id", (req, res) => {
     const orderId = req.params.id;
     const sql = `UPDATE 'Order' SET status = 'complete' WHERE order_id = ?`;
@@ -1113,7 +1108,6 @@ app.post("/complete-order/:id", (req, res) => {
         res.json({ success: true });
     });
 });
-
 app.get('/inventory_for_barrista', (req, res) => {
     // Query ออเดอร์
     const orderQuery = `
@@ -1172,7 +1166,7 @@ app.get('/inventory_for_barrista', (req, res) => {
                 menu_id: d.menu_id,
                 menu_name: d.menu_name,
                 base_price: d.base_price,
-                is_avaliable: d.is_avaliable === 1 ? true : false,
+                is_available: d.is_avaliable === 1 ? true : false,
                 stock_qty: d.stock_qty
             }));
 
@@ -1181,7 +1175,7 @@ app.get('/inventory_for_barrista', (req, res) => {
                 menu_id: d.menu_id,
                 menu_name: d.menu_name,
                 base_price: d.base_price,
-                is_avaliable: d.is_avaliable === 1 ? true : false,
+                is_available: d.is_available === 1 ? true : false,
                 stock_qty: d.stock_qty
             }));
 
@@ -1231,7 +1225,6 @@ app.get('/api/stock/:id', (req, res) => {
     res.json({ stock_qty: row ? row.stock_qty : 0 });
   });
 });
-
 // เพิ่ม/ลดจำนวนเบเกอรี่ (เก็บ stock ที่ Ingredient)
 app.post('/inventory/stock/:id', (req, res) => {
   const id = req.params.id;
@@ -1267,7 +1260,6 @@ app.post('/inventory/stock/:id', (req, res) => {
     });
   });
 });
-
 // inventory_for_cashier
 app.get('/inventory_for_cashier', (req, res) => {
     // Query ออเดอร์
@@ -1352,7 +1344,6 @@ app.get('/inventory_for_cashier', (req, res) => {
         });
     });
 });
-
 //  toggle เครื่องดื่ม
 app.post('/inventory/toggle/:id', (req, res) => {
   const id = req.params.id;
@@ -1373,7 +1364,6 @@ app.post('/inventory/toggle/:id', (req, res) => {
     res.json({ success: true, is_avaliable });
   });
 });
-
 // ดึง stock จาก DB
 app.get('/api/stock/:id', (req, res) => {
   const id = req.params.id;
@@ -1388,7 +1378,6 @@ app.get('/api/stock/:id', (req, res) => {
     res.json({ stock_qty: row ? row.stock_qty : 0 });
   });
 });
-
 // เพิ่ม/ลดจำนวนเบเกอรี่ (เก็บ stock ที่ Ingredient)
 app.post('/inventory/stock/:id', (req, res) => {
   const id = req.params.id;
@@ -1424,11 +1413,8 @@ app.post('/inventory/stock/:id', (req, res) => {
     });
   });
 });
-
-
 // app.listen(3000, () => console.log(' running on port 3000'));
 // app.listen(4000, () => console.log('Customer running on port 4000'));
-
 const os = require("os");
 const ip = Object.values(os.networkInterfaces())
   .flat()
