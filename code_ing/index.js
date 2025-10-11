@@ -947,7 +947,7 @@ app.get("/cash-customer/:amount", async (req, res) => {
     console.log("สร้าง orderId:", orderId);
 
     db.run(
-      `INSERT INTO "Order" (order_id, total_price, order_type, status)
+      `INSERT INTO 'Order' (order_id, total_price, order_type, status)
       VALUES (?, ?, ?, 'pending')`,
       [orderId, total,where],
       function (err) {
