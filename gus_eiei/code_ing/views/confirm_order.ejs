@@ -167,7 +167,7 @@
       const totalDisplay = document.getElementById("total-display");
       const discountBox = document.getElementById("discount-box");
       const discountAmountEl = document.getElementById("discount-amount");
-      let originalTotal = '<%= total %>';
+      let originalTotal = <%= total %>;
 
       radios.forEach(radio => {
         radio.addEventListener("change", async (e) => {
