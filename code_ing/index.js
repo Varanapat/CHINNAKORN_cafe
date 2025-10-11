@@ -267,7 +267,7 @@ app.get('/main_for_cashier', (req, res) => {
   const cate_select_sql = `SELECT * FROM Category`;
   const menu_select_sql = `SELECT * FROM Menu;`;
   const option_selector_sql = `
-    SELECT 
+    SELECT
       m.menu_id, 
       m.menu_name, 
       og.group_name,
@@ -295,12 +295,16 @@ LEFT JOIN ItemOptionIngredient ioi
   const check_if_there_available = `
   SELECT 
     m.menu_id,
+    me.is_available,
     m.ingredient_id,
     m.quantity,
     i.stock_qty
   FROM MenuIngredient m
   INNER JOIN Ingredient i
-    ON m.ingredient_id = i.ingredient_id`;
+    ON m.ingredient_id = i.ingredient_id
+  INNER JOIN Menu me
+    ON me.menu_id = m.menu_id;
+`;
 
   const check_if_there_option_available = `  SELECT 
     mo.menu_id,
@@ -344,14 +348,17 @@ LEFT JOIN ItemOptionIngredient ioi
               if (err) return console.log(err.message);
               const menuAvailability = {};
 
-              // console.log(check_qty)
+              console.log(check_qty)
 
 
               check_qty.forEach(row => {
-                const { menu_id, quantity, stock_qty } = row;
+                const { menu_id, quantity, stock_qty,is_available } = row;
                 if (!menuAvailability[menu_id]) menuAvailability[menu_id] = true; // เริ่มต้นให้พร้อมขาย
                 if (stock_qty < quantity) {
                   menuAvailability[menu_id] = false; // ถ้ามีอันใดไม่พอ → เมนูนี้หมด
+                }
+                if (is_available == 0){
+                  menuAvailability[menu_id] = false;
                 }
               });
 
@@ -400,6 +407,7 @@ LEFT JOIN ItemOptionIngredient ioi
             activeCateId: 1
           });
             
+          // console.log(data_menu_with_avail)
 
 
 
