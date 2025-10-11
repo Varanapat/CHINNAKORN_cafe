@@ -62,9 +62,9 @@ function escapeHtml(str) {
 }
 
 // ฟังก์ชันเลือกสินค้า (เบเกอรี่ + เครื่องดื่ม)
-async function selectItem(id, name, category, isAvaliable, stock_qty) {
-  isAvaliable = toBool(isAvaliable);
-  selectedItem = { id, name, category, isAvaliable, stock_qty };
+async function selectItem(id, name, category, isAvailable, stock_qty) {
+  isAvailable = toBool(isAvailable);
+  selectedItem = { id, name, category, isAvailable, stock_qty };
 
   const rightPanel = document.getElementById('selectedItems');
   let html = `<h3>${escapeHtml(name)}</h3><hr>`;
@@ -74,8 +74,8 @@ async function selectItem(id, name, category, isAvaliable, stock_qty) {
       <button 
         class="btn btn-bg" 
         data-id="${id}" 
-        onclick="toggleDrinkStatus(${id}, ${isAvaliable})">
-        ${isAvaliable ? 'Close Sale' : 'Open Sale'}
+        onclick="toggleDrinkStatus(${id}, ${isAvailable})">
+        ${isAvailable ? 'Close Sale' : 'Open Sale'}
       </button>
     `;
   } else if (category === 'bakery') {
@@ -117,14 +117,14 @@ function toggleDrinkStatus(id, currentStatus) {
   fetch(`/inventory/toggle/${id}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ is_avaliable: newStatus })
+    body: JSON.stringify({ is_available: newStatus })
   })
     .then(res => res.json())
     .then(data => {
       if (data.success) {
         const card = document.querySelector(`.product-card[data-id="${id}"]`);
-        if (card) card.classList.toggle('unavaliable', !data.is_avaliable);
-        selectItem(id, selectedItem.name, 'drink', data.is_avaliable, selectedItem.stockQty);
+        if (card) card.classList.toggle('unavailable', !data.is_available);
+        selectItem(id, selectedItem.name, 'drink', data.is_available, selectedItem.stockQty);
       } else {
         alert('Update failed: ' + (data.message || 'Unknown'));
       }
@@ -163,9 +163,9 @@ async function updateStock(id, change) {
     const card = document.querySelector(`.product-card[data-id="${id}"]`);
     if (card) {
       if (data.newStock <= 0) {
-        card.classList.add('unavaliable');
+        card.classList.add('unavailable');
       } else {
-        card.classList.remove('unavaliable');
+        card.classList.remove('unavailable');
       }
     }
 

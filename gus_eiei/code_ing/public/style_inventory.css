@@ -153,7 +153,7 @@ body {
     background: #fff5f5;
 }
 
-.product-card.unavaliable {
+.product-card.unavailable {
   filter: grayscale(100%);
   opacity: 0.5;
   transition: 0.3s ease;

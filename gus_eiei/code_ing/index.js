@@ -133,6 +133,7 @@ app.get('/main_cas/:where' , (req,res) =>{
   console.log(req.session.where)
   res.redirect(`/main_for_cashier`);
 })
+
 app.get('/cashier', (req, res) => {
   const cart = req.session.cart || [];
   const total = req.session.total || 0;
@@ -269,6 +270,7 @@ LEFT JOIN ItemOptionIngredient ioi
     });
   });
 });
+
 app.get('/main_for_cashier', (req, res) => {
   const cart = req.session.cart || [];
   const total = req.session.total || 0;
@@ -278,7 +280,7 @@ app.get('/main_for_cashier', (req, res) => {
   const cate_select_sql = `SELECT * FROM Category`;
   const menu_select_sql = `SELECT * FROM Menu;`;
   const option_selector_sql = `
-    SELECT 
+    SELECT
       m.menu_id, 
       m.menu_name, 
       og.group_name,
@@ -306,12 +308,16 @@ LEFT JOIN ItemOptionIngredient ioi
   const check_if_there_available = `
   SELECT 
     m.menu_id,
+    me.is_available,
     m.ingredient_id,
     m.quantity,
     i.stock_qty
   FROM MenuIngredient m
   INNER JOIN Ingredient i
-    ON m.ingredient_id = i.ingredient_id`;
+    ON m.ingredient_id = i.ingredient_id
+  INNER JOIN Menu me
+    ON me.menu_id = m.menu_id;
+`;
 
   const check_if_there_option_available = `  SELECT 
     mo.menu_id,
@@ -355,14 +361,17 @@ LEFT JOIN ItemOptionIngredient ioi
               if (err) return console.log(err.message);
               const menuAvailability = {};
 
-              // console.log(check_qty)
+              console.log(check_qty)
 
 
               check_qty.forEach(row => {
-                const { menu_id, quantity, stock_qty } = row;
+                const { menu_id, quantity, stock_qty,is_available } = row;
                 if (!menuAvailability[menu_id]) menuAvailability[menu_id] = true; // เริ่มต้นให้พร้อมขาย
                 if (stock_qty < quantity) {
                   menuAvailability[menu_id] = false; // ถ้ามีอันใดไม่พอ → เมนูนี้หมด
+                }
+                if (is_available == 0){
+                  menuAvailability[menu_id] = false;
                 }
               });
 
@@ -411,6 +420,7 @@ LEFT JOIN ItemOptionIngredient ioi
             activeCateId: 1
           });
             
+          // console.log(data_menu_with_avail)
 
 
 
@@ -421,6 +431,7 @@ LEFT JOIN ItemOptionIngredient ioi
     });
   });
 });
+
 app.get('/confirm_order', (req, res) => {
   // ถ้าไม่มี cart ให้กลับไปหน้าแรก
   if (!req.session.cart || req.session.cart.length === 0) {
@@ -726,6 +737,7 @@ app.post('/update-total', (req, res) => {
 app.get('/where' ,(req,res) =>{
   res.render('where_to_eat');
 })
+
 app.get('/main_for_customer', (req, res) => {
   const cart = req.session.cart || [];
   const total = req.session.total || 0;
@@ -759,15 +771,19 @@ INNER JOIN ItemOption it
 LEFT JOIN ItemOptionIngredient ioi
   ON it.option_id = ioi.option_id;`;
 
-  const check_if_there_available = `
+const check_if_there_available = `
   SELECT 
     m.menu_id,
+    me.is_available,
     m.ingredient_id,
     m.quantity,
     i.stock_qty
   FROM MenuIngredient m
   INNER JOIN Ingredient i
-    ON m.ingredient_id = i.ingredient_id`;
+    ON m.ingredient_id = i.ingredient_id
+  INNER JOIN Menu me
+    ON me.menu_id = m.menu_id;
+`;
 
   const check_if_there_option_available = `  SELECT 
     mo.menu_id,
@@ -823,6 +839,9 @@ LEFT JOIN ItemOptionIngredient ioi
                 if (stock_qty < quantity) {
                   menuAvailability[menu_id] = false; // ถ้ามีอันใดไม่พอ → เมนูนี้หมด
                 }
+                 if (is_available == 0){
+                  menuAvailability[menu_id] = false;
+                }
               });
 
               // ผนวก is_available ลงในแต่ละเมนู
@@ -876,6 +895,7 @@ LEFT JOIN ItemOptionIngredient ioi
     });
   });
 });
+
 app.get('/main/:where' , (req,res) =>{
   req.session.where = req.params.where;
   console.log(req.session.where)
@@ -1109,7 +1129,6 @@ app.get('/pay_qr-customer', async (req, res) => {
   });
 
 
-
 app.post("/complete-order/:id", (req, res) => {
     const orderId = req.params.id;
     const sql = `UPDATE 'Order' SET status = 'complete' WHERE order_id = ?`;
@@ -1122,6 +1141,7 @@ app.post("/complete-order/:id", (req, res) => {
         res.json({ success: true });
     });
 });
+
 
 app.get('/inventory_for_barrista', (req, res) => {
     // Query ออเดอร์
@@ -1152,7 +1172,7 @@ app.get('/inventory_for_barrista', (req, res) => {
     `;
 
     // Query เมนู
-    const menuQuery = `SELECT m.menu_image,m.category_id, m.menu_id, m.menu_name, m.base_price, m.is_avaliable, i.stock_qty 
+    const menuQuery = `SELECT m.menu_image,m.category_id, m.menu_id, m.menu_name, m.base_price, m.is_available, i.stock_qty 
                   FROM Menu m
                   LEFT JOIN Ingredient i
                     on (m.menu_name = i.ingredient_name)`;
@@ -1181,7 +1201,7 @@ app.get('/inventory_for_barrista', (req, res) => {
                 menu_id: d.menu_id,
                 menu_name: d.menu_name,
                 base_price: d.base_price,
-                is_avaliable: d.is_avaliable === 1 ? true : false,
+                is_available: d.is_available === 1 ? true : false,
                 stock_qty: d.stock_qty
             }));
 
@@ -1190,7 +1210,7 @@ app.get('/inventory_for_barrista', (req, res) => {
                 menu_id: d.menu_id,
                 menu_name: d.menu_name,
                 base_price: d.base_price,
-                is_avaliable: d.is_avaliable === 1 ? true : false,
+                is_available: d.is_available === 1 ? true : false,
                 stock_qty: d.stock_qty
             }));
 
@@ -1210,21 +1230,21 @@ app.get('/inventory_for_barrista', (req, res) => {
 //  toggle เครื่องดื่ม
 app.post('/inventory/toggle/:id', (req, res) => {
   const id = req.params.id;
-  const { is_avaliable } = req.body;
+  const { is_available } = req.body;
 
-  if (typeof is_avaliable === 'undefined') {
-    return res.status(400).json({ success: false, message: 'Missing is_avaliable field' });
+  if (typeof is_available === 'undefined') {
+    return res.status(400).json({ success: false, message: 'Missing is_available field' });
   }
 
-  const sql = `UPDATE Menu SET is_avaliable = ? WHERE menu_id = ?`;
+  const sql = `UPDATE Menu SET is_available = ? WHERE menu_id = ?`;
   // console.log(sql);
-  db.all(sql, [is_avaliable ? 1 : 0, id], function (err) {
+  db.all(sql, [is_available ? 1 : 0, id], function (err) {
     if (err) {
       console.error('DB Error:', err);
       return res.status(500).json({ success: false, message: 'Database update failed' });
     }
 
-    res.json({ success: true, is_avaliable });
+    res.json({ success: true, is_available });
   });
 });
 
@@ -1310,7 +1330,7 @@ app.get('/inventory_for_cashier', (req, res) => {
     `;
 
     // Query เมนู
-    const menuQuery = `SELECT m.menu_image,m.category_id, m.menu_id, m.menu_name, m.base_price, m.is_avaliable, i.stock_qty 
+    const menuQuery = `SELECT m.menu_image,m.category_id, m.menu_id, m.menu_name, m.base_price, m.is_available, i.stock_qty 
                   FROM Menu m
                   LEFT JOIN Ingredient i
                     on (m.menu_name = i.ingredient_name)`;
@@ -1339,7 +1359,7 @@ app.get('/inventory_for_cashier', (req, res) => {
                 menu_id: d.menu_id,
                 menu_name: d.menu_name,
                 base_price: d.base_price,
-                is_avaliable: d.is_avaliable === 1 ? true : false,
+                is_available: d.is_available === 1 ? true : false,
                 stock_qty: d.stock_qty
             }));
 
@@ -1348,7 +1368,7 @@ app.get('/inventory_for_cashier', (req, res) => {
                 menu_id: d.menu_id,
                 menu_name: d.menu_name,
                 base_price: d.base_price,
-                is_avaliable: d.is_avaliable === 1 ? true : false,
+                is_available: d.is_available === 1 ? true : false,
                 stock_qty: d.stock_qty
             }));
 
@@ -1368,21 +1388,21 @@ app.get('/inventory_for_cashier', (req, res) => {
 //  toggle เครื่องดื่ม
 app.post('/inventory/toggle/:id', (req, res) => {
   const id = req.params.id;
-  const { is_avaliable } = req.body;
+  const { is_available } = req.body;
 
-  if (typeof is_avaliable === 'undefined') {
-    return res.status(400).json({ success: false, message: 'Missing is_avaliable field' });
+  if (typeof is_available === 'undefined') {
+    return res.status(400).json({ success: false, message: 'Missing is_available field' });
   }
 
-  const sql = `UPDATE Menu SET is_avaliable = ? WHERE menu_id = ?`;
+  const sql = `UPDATE Menu SET is_available = ? WHERE menu_id = ?`;
   // console.log(sql);
-  db.all(sql, [is_avaliable ? 1 : 0, id], function (err) {
+  db.all(sql, [is_available ? 1 : 0, id], function (err) {
     if (err) {
       console.error('DB Error:', err);
       return res.status(500).json({ success: false, message: 'Database update failed' });
     }
 
-    res.json({ success: true, is_avaliable });
+    res.json({ success: true, is_available });
   });
 });
 
