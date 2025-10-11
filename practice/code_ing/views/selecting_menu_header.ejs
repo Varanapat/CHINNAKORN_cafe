@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHINNAKORN café</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&family=Sarabun:wght@400;600&display=swap"
+    rel="stylesheet">
+  <style>
+    body {
+  margin: 0;
+  font-family: "Prompt", "Sarabun", sans-serif;
+  background-color: #fffdf9; /* ครีมอ่อน */
+  color: #3b2f2f; /* น้ำตาลเข้ม */
+}
+
+header.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background-color: #ead9cc;
+  padding: 10px 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* โลโก้แบบหมี + ข้อความ */
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-bear span {
+  font-size: 2rem;
+}
+
+.header-text h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #4b2e2b; /* น้ำตาลโกโก้เข้ม */
+  letter-spacing: 1px;
+}
+
+.header-text h2 {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #a3836d; /* น้ำตาลอ่อนทอง */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* เมนู */
+nav.vertical-menu {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+}
+
+nav.vertical-menu a {
+  text-decoration: none;
+  color: #4b2e2b; /* น้ำตาลเข้ม */
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 20px;
+  background-color: transparent;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+nav.vertical-menu a:hover {
+  background-color: #d4b8a5; /* น้ำตาลนวลตอน hover */
+}
+
+nav.vertical-menu a.active {
+  background-color: #c2a18a; /* น้ำตาลนวลเข้ม */
+  color: #fffaf5; /* สีครีมอ่อน */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+  </style>
+</head>
+
+<body>
+  <header class="sticky-header">
+    <div class="logo-group">
+      <div class="logo-bear"><span>🐻</span></div>
+      <div class="header-text">
+        <h1>CHINNAKORN</h1>
+        <h2>CAFÉ</h2>
+      </div>
+    </div>
+    <nav class="vertical-menu">
+      <% cate.forEach(item=> { %> <a href="#<%= item.category_id %>"
+          class="<%= item.category_id == activeCateId ? 'active' : '' %>">
+          <%= item.category_name %>
+        </a>
+        <% }); %>
+    </nav>
+  </header>
+</body>
+
+</html>

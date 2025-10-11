@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>สรุปรายการ</title>
+  <style>
+    body {
+      font-family: "Arial", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f7f7f7;
+    }
+    .container {
+      width: 95%;
+      margin: 30px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      display: flex;
+      gap: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      min-height: 70vh;
+      margin-top: 5%;
+    }
+    .order-summary {
+      flex: 2;
+    }
+    .payment {
+      flex: 1;
+      background: #fcf9f2;
+      padding: 15px;
+      border-radius: 10px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .menu-item {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+      /* border: 1px solid seagreen; */
+    }
+    .menu-item img {
+      width: 100px;
+      border-radius: 8px;
+    }
+    .details {
+      flex: 1;
+    }
+    .details {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* ให้แน่ใจว่า .details มีพื้นที่ */
+    }
+
+    .price {
+    margin-top: auto; /* ดันให้ชิดล่าง */
+    text-align: right;
+    font-weight: bold;
+    color: #333;
+    padding-top: 10px;
+    }
+    .total-box {
+      margin-top: 20px;
+      border-top: 2px solid #000;
+      padding-top: 10px;
+      font-size: 1.2em;
+      display: flex;
+      justify-content: space-between;
+    }
+    .total-box_not-final {
+      /* margin-top: 20px; */
+      /* border-top: 2px solid #000; */
+      padding-top: 10px;
+      font-size: 1em;
+      color: #888;
+      display: flex;
+      justify-content: space-between;
+    }
+    .pay-buttons button {
+      width: 48%;
+      padding: 12px;
+      margin-bottom: 10px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .cash {
+      background: #888;
+      color: #fff;
+    }
+    .qr {
+      background: #888;
+      color: #fff;
+    }
+    .amount-buttons button {
+      width: 48%;
+      padding: 12px;
+      margin: 5px 1%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+    }
+    .custom-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+      background: #eee;
+      cursor: pointer;
+    }
+    .name_order{
+        display: flex;
+        justify-content: space-between;
+    }
+    .header{
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 100px;
+        /* border: 1px solid brown; */
+        position: fixed; 
+        width: 100%;
+        /* text-align: center; */
+        align-items: center;
+        background-color: #ffffff;
+        z-index: 10;
+        box-shadow: 0 4px 12px #9ba1a7;
+        top: 0;
+        left: 0;
+    }
+
+    .header h2 {
+        margin: 0 auto;
+        }
+    .header a{
+        text-decoration: none;
+        font-size: 2rem;
+        font-weight: 500;
+        position: absolute;
+        color: #000;
+    }
+
+
+
+  .amount-buttons button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .cash.active {
+    background-color: #4CAF50;
+    color: white;
+  }
+
+  .amount-buttons a.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    text-decoration: none;
+    cursor: not-allowed;
+  }
+
+  .cash.active {
+    background-color: #4CAF50;
+    color: white;
+  }
+
+  .promotion-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .promotion-radio {
+    display: none; /* ซ่อนปุ่ม radio ปกติ */
+  }
+
+  .promotion-btn {
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: 0.2s;
+    background: #f9f9f9;
+    font-size: 14px;
+  }
+
+  /* เมื่อ hover */
+  .promotion-btn:hover {
+    background: #eee;
+    border-color: #999;
+  }
+
+  /* เมื่อถูกเลือก */
+  .promotion-radio:checked + .promotion-btn {
+    background: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+  }
+
+
+  </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/">&#11013;</a>
+        <h2>สรุปรายการ ( <%= cart.length %> รายการ )</h2>
+    </div>
+ 
+  <div class="container">
+    
+    <!-- สรุปรายการฝั่งซ้าย -->
+    <div class="order-summary">
+      <% cart.forEach(item => { %>
+      <div class="menu-item">
+        <img src="/picture/<%= item.menu_image %>" alt="<%= item.menu_name %>">
+        <div class="details">
+            <div class="name_order">
+                <div class="name"><h3><%= item.menu_name %></h3></div>
+                <div class="quantity"><%= item.quantity %> X</div>
+            </div>
+    
+            <ul>
+            <% if (item.options && item.options.length > 0) { %>
+                <% item.options.forEach(opt => { %>
+                <li><%= opt.name %><%= opt.extra && opt.extra > 0 ? ` (+${opt.extra})` : "" %></li>
+                <% }) %>
+            <% } %>
+            </ul>
+        
+          <div class="price"><%= item.totalPrice_forMenu %> ฿</div>
+        </div>
+      </div>
+      <% }) %>
+        <% 
+            let beforeVAT = (total * 100) / 107;
+            let vat = total - beforeVAT;
+        %>
+
+
+       <div class="total-box_not-final">
+        <span>ยอดรวมก่อน vat :</span>
+       <span><%= beforeVAT.toFixed(2) %> ฿</span>
+      </div> 
+      <div class="total-box_not-final">
+        <span>vat :</span>
+       <span><%= vat.toFixed(2) %> ฿</span>
+      </div> 
+      <div class="total-box_not-final" id="discount-box" style="display: none;">
+        <span>ส่วนลด :</span>
+        <span id="discount-amount">0 ฿</span>
+      </div>
+      <div class="total-box">
+  <span>ยอดรวม :</span>
+  <span><%= total %> ฿</span>
+</div>
+    </div>
+
+    <!-- ฝั่งขวา วิธีการชำระเงิน -->
+    <div class="payment">
+      <h3>วิธีการชำระเงิน</h3>
+      <div class="pay-buttons">
+        
+        <button class="cash">เงินสด</button>
+        <!-- <button class="qr">QR พร้อมเพย์</button> -->
+        <a class="qr" href="/pay_qr">QR พร้อมเพย์</a>
+      </div>
+
+     <p>ชำระ (<%= total %>)</p>
+    <div class="amount-buttons">
+      <%
+        function roundUpExclusive(value, base, excludeList = []) {
+          let result = (value % base === 0) ? value + base : Math.ceil(value / base) * base;
+          while (excludeList.includes(result)) {
+            result += base;
+          }
+          return result;
+        }
+
+        const total1 = roundUpExclusive(total, 10);
+        const total2 = roundUpExclusive(total, 50, [total1]);
+        const total3 = roundUpExclusive(total, 100, [total1, total2]);
+      %>
+
+      <a href="/cash/<%= total %>"><%= total %></a>
+      <a href="/cash/<%= total1 %>"><%= total1 %></a>
+      <a href="/cash/<%= total2 %>"><%= total2 %></a>
+      <a href="/cash/<%= total3 %>"><%= total3 %></a>
+      <a href="/cash/12200">กำหนดเอง</a>
+    </div>
+         <div class="promotion">
+        <h3>Promotion</h3>
+<form class="promotion-form">
+  <% pro.forEach(proele => { %>
+    <% if (proele.active == 1) { %>
+      <input 
+        type="radio"
+        name="promotion"
+        value="<%= proele.promotion_id %>" 
+        id="promotion_<%= proele.promotion_id %>" 
+        class="promotion-radio" />
+
+      <label for="promotion_<%= proele.promotion_id %>" class="promotion-btn">
+        <%= proele.promotion_name %> 
+        - <%= proele.discount_value %><%= proele.discount_type === 'percent' ? '%' : '฿' %>
+      </label>
+    <% } %>
+  <% }); %>
+</form>
+    </div>
+  </div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const cashButton = document.querySelector(".cash");
+    const qrLink = document.querySelector(".qr");
+    const amountLinks = document.querySelectorAll(".amount-buttons a");
+
+    let cashEnabled = false;
+
+    // ปิดลิงก์โดยการดัก event ไว้ก่อน
+    amountLinks.forEach((link) => {
+      link.addEventListener("click", function (e) {
+        if (!cashEnabled) {
+          e.preventDefault(); // ปิดไม่ให้ลิงก์ทำงาน
+          alert("กรุณาเลือก 'เงินสด' ก่อนทำรายการ");
+        }
+      });
+
+      // เพิ่ม class เพื่อทำให้ดู disabled (ถ้าต้องการ)
+      link.classList.add("disabled");
+    });
+
+    // เมื่อคลิกเงินสด ให้เปิดการใช้งานลิงก์
+    cashButton.addEventListener("click", function () {
+      cashEnabled = true;
+
+      amountLinks.forEach((link) => {
+        link.classList.remove("disabled");
+      });
+
+      cashButton.classList.add("active");
+    });
+
+    // ถ้าคลิก QR พร้อมเพย์ ให้ปิดการใช้งานลิงก์อีกครั้ง
+    qrLink.addEventListener("click", function () {
+      cashEnabled = false;
+
+      amountLinks.forEach((link) => {
+        link.classList.add("disabled");
+      });
+
+      cashButton.classList.remove("active");
+    });
+  });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const radios = document.querySelectorAll(".promotion-radio");
+  const totalDisplay = document.getElementById("total-display");
+  const discountBox = document.getElementById("discount-box");
+  const discountAmountEl = document.getElementById("discount-amount");
+  let originalTotal = <%= total %>;// ยอดรวมก่อนส่วนลด
+  
+
+  radios.forEach(radio => {
+    radio.addEventListener("change", async (e) => {
+      const selected = e.target;
+      const promoId = selected.value;
+      const promoEl = selected.nextElementSibling;
+
+      // ดึงค่าจาก label เช่น "ลด 10%" หรือ "ลด 20฿"
+      const text = promoEl.innerText;
+      const value = parseFloat(text.match(/- (\d+(\.\d+)?)/)[1]);
+      const isPercent = text.includes('%');
+
+      // คำนวณส่วนลด
+      let discountValue = isPercent
+        ? (originalTotal * value / 100)
+        : value;
+      if (discountValue > originalTotal) discountValue = originalTotal;
+
+      const discountedTotal = originalTotal - discountValue;
+
+      // แสดงส่วนลด + ยอดรวมใหม่
+      discountBox.style.display = "flex";
+      discountAmountEl.textContent = `- ${discountValue.toFixed(2)} ฿`;
+      totalDisplay.textContent = `${discountedTotal.toFixed(2)} ฿`;
+
+      // อัปเดต session.total ทาง backend
+      try {
+        const res = await fetch("/update-total", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            promotion_id: promoId,
+            discountedTotal,
+            discountValue
+          })
+        });
+
+        if (!res.ok) {
+          console.error("ไม่สามารถอัปเดต session.total ได้");
+        }
+      } catch (err) {
+        console.error("เกิดข้อผิดพลาด:", err);
+      }
+    });
+  });
+});
+</script>
+
+
+</body>
+</html>

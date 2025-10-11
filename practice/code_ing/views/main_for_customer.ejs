@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ร้านกาแฟ</title>
+  <link rel="stylesheet" href="/style_main.css">
+  <link rel="stylesheet" href="/style_modal.css">
+  <style>
+    .modal {
+  display: none;
+}
+.modal.active {
+  display: block;
+}
+#overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+}
+#overlay.active {
+  display: block;
+}
+
+.cart-icon {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    font-size: 40px;        /* ใหญ่ขึ้น */
+    padding: 10px;          /* เพิ่มพื้นที่คลิก */
+    z-index: 2000;          /* ให้อยู่บนสุด */
+    background: #fff;       /* อาจเพิ่มพื้นหลังให้เห็นชัด */
+    border-radius: 50%;     
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+
+
+  </style>
+</head>
+
+<body>
+  <div class="content">
+    <%- include('selecting_menu') %>
+  </div>
+
+  <!-- ตะกร้า -->
+<div class="cart-icon" id="cart-icon">🛒</div>
+
+<div class="modal" id="cart-modal">
+  <div class="modal-content">
+    <span class="close-btn" id="close-modal">&times;</span>
+    <h2>ตะกร้าสินค้า</h2>
+        <% if (cart.length === 0) { %>
+            <p>ยังไม่มีสินค้าในตะกร้า</p>
+        <% } else { %>
+            <ul id="cart-list">
+                <% cart.forEach((item) => { %>
+                    <li data-menu-id="<%= item.menu_id %>" data-options='<%= JSON.stringify(item.options) %>'>
+                        <img class="img" src="/picture/<%= item.menu_image %>" alt="<%= item.menu_name %>">
+                        <strong><%= item.menu_name %></strong><br>
+                        จำนวน: 
+                        <button type="button" class="qty-btn minus">&minus;</button>
+                        <span class="qty"><%= item.quantity %></span>
+                        <button type="button" class="qty-btn plus">&plus;</button>
+                        | ราคา/ชิ้น: <%= item.unitPrice %> | รวม: <span class="totalPrice"><%= item.totalPrice_forMenu %></span>
+                        <br>
+                        ตัวเลือก: 
+                        <%= item.options.map(opt => opt.name + (opt.extra && opt.extra > 0 ? ` (+${opt.extra})` : "")).join(" | ") %>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } %>
+        <a href="/confirm_order-customer"><button>ยืนยันคำสั่งซื้อ</button></a>
+        <a href="/canceled_order"><button>ยกเลิกคำสั่งซื้อ</button></a>
+  </div>
+</div>
+
+  <!-- overlay -->
+  <div id="overlay"></div>
+
+  <!-- script --> 
+   <script src="/script_cart.js"></script>
+    <script src="/script_modal.js"></script>
+    <script src="/script_modal_cart.js"></script>
+    <script src="/script_main.js"></script>
+    <script src="/script_add_to_cart.js"></script>
+</body>
+</html>

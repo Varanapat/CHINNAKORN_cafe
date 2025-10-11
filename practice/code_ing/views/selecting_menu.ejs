@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHINNAKORN CAFÉ - เลือกเมนู</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* BASE & UTILITIES */
+        body {
+            font-family: 'Prompt', 'Sarabun', sans-serif;
+            background-color: #fffdf9; /* สีพื้นหลังหลัก: ขาวอมครีม (อบอุ่น) */
+            color: #3b2f2f; /* สีข้อความหลัก: น้ำตาลเข้ม */
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ================== MAIN MENU DISPLAY ================== */
+
+        .category-section {
+            padding: 20px 40px;
+        }
+
+        /* หัวข้อหมวดหมู่ */
+        .category-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4b2e2b; /* น้ำตาลเข้มโกโก้ */
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .menu-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: flex-start;
+        }
+
+        /* ลิงก์เมนู (Menu Card) */
+        .menu {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            width: 200px;
+            flex-shrink: 0;
+        }
+
+        .menu-card {
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.15s, box-shadow 0.15s;
+            cursor: pointer;
+            height: 100%;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .menu-name {
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .menu-name span:last-child {
+            color: #8a4a36; /* สีน้ำตาลกลางสำหรับราคา */
+            font-weight: 700;
+        }
+
+        /* เมนูที่หมด */
+        .menu-card.unavailable {
+            opacity: 0.6;
+            box-shadow: none;
+            pointer-events: none;
+        }
+        .menu-card.unavailable:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        .menu-img.unavailable {
+            filter: grayscale(80%);
+        }
+
+        /* ================== MODAL STRUCTURE & OPTIONS ================== */
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 0;
+            pointer-events: none;
+            background-color: #fffaf5; /* พื้นหลัง Modal อ่อนกว่าพื้นหลังหลักเล็กน้อย */
+            width: 80%;
+            max-width: 1000px;
+            max-height: 90vh;
+            border-radius: 12px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .modal-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header .title {
+            font-size: 2rem;
+            color: #4b2e2b;
+        }
+
+        .modal-header .close-button {
+            cursor: pointer;
+            background: none;
+            font-size: 2.5rem;
+            color: #aaa;
+        }
+
+        .modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .container_menu {
+            display: flex;
+            gap: 30px;
+        }
+
+        .container_left {
+            flex-basis: 40%;
+        }
+
+        .modal-img_left {
+            width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+        }
+
+        .container_right {
+            flex-basis: 60%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .form {
+            margin-top: 20px;
+            max-height: 40vh;
+            overflow-y: auto;
+            padding-right: 15px;
+        }
+
+        /* Option Selector */
+        .option_selector fieldset {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .option_selector legend {
+            color: #4b2e2b;
+        }
+
+        .option_container {
+            display: flex;
+            padding: 10px 10px 10px 0;
+            border-bottom: 1px dashed #eee;
+            cursor: pointer;
+        }
+
+        .option_container:hover {
+            background-color: #fff7f0;
+        }
+
+        .option_container.unavailable {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #fcfcfc;
+        }
+
+        /* ================== FOOTER (Bottom Container) - ปรับปรุงเรียบง่าย (Minimalist/Full-Width) ================== */
+
+        .bottom_container_right {
+            display: flex;
+            flex-direction: column; /* เรียงจากบนลงล่าง: 1. Price/Quantity 2. Add to Cart */
+            padding: 15px 0 0;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        /* บรรทัดราคาและตัวควบคุมจำนวน */
+        .price-qty-line {
+            display: flex;
+            justify-content: space-between; /* ให้ราคาอยู่ซ้ายสุด และ Quantity Selector อยู่ขวาสุด */
+            align-items: center;
+            margin-bottom: 15px; /* ช่องว่างระหว่างแถวราคากับปุ่ม "เพิ่มลงตะกร้า" */
+        }
+
+        /* Price Display */
+        .price-container .price {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #4b2e2b;
+            margin: 0;
+        }
+        
+        /* Quantity Selector (ปรับปรุงขนาดและรูปแบบให้เรียบง่ายขึ้น) */
+        .quantity {
+            display: flex;
+            align-items: center;
+            /* ลบ margin-right ออก เนื่องจากไม่ต้องการเว้นขวาแล้ว */
+            border: 1px solid #d8cdc5; /* กรอบเรียบ สีน้ำตาลอ่อนมาก */
+            border-radius: 6px; 
+            overflow: hidden;
+            background-color: #f7f3f0; /* พื้นหลังสีครีมอ่อนๆ */
+        }
+
+        .qty-btn {
+            border: none;
+            background-color: transparent; 
+            color: #8a4a36; /* สีน้ำตาลกลาง (เน้น) */
+            font-size: 1.4rem; /* ลดขนาดปุ่มลงเล็กน้อย */
+            padding: 4px 12px; /* ลด padding ลง */
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+            /* เพิ่มเส้นแบ่งด้านข้างเพื่อให้ดูเป็นปุ่ม */
+            border-left: 1px solid #d8cdc5;
+            border-right: 1px solid #d8cdc5;
+        }
+
+        /* ลบเส้นแบ่งด้านข้างที่ติดกับตัวเลข */
+        .qty-btn.minus {
+            border-right: none;
+        }
+        .qty-btn.plus {
+            border-left: none;
+        }
+
+        .qty-btn:hover {
+            background-color: #e8e0d6; /* เปลี่ยนสีเมื่อ Hover เล็กน้อย */
+        }
+
+        .qty {
+            font-size: 1.2rem; /* ลดขนาดตัวเลขลง */
+            padding: 4px 10px;
+            font-weight: 600;
+            color: #4b2e2b; 
+            background-color: transparent; 
+        }
+
+        /* Add to Cart Button (ขยายเต็มความกว้าง) */
+        .add-to-cart {
+            width: 100%; /* ทำให้ปุ่มยาวเต็มความกว้าง */
+            background-color: #5a4237; /* สีน้ำตาลเข้มขึ้นเพื่อให้ดูเป็นปุ่มหลัก */
+            color: white;
+            padding: 12px 22px; /* เพิ่ม padding ให้ปุ่มดูใหญ่ขึ้น */
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .add-to-cart:hover {
+            background-color: #433023;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        /* OVERLAY */
+
+        #overlay {
+            position: fixed;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        #overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('selecting_menu_header') %>
+    <% cate.forEach(category=> { %>
+        <section id="<%= category.category_id %>" class="category-section">
+            <h2 class="category-title">
+                <%= category.category_name %>
+            </h2>
+
+            <div class="menu-container">
+                <% menu.filter(item_menu=> item_menu.category_id === category.category_id)
+                    .forEach(item_menu => { %>
+
+                    <% if (item_menu.is_available) { %>
+                        <a class="menu" data-modal-target="#modal-<%= item_menu.menu_id %>">
+                            <div class="menu-card">
+                            <img class="menu-img" src="/picture/<%= item_menu.menu_image %>" alt="<%= item_menu.menu_name %>">
+                            <h3 class="menu-name">
+                                <span><%= item_menu.menu_name %></span>
+                                <span><%= item_menu.base_price %> ฿</span>
+                            </h3>
+                            </div>
+                        </a>
+                        <% } else { %>
+                        <div class="menu disabled">
+                            <div class="menu-card unavailable">
+                            <img class="menu-img unavailable" src="/picture/<%= item_menu.menu_image %>" alt="<%= item_menu.menu_name %>">
+                            <h3 class="menu-name">
+                                <span><%= item_menu.menu_name %></span>
+                                <span style="color:red;">หมด</span>
+                            </h3>
+                            </div>
+                        </div>
+                        <% } %>
+
+                    <div class="modal" id="modal-<%= item_menu.menu_id %>">
+                        <div class="modal-header">
+                            <div class="title">
+                                <%= item_menu.menu_name %>
+                            </div>
+                            <button data-close-button class="close-button">&times;</button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="container_menu">
+                                <div class="container_left">
+                                    <img class="modal-img_left" src="/picture/<%= item_menu.menu_image %>"
+                                        alt="<%= item_menu.menu_name %>">
+                                </div>
+
+                                <div class="container_right">
+                                    <div class="head_container_right">
+                                        <b>รายละเอียดของเมนู: </b>
+                                        <p class="menu-description">
+                                            <%= item_menu.description %>
+                                        </p>
+                                    </div>
+
+                                    <form method="post" action="/add-to-cart" class="cart-form" data-menu-id="<%= item_menu.menu_id %>">
+                                        <div class="form">
+
+                                            <% slt.forEach(sl=> { %>
+                                                <% if (item_menu.menu_id===sl.menu_id) { %>
+                                                    <div class="option_selector">
+                                                        <fieldset>
+                                                            <legend>
+                                                                <% if (sl.is_required === 1) { %>
+                                                                    <span> <b style="color: #ff1414;"><%= sl.group_name %> *****</b></span>
+                                                                <%}else {%>
+                                                                    <span> <%= sl.group_name %></span>
+                                                                    <%} %>
+                                                            </legend>
+                                                            <% itslt.forEach(itsl => { %>
+                                                            <% if (sl.group_name === itsl.group_name) { 
+                                                                const optKey = item_menu.menu_id + '_' + itsl.ingredient_id;
+                                                                const isOptAvailable = optionAvailability && optionAvailability[optKey] !== false;
+                                                            %>
+                                                                <div class="option_container <%= !isOptAvailable ? 'unavailable' : '' %>">
+                                                                    <div class="option_left">
+                                                                        <input type="radio"
+                                                                            name="menu-<%= item_menu.menu_id %>-<%= itsl.group_name %>"
+                                                                            value="<%= itsl.option_name %>"
+                                                                            id="opt-<%= item_menu.menu_id %>-<%= itsl.option_name %>"
+                                                                            <%= !isOptAvailable ? 'disabled' : (sl.is_required ? 'required' : '') %> />
+                                                                        <label for="opt-<%= item_menu.menu_id %>-<%= itsl.option_name %>">
+                                                                            <%= itsl.option_name %>
+                                                                            <% if (!isOptAvailable) { %>
+                                                                                <span style="color:red;">(หมด)</span>
+                                                                            <% } %>
+                                                                        </label>
+                                                                    </div>
+                                                                    <span>
+                                                                        <% if (itsl.extra_price === 0) { %>
+                                                                            (ฟรี)
+                                                                        <% } else { %>
+                                                                            (+ <%= itsl.extra_price %> ฿)
+                                                                        <% } %>
+                                                                    </span>
+                                                                </div>
+                                                            <% } %>
+                                                            <% }) %>
+                                                        </fieldset>
+                                                    </div>
+                                                    <% } %>
+                                                    <% }) %>
+                                        </div>
+
+                                        <div class="bottom_container_right">
+                                            <div class="price-qty-line"> 
+                                                <div class="price-container">
+                                                    <p class="price" data-base-price="<%= item_menu.base_price %>">
+                                                        <%= item_menu.base_price %> ฿
+                                                    </p>
+                                                    <div class="selected-options"></div>
+                                                </div>
+
+                                                <div class="quantity">
+                                                    <button type="button" class="qty-btn minus">&minus;</button>
+                                                    <span class="qty">1</span>
+                                                    <button type="button" class="qty-btn plus">&plus;</button>
+                                                </div>
+                                            </div>
+
+                                            <input type="hidden" name="quantity" value="1">
+                                            <input type="hidden" name="options" value="">
+                                            <input type="hidden" name="totalPrice" value="<%= item_menu.base_price %>">
+
+                                            <button type="submit" class="add-to-cart">เพิ่มลงตะกร้า</button>
+                                        </div>
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>
+            </div>
+        </section>
+        <% }) %>
+
+        <div id="overlay"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // =======================================================
+            // 1. MODAL LOGIC
+            // =======================================================
+            const openModalButtons = document.querySelectorAll('[data-modal-target]');
+            const closeModalButtons = document.querySelectorAll('[data-close-button]');
+            const overlay = document.getElementById('overlay');
+
+            function openModal(modal) {
+                if (modal == null) return;
+                modal.classList.add('active');
+                overlay.classList.add('active');
+                
+                const form = modal.querySelector('.cart-form');
+                if (form) {
+                    // คำนวณราคาเริ่มต้นเมื่อเปิด Modal
+                    calculateTotalPrice(form); 
+                }
+            }
+
+            function closeModal(modal) {
+                if (modal == null) return;
+                modal.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+
+            openModalButtons.forEach(button => {
+                if (button.classList.contains('disabled')) return;
+                button.addEventListener('click', () => {
+                    const modal = document.querySelector(button.dataset.modalTarget);
+                    openModal(modal);
+                });
+            });
+
+            closeModalButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const modal = button.closest('.modal');
+                    closeModal(modal);
+                });
+            });
+
+            overlay.addEventListener('click', () => {
+                const modals = document.querySelectorAll('.modal.active');
+                modals.forEach(modal => {
+                    closeModal(modal);
+                });
+            });
+
+            // =======================================================
+            // 2. PRICE & QUANTITY LOGIC
+            // =======================================================
+            
+            function calculateTotalPrice(form) {
+                const modal = form.closest('.modal');
+                if (!modal) return 0;
+                
+                const priceElement = modal.querySelector('.price');
+                const basePrice = parseFloat(priceElement.dataset.basePrice);
+                const totalPriceInput = modal.querySelector('input[name="totalPrice"]');
+                const optionsHiddenInput = modal.querySelector('input[name="options"]');
+                const qty = parseInt(modal.querySelector('input[name="quantity"]').value || 1);
+                
+                let currentOptionPrice = 0;
+                const selectedOptionsData = [];
+
+                modal.querySelectorAll('.option_selector').forEach(selector => {
+                    const checkedRadio = selector.querySelector('input[type="radio"]:checked');
+                    
+                    if (checkedRadio) {
+                        const optionContainer = checkedRadio.closest('.option_container');
+                        const extraPriceSpan = optionContainer.querySelector('span:last-child');
+                        
+                        let extraPrice = 0;
+                        if (extraPriceSpan) {
+                            const priceText = extraPriceSpan.textContent.replace('(+ ', '').replace(' ฿)', '').trim();
+                            if (priceText !== '(ฟรี)') {
+                                extraPrice = parseFloat(priceText) || 0;
+                            }
+                        }
+                        
+                        currentOptionPrice += extraPrice;
+                        selectedOptionsData.push({
+                            group: checkedRadio.name.split('-').slice(2).join('-'),
+                            option: checkedRadio.value,
+                            price: extraPrice
+                        });
+                    }
+                });
+
+                const finalPricePerItem = basePrice + currentOptionPrice;
+                const totalFinalPrice = finalPricePerItem * qty;
+
+                priceElement.textContent = `${totalFinalPrice.toFixed(0)} ฿`;
+                
+                totalPriceInput.value = totalFinalPrice.toFixed(0);
+                optionsHiddenInput.value = JSON.stringify(selectedOptionsData);
+                
+                return totalFinalPrice;
+            }
+
+            const cartForms = document.querySelectorAll('.cart-form');
+
+            cartForms.forEach(form => {
+                const modal = form.closest('.modal');
+                if (!modal) return;
+                
+                const optionInputs = modal.querySelectorAll('input[type="radio"]');
+                const minusButton = modal.querySelector('.qty-btn.minus');
+                const plusButton = modal.querySelector('.qty-btn.plus');
+                const qtySpan = modal.querySelector('.qty');
+                const quantityHiddenInput = modal.querySelector('input[name="quantity"]');
+
+                // Event Listener สำหรับ Option
+                optionInputs.forEach(input => {
+                    input.addEventListener('change', () => calculateTotalPrice(form));
+                });
+
+                // Event Listener สำหรับปุ่มลบจำนวน
+                minusButton.addEventListener('click', () => {
+                    let currentQty = parseInt(qtySpan.textContent);
+                    if (currentQty > 1) {
+                        currentQty--;
+                        qtySpan.textContent = currentQty;
+                        quantityHiddenInput.value = currentQty;
+                        calculateTotalPrice(form);
+                    }
+                });
+
+                // Event Listener สำหรับปุ่มเพิ่มจำนวน
+                plusButton.addEventListener('click', () => {
+                    let currentQty = parseInt(qtySpan.textContent);
+                    currentQty++;
+                    qtySpan.textContent = currentQty;
+                    quantityHiddenInput.value = currentQty;
+                    calculateTotalPrice(form);
+                });
+
+                // =======================================================
+                // 3. CART FORM SUBMISSION LOGIC (ไม่แจ้งเตือนเมื่อสำเร็จ)
+                // =======================================================
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+
+                    const menuId = form.dataset.menuId;
+                    const quantity = form.querySelector('input[name="quantity"]').value;
+                    const options = form.querySelector('input[name="options"]').value;
+                    const totalPrice = form.querySelector('input[name="totalPrice"]').value;
+
+                    // 1. ตรวจสอบ Required Field
+                    const requiredFields = form.querySelectorAll('fieldset legend span b[style*="color: #ff1414;"]');
+                    let isFormValid = true;
+
+                    requiredFields.forEach(requiredLegend => {
+                        const groupName = requiredLegend.textContent.replace(' *****', '').trim();
+                        const inputName = `menu-${menuId}-${groupName}`; 
+                        const isChecked = form.querySelector(`input[name="${inputName}"]:checked`);
+                        
+                        if (!isChecked) {
+                            isFormValid = false;
+                            alert(`กรุณาเลือกตัวเลือกในกลุ่ม ${groupName} ก่อนเพิ่มลงตะกร้า`);
+                        }
+                    });
+
+                    if (!isFormValid) {
+                        return; 
+                    }
+
+                    // 2. ส่งข้อมูล
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                menu_id: menuId,
+                                quantity: quantity,
+                                options: JSON.parse(options),
+                                total_price: totalPrice
+                            }),
+                        });
+
+                        // **การปรับปรุง: ลบ Alert เมื่อสำเร็จ**
+                        if (response.ok) {
+                            closeModal(modal); // ปิด Modal ทันที
+                            
+                            // รีเซ็ตค่าใน UI และ Hidden Inputs
+                            form.reset(); 
+                            qtySpan.textContent = 1;
+                            quantityHiddenInput.value = 1;
+                            calculateTotalPrice(form); 
+                            
+                            // ***ส่วนนี้อาจมีการเรียกฟังก์ชันเพื่ออัพเดทตะกร้าด้านนอก modal***
+                            
+                        } else {
+                            const result = await response.json();
+                            alert(`เกิดข้อผิดพลาด: ${result.message || 'Unknown Error'}`); // ยังคงแจ้งเตือนเมื่อเกิดข้อผิดพลาด
+                        }
+
+                    } catch (error) {
+                        console.error('Fetch error:', error);
+                        alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
