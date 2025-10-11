@@ -817,12 +817,12 @@ const check_if_there_available = `
 
 
               check_qty.forEach(row => {
-                const { menu_id, quantity, stock_qty } = row;
+                const { menu_id, quantity, stock_qty,is_available } = row;
                 if (!menuAvailability[menu_id]) menuAvailability[menu_id] = true; // เริ่มต้นให้พร้อมขาย
                 if (stock_qty < quantity) {
                   menuAvailability[menu_id] = false; // ถ้ามีอันใดไม่พอ → เมนูนี้หมด
                 }
-                 if (is_available == 0){
+                if (is_available == 0){
                   menuAvailability[menu_id] = false;
                 }
               });
@@ -1074,6 +1074,8 @@ app.get('/pay_qr-customer', async (req, res) => {
 // แสดงออเดอร์ทั้งหมด
 
 // แสดงออเดอร์ทั้งหมด
+
+// แสดงออเดอร์ทั้งหมด
   app.get('/bartender', function (req, res) {
       const query = `
           SELECT 
@@ -1109,7 +1111,6 @@ app.get('/pay_qr-customer', async (req, res) => {
   });
 
 
-
 app.post("/complete-order/:id", (req, res) => {
     const orderId = req.params.id;
     const sql = `UPDATE 'Order' SET status = 'complete' WHERE order_id = ?`;
@@ -1122,6 +1123,7 @@ app.post("/complete-order/:id", (req, res) => {
         res.json({ success: true });
     });
 });
+
 
 app.get('/inventory_for_barrista', (req, res) => {
     // Query ออเดอร์
@@ -1152,7 +1154,7 @@ app.get('/inventory_for_barrista', (req, res) => {
     `;
 
     // Query เมนู
-    const menuQuery = `SELECT m.menu_image,m.category_id, m.menu_id, m.menu_name, m.base_price, m.is_avaliable, i.stock_qty 
+    const menuQuery = `SELECT m.menu_image,m.category_id, m.menu_id, m.menu_name, m.base_price, m.is_available, i.stock_qty 
                   FROM Menu m
                   LEFT JOIN Ingredient i
                     on (m.menu_name = i.ingredient_name)`;
@@ -1181,7 +1183,7 @@ app.get('/inventory_for_barrista', (req, res) => {
                 menu_id: d.menu_id,
                 menu_name: d.menu_name,
                 base_price: d.base_price,
-                is_avaliable: d.is_avaliable === 1 ? true : false,
+                is_available: d.is_available === 1 ? true : false,
                 stock_qty: d.stock_qty
             }));
 
@@ -1190,7 +1192,7 @@ app.get('/inventory_for_barrista', (req, res) => {
                 menu_id: d.menu_id,
                 menu_name: d.menu_name,
                 base_price: d.base_price,
-                is_avaliable: d.is_avaliable === 1 ? true : false,
+                is_available: d.is_available === 1 ? true : false,
                 stock_qty: d.stock_qty
             }));
 
@@ -1210,21 +1212,21 @@ app.get('/inventory_for_barrista', (req, res) => {
 //  toggle เครื่องดื่ม
 app.post('/inventory/toggle/:id', (req, res) => {
   const id = req.params.id;
-  const { is_avaliable } = req.body;
+  const { is_available } = req.body;
 
-  if (typeof is_avaliable === 'undefined') {
-    return res.status(400).json({ success: false, message: 'Missing is_avaliable field' });
+  if (typeof is_available === 'undefined') {
+    return res.status(400).json({ success: false, message: 'Missing is_available field' });
   }
 
-  const sql = `UPDATE Menu SET is_avaliable = ? WHERE menu_id = ?`;
+  const sql = `UPDATE Menu SET is_available = ? WHERE menu_id = ?`;
   // console.log(sql);
-  db.all(sql, [is_avaliable ? 1 : 0, id], function (err) {
+  db.all(sql, [is_available ? 1 : 0, id], function (err) {
     if (err) {
       console.error('DB Error:', err);
       return res.status(500).json({ success: false, message: 'Database update failed' });
     }
 
-    res.json({ success: true, is_avaliable });
+    res.json({ success: true, is_available });
   });
 });
 
@@ -1310,7 +1312,7 @@ app.get('/inventory_for_cashier', (req, res) => {
     `;
 
     // Query เมนู
-    const menuQuery = `SELECT m.menu_image,m.category_id, m.menu_id, m.menu_name, m.base_price, m.is_avaliable, i.stock_qty 
+    const menuQuery = `SELECT m.menu_image,m.category_id, m.menu_id, m.menu_name, m.base_price, m.is_available, i.stock_qty 
                   FROM Menu m
                   LEFT JOIN Ingredient i
                     on (m.menu_name = i.ingredient_name)`;
@@ -1339,7 +1341,7 @@ app.get('/inventory_for_cashier', (req, res) => {
                 menu_id: d.menu_id,
                 menu_name: d.menu_name,
                 base_price: d.base_price,
-                is_avaliable: d.is_avaliable === 1 ? true : false,
+                is_available: d.is_available === 1 ? true : false,
                 stock_qty: d.stock_qty
             }));
 
@@ -1348,7 +1350,7 @@ app.get('/inventory_for_cashier', (req, res) => {
                 menu_id: d.menu_id,
                 menu_name: d.menu_name,
                 base_price: d.base_price,
-                is_avaliable: d.is_avaliable === 1 ? true : false,
+                is_available: d.is_available === 1 ? true : false,
                 stock_qty: d.stock_qty
             }));
 
@@ -1368,21 +1370,21 @@ app.get('/inventory_for_cashier', (req, res) => {
 //  toggle เครื่องดื่ม
 app.post('/inventory/toggle/:id', (req, res) => {
   const id = req.params.id;
-  const { is_avaliable } = req.body;
+  const { is_available } = req.body;
 
-  if (typeof is_avaliable === 'undefined') {
-    return res.status(400).json({ success: false, message: 'Missing is_avaliable field' });
+  if (typeof is_available === 'undefined') {
+    return res.status(400).json({ success: false, message: 'Missing is_available field' });
   }
 
-  const sql = `UPDATE Menu SET is_avaliable = ? WHERE menu_id = ?`;
+  const sql = `UPDATE Menu SET is_available = ? WHERE menu_id = ?`;
   // console.log(sql);
-  db.all(sql, [is_avaliable ? 1 : 0, id], function (err) {
+  db.all(sql, [is_available ? 1 : 0, id], function (err) {
     if (err) {
       console.error('DB Error:', err);
       return res.status(500).json({ success: false, message: 'Database update failed' });
     }
 
-    res.json({ success: true, is_avaliable });
+    res.json({ success: true, is_available });
   });
 });
 
@@ -1436,6 +1438,7 @@ app.post('/inventory/stock/:id', (req, res) => {
     });
   });
 });
+
 
 // app.listen(3000, () => console.log(' running on port 3000'));
 // app.listen(4000, () => console.log('Customer running on port 4000'));

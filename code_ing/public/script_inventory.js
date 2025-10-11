@@ -62,9 +62,9 @@ function escapeHtml(str) {
 }
 
 // ฟังก์ชันเลือกสินค้า (เบเกอรี่ + เครื่องดื่ม)
-async function selectItem(id, name, category, isAvaliable, stock_qty) {
-  isAvaliable = toBool(isAvaliable);
-  selectedItem = { id, name, category, isAvaliable, stock_qty };
+async function selectItem(id, name, category, isAvailable, stock_qty) {
+  isAvailable = toBool(isAvailable);
+  selectedItem = { id, name, category, isAvailable, stock_qty };
 
   const rightPanel = document.getElementById('selectedItems');
   let html = `<h3>${escapeHtml(name)}</h3><hr>`;
@@ -74,8 +74,8 @@ async function selectItem(id, name, category, isAvaliable, stock_qty) {
       <button 
         class="btn btn-bg" 
         data-id="${id}" 
-        onclick="toggleDrinkStatus(${id}, ${isAvaliable})">
-        ${isAvaliable ? 'Close Sale' : 'Open Sale'}
+        onclick="toggleDrinkStatus(${id}, ${isAvailable})">
+        ${isAvailable ? 'Close Sale' : 'Open Sale'}
       </button>
     `;
   } else if (category === 'bakery') {
@@ -91,13 +91,15 @@ async function selectItem(id, name, category, isAvaliable, stock_qty) {
     <div class="d-flex gap-2 mb-2 mt-5">
       <button class="btn btn-sm btn-long flex-fill" onclick="updateStock(${id}, -1)">–</button>
       <button class="btn btn-sm btn-long flex-fill" onclick="updateStock(${id}, 1)">+</button>
-      <button class="btn btn-sm btn-long flex-fill" onclick="editStock(${id})">Edit</button>
+      <button class="btn btn-sm btn-bg flex-fill" onclick="editStock(${id})">Edit</button>
     </div>
-    <button class="btn btn-bg btn-lg w-100 mt-4" onclick="saveStock(${id})">
-      Save
-    </button>
   </div>
 `;
+
+      // <button class="btn btn-bg btn-lg w-100 mt-4" onclick="saveStock(${id})">
+      //   Save
+      // </button>
+
     } catch (err) {
       console.error('Error loading stock:', err);
       html += `<p><strong>Stock:</strong> <span style="color:red;">Error</span></p>`;
@@ -115,17 +117,20 @@ function toggleDrinkStatus(id, currentStatus) {
   fetch(`/inventory/toggle/${id}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ is_avaliable: newStatus })
+    body: JSON.stringify({ is_available: newStatus })
   })
     .then(res => res.json())
     .then(data => {
       if (data.success) {
         const card = document.querySelector(`.product-card[data-id="${id}"]`);
-        if (card) card.classList.toggle('unavaliable', !data.is_avaliable);
-        selectItem(id, selectedItem.name, 'drink', data.is_avaliable, selectedItem.stockQty);
+        if (card) card.classList.toggle('unavailable', !data.is_available);
+        selectItem(id, selectedItem.name, 'drink', data.is_available, selectedItem.stockQty);
       } else {
         alert('Update failed: ' + (data.message || 'Unknown'));
       }
+    })
+    .catch(err => {
+      console.error('Error toggling drink status:', err);
     })
     .finally(() => {
       window.location.reload();
@@ -141,16 +146,35 @@ async function updateStock(id, change) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ change })
     });
-    const data = await res.json();
 
-    if (data.success) {
-      document.getElementById(`stock-${id}`).textContent = data.newStock;
-    } else {
+    const data = await res.json();
+    if (data.newStock <= 1) {
+      window.location.reload();
+    }
+
+    if (!data.success) {
       alert(data.message);
     }
+
+    const stockElem = document.getElementById(`stock-${id}`);
+    stockElem.textContent = data.newStock;
+
+    // 🔹 อัปเดต class ตาม stock ใหม่
+    const card = document.querySelector(`.product-card[data-id="${id}"]`);
+    if (card) {
+      if (data.newStock <= 0) {
+        card.classList.add('unavailable');
+      } else {
+        card.classList.remove('unavailable');
+      }
+    }
+
+    res.json({ success: true });
+
   } catch (err) {
     console.error('Update stock error:', err);
   }
+
 }
 
 
