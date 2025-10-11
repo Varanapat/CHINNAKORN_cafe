@@ -348,7 +348,7 @@ LEFT JOIN ItemOptionIngredient ioi
               if (err) return console.log(err.message);
               const menuAvailability = {};
 
-              console.log(check_qty)
+              // console.log(check_qty)
 
 
               check_qty.forEach(row => {
