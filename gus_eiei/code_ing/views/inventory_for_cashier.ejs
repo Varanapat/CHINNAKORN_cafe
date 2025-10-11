@@ -110,14 +110,14 @@
                         <div id="drinks-section" class="product-grid">
                             <% if (drinks && drinks.length> 0) { %>
                                 <% drinks.forEach(item=> { %>
-                                    <div class="product-card <%= !item.is_avaliable ? 'unavaliable' : '' %>"
+                                    <div class="product-card <%= !item.is_available ? 'unavailable' : '' %>"
                                         data-id="<%= item.menu_id %>"
-                                        onclick="selectItem('<%= item.menu_id %>', '<%= item.menu_name %>', 'drink', '<%= item.is_avaliable %>', '<%= item.stock_qty || 0 %>')">
+                                        onclick="selectItem('<%= item.menu_id %>', '<%= item.menu_name %>', 'drink', '<%= item.is_available %>', '<%= item.stock_qty || 0 %>')">
                                         <img src="/menu_pictures/<%= item.menu_image || 'no_image.png' %>"
                                             alt="<%= item.menu_name %>">
                                         <div class="product-name">
                                             <%= item.menu_name %>
-                                            <!-- <%= item.is_avaliable %> -->
+                                            <!-- <%= item.is_available %> -->
 
                                         </div>
                                         <div class="price">
@@ -134,8 +134,8 @@
                         <div id="bakery-section" class="product-grid" style="display: none;">
                             <% if (bakery && bakery.length> 0) { %>
                                 <% bakery.forEach(item=> { %>
-                                    <div class="product-card <%= !item.stock_qty ? 'unavaliable' : '' %>"
-                                        onclick="selectItem('<%= item.menu_id %>', '<%= item.menu_name %>', 'bakery', '<%= item.is_avaliable %>','<%= item.stock_qty || 0 %>')">
+                                    <div class="product-card <%= !item.stock_qty ? 'unavailable' : '' %>"
+                                        onclick="selectItem('<%= item.menu_id %>', '<%= item.menu_name %>', 'bakery', '<%= item.is_available %>','<%= item.stock_qty || 0 %>')">
                                         <img src="/menu_pictures/<%= item.menu_image || 'no_image.png' %>"
                                             alt="<%= item.menu_name %>">
                                         <div class="product-name">
