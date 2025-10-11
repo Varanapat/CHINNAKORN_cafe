@@ -21,26 +21,28 @@
   <div class="modal-content">
     <span class="close-btn" id="close-modal">&times;</span>
     <h2>ตะกร้าสินค้า</h2>
-        <% if (cart.length === 0) { %>
-            <p>ยังไม่มีสินค้าในตะกร้า</p>
-        <% } else { %>
-            <ul id="cart-list">
-                <% cart.forEach((item) => { %>
-                    <li data-menu-id="<%= item.menu_id %>" data-options='<%= JSON.stringify(item.options) %>'>
-                        <img class="img" src="/picture/<%= item.menu_image %>" alt="<%= item.menu_name %>">
-                        <strong><%= item.menu_name %></strong><br>
-                        จำนวน: 
-                        <button type="button" class="qty-btn minus">&minus;</button>
-                        <span class="qty"><%= item.quantity %></span>
-                        <button type="button" class="qty-btn plus">&plus;</button>
-                        | ราคา/ชิ้น: <%= item.unitPrice %> | รวม: <span class="totalPrice"><%= item.totalPrice_forMenu %></span>
-                        <br>
-                        ตัวเลือก: 
-                        <%= item.options.map(opt => opt.name + (opt.extra && opt.extra > 0 ? ` (+${opt.extra})` : "")).join(" | ") %>
-                    </li>
-                <% }) %>
-            </ul>
-        <% } %>
+        <div id="cart-container">
+  <% if (cart.length === 0) { %>
+    <p>ยังไม่มีสินค้าในตะกร้า</p>
+  <% } else { %>
+    <ul id="cart-list">
+      <% cart.forEach(item => { %>
+        <li data-menu-id="<%= item.menu_id %>" data-options='<%= JSON.stringify(item.options) %>'>
+          <img src="/picture/<%= item.menu_image %>" alt="<%= item.menu_name %>" width="50">
+          <strong><%= item.menu_name %></strong><br>
+          จำนวน: 
+          <button type="button" class="qty-btn minus">&minus;</button>
+          <span class="qty"><%= item.quantity %></span>
+          <button type="button" class="qty-btn plus">&plus;</button>
+          | ราคา/ชิ้น: <%= item.unitPrice %> | รวม: <span class="totalPrice"><%= item.totalPrice_forMenu %></span>
+          <br>
+          ตัวเลือก: 
+          <%= item.options.map(opt => opt.name + (opt.extra && opt.extra > 0 ? ` (+${opt.extra})` : "")).join(" | ") %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</div>
         <a href="/confirm_order-customer">ยืนยันคำสั่งซื้อ</a>
         <a href="/canceled_order-customer">ยกเลิกคำสั่งซื้อ</a>
   </div>
