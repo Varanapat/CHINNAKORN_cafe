@@ -1,14 +1,14 @@
 {
-  "name": "code_best",
+  "name": "code_ing",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "description": "",
   "dependencies": {
     "cookie-parser": "^1.4.7",
     "ejs": "^3.1.10",
@@ -17,8 +17,6 @@
     "nodemon": "^3.1.10",
     "promptpay-qr": "^0.5.0",
     "qrcode": "^1.5.4",
-    "sqlite3": "^5.1.7",
-    "uuid": "^13.0.0"
-  },
-  "description": ""
+    "sqlite3": "^5.1.7"
+  }
 }

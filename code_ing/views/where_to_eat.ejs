@@ -1,15 +1,202 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CHINNAKORN CAFÉ - Kiosk</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Prompt", "Sarabun", sans-serif;
+      background-color: #fffdf9;
+      color: #3b2f2f;
+      overflow: hidden;
+    }
+
+    /* โลโก้ใหญ่หน้าแรก */
+    .logo-and-header.large {
+      position: absolute;
+      top: 12vh;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      color: #4b2e2b;
+    }
+
+    .logo-and-header.large .logo-bear span {
+      font-size: 14vh;
+    }
+
+    .logo-and-header.large h1 {
+      font-size: 7vh;
+      margin: 0;
+      letter-spacing: 2px;
+      color: #4b2e2b;
+      font-weight: 700;
+    }
+
+    .logo-and-header.large h2 {
+      font-size: 4vh;
+      margin: 0;
+      color: #a3836d;
+      font-weight: 600;
+    }
+
+    /* โลโก้มุมขวาบน */
+    .logo-and-header.small {
+      position: absolute;
+      top: 2vh;
+      right: 3vw;
+      text-align: right;
+      color: #4b2e2b;
+    }
+
+    .logo-and-header.small .logo-bear span {
+      font-size: 5vh;
+    }
+
+    .logo-and-header.small h1 {
+      margin: 0;
+      font-size: 3vh;
+      color: #4b2e2b;
+      font-weight: 700;
+    }
+
+    .logo-and-header.small h2 {
+      margin: -0.5vh 0 0;
+      font-size: 2vh;
+      color: #a3836d;
+      font-weight: 600;
+    }
+
+    /* ปุ่มเริ่ม */
+    .footer-text {
+      position: absolute;
+      bottom: 10vh;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 2.2vh 6vh;
+      background-color: #fffaf5;
+      border: none;
+      border-radius: 40px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+      font-size: 3vh;
+      color: #8a4a36;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .footer-text:hover {
+      background-color: #fff3eb;
+      transform: translateX(-50%) translateY(-3px);
+    }
+
+    /* หน้าหลังเลือก */
+    .selection-title {
+      font-size: 4vh;
+      font-weight: 600;
+      margin-top: 25vh;
+      text-align: center;
+      color: #4b2e2b;
+    }
+
+    .choice-options {
+      display: flex;
+      justify-content: center;
+      gap: 8vh;
+      margin-top: 8vh;
+    }
+
+    .service-button {
+      width: 26vh;
+      height: 26vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #fffdf9;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      transition: 0.25s ease;
+      text-align: center;
+    }
+
+    .service-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+    }
+
+    .icon-mockup span {
+      font-size: 9vh;
+      color: #5a4237;
+    }
+
+    .text {
+      margin-top: 2vh;
+      font-size: 3.3vh;
+      font-weight: 600;
+      color: #3b2f2f;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
-    <h1>
-        เลือกรับประทานอาหาร
-    </h1>
-    <a href="/main/DINE_IN">ทานที่ที่ร้าน</a>
-    <a href="/main/TAKEAWAY">กลับบ้าน</a>
+
+  <!-- หน้าแรก -->
+  <div class="full-screen-container" id="welcomeScreen">
+    <div class="logo-and-header large">
+      <div class="logo-bear">
+        <span>🐻</span>
+      </div>
+      <div class="header-text">
+        <h1>CHINNAKORN</h1>
+        <h2>CAFÉ</h2>
+      </div>
+    </div>
+
+    <div class="footer-text" id="startButton">แตะเพื่อเริ่มใช้บริการ</div>
+  </div>
+
+  <!-- หน้าหลังเลือก -->
+  <div class="full-screen-container hidden" id="selectionScreen">
+    <div class="logo-and-header small">
+      <div class="logo-bear"><span>🐻</span></div>
+      <div class="header-text">
+        <h1>CHINNAKORN</h1>
+        <h2>CAFÉ</h2>
+      </div>
+    </div>
+
+    <h1 class="selection-title">เลือกการให้บริการ</h1>
+
+    <div class="choice-options">
+      <a href="/main/DINE_IN" class="service-button">
+        <div class="icon-mockup"><span>☕</span></div>
+        <span class="text">ทานที่ร้าน</span>
+      </a>
+
+      <a href="/main/TAKEAWAY" class="service-button">
+        <div class="icon-mockup"><span>🥤</span></div>
+        <span class="text">กลับบ้าน</span>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const selectionScreen = document.getElementById('selectionScreen');
+    const startButton = document.getElementById('startButton');
+
+    startButton.addEventListener('click', () => {
+      welcomeScreen.classList.add('hidden');
+      selectionScreen.classList.remove('hidden');
+    });
+  </script>
 </body>
 </html>
