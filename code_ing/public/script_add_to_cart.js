@@ -39,6 +39,29 @@ function bindCartEvents() {
   });
 }
 
+  document.querySelectorAll(".qty-btn.minus").forEach(btn => {
+    btn.onclick = async () => {
+      const li = btn.closest("li");
+      const menuId = li.dataset.menuId;
+      const options = JSON.parse(li.dataset.options || "[]");
+      let qty = Number(li.querySelector(".qty").innerText) - 1;
+      if (qty < 0) qty = 0;
+
+      const res = await fetch("/update-cart", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ menu_id: menuId, options, quantity: qty })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        document.querySelector("#cart-container").outerHTML = data.cartHtml;
+        document.querySelector("#cart-icon").textContent = `🛒 (${data.total})`;
+        bindCartEvents();
+      }
+    };
+  });
+
 // ===== loop cart-form =====
 document.querySelectorAll(".cart-form").forEach(form => {
   const modal = form.closest(".modal");
@@ -118,6 +141,7 @@ document.querySelectorAll(".cart-form").forEach(form => {
 
     closeModal(modal);
   });
-
   updateDisplay();
+
+
 });
