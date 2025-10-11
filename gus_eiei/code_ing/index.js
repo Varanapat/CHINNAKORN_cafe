@@ -10,6 +10,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // // session
 const session = require('express-session');
+
+
 app.use(session({
     secret: 'your-secret-key',
     resave: false,
@@ -24,6 +26,7 @@ const generatePayload = require('promptpay-qr'); // ใช้จาก promptpay
 // เอาไว้เปลี่ยน path
 // const dbPath = path.join(__dirname, 'Database', 'CHINNAKORN_blueprint.db');
 const dbPath = path.join(__dirname, 'Database', 'CHINNAKORN_cafe_TH.db');
+
 let db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         return console.error('❌ Database connection error:', err.message);
@@ -31,11 +34,15 @@ let db = new sqlite3.Database(dbPath, (err) => {
     console.log('✅ Connected to SQLite database at', dbPath);
 });
 
+// const Database = require("better-sqlite3");
+// const db = new Database("/Users/moi/Desktop/PROJECT_cafe/code_naive/Database/CHINNAKORN_cafe_TH.db");
+
 // static resourse & templating engine
 app.use(express.static('public'));
 // Set EJS as templating engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
 
 // rounting
 app.get('/category', (req, res) => {
@@ -92,6 +99,10 @@ app.get('/category', (req, res) => {
         })
     });
 });
+
+
+
+
 // หน้าเเรกเพื่อยอกว่าส่งเข้าไปที่เมนู
 app.get('/', (req, res) => {
     console.log('Web starting');
@@ -116,6 +127,7 @@ app.get('/', (req, res) => {
         }
     });
 });
+
 app.get('/main_cas/:where' , (req,res) =>{
   req.session.where = req.params.where;
   console.log(req.session.where)
@@ -181,7 +193,6 @@ LEFT JOIN ItemOptionIngredient ioi
 `;
   
   
-  
 
 
 
@@ -218,14 +229,14 @@ LEFT JOIN ItemOptionIngredient ioi
             
               // บอกว่าเเต่ละ menu ต้องการอะไรบ้าง 
               //  { menu_id: 1, ingredient_id: 1, quantity: 5, stock_qty: 100 },
-            // console.log('check_qty เชคควยๆๆๆ : ' , check_qty);
+            // console.log('check_qty : ' , check_qty);
             db.all(check_if_there_option_available, (err, check_option) => {
               if (err) return console.log(err.message);
               // console.log("check_option:", check_option);
 
               // console.log(check_option)
 
-              // ความพร้อมของแต่ละ option group
+              // ตรวจวัดความพร้อมของแต่ละ option group
                 const optionAvailability = {}; 
                   check_option.forEach(row => {
                     const { menu_id, ingredient_id, quantity, stock_qty } = row;
@@ -234,12 +245,12 @@ LEFT JOIN ItemOptionIngredient ioi
                     // เริ่มต้นเป็น true ถ้ายังไม่มี key
                     if (!(key in optionAvailability)) optionAvailability[key] = true;
 
-                    // ถ้า stock ไม่พอ -> false
+                    // ถ้า stock ไม่พอ → false
                     if (stock_qty < quantity) optionAvailability[key] = false;
                   });
-                // console.log(check_option); // หัวควย กว่าจะได้
+                // console.log(check_option); // ตรวจสอบ
 
-                // console.log(optionAvailability); // เลิกเเล้วเขียนโค้ด ไปเลี้ยงควานดีกว่า
+                // console.log(optionAvailability); // ตรวจสอบ
           res.render('main_for_cashier_before', {
             cart,
             total,
@@ -267,7 +278,7 @@ app.get('/main_for_cashier', (req, res) => {
   const cate_select_sql = `SELECT * FROM Category`;
   const menu_select_sql = `SELECT * FROM Menu;`;
   const option_selector_sql = `
-    SELECT
+    SELECT 
       m.menu_id, 
       m.menu_name, 
       og.group_name,
@@ -295,16 +306,12 @@ LEFT JOIN ItemOptionIngredient ioi
   const check_if_there_available = `
   SELECT 
     m.menu_id,
-    me.is_available,
     m.ingredient_id,
     m.quantity,
     i.stock_qty
   FROM MenuIngredient m
   INNER JOIN Ingredient i
-    ON m.ingredient_id = i.ingredient_id
-  INNER JOIN Menu me
-    ON me.menu_id = m.menu_id;
-`;
+    ON m.ingredient_id = i.ingredient_id`;
 
   const check_if_there_option_available = `  SELECT 
     mo.menu_id,
@@ -348,17 +355,14 @@ LEFT JOIN ItemOptionIngredient ioi
               if (err) return console.log(err.message);
               const menuAvailability = {};
 
-              console.log(check_qty)
+              // console.log(check_qty)
 
 
               check_qty.forEach(row => {
-                const { menu_id, quantity, stock_qty,is_available } = row;
+                const { menu_id, quantity, stock_qty } = row;
                 if (!menuAvailability[menu_id]) menuAvailability[menu_id] = true; // เริ่มต้นให้พร้อมขาย
                 if (stock_qty < quantity) {
                   menuAvailability[menu_id] = false; // ถ้ามีอันใดไม่พอ → เมนูนี้หมด
-                }
-                if (is_available == 0){
-                  menuAvailability[menu_id] = false;
                 }
               });
 
@@ -407,7 +411,6 @@ LEFT JOIN ItemOptionIngredient ioi
             activeCateId: 1
           });
             
-          // console.log(data_menu_with_avail)
 
 
 
@@ -716,6 +719,8 @@ app.post('/update-total', (req, res) => {
 });
 
 
+
+
 // ================== customer ==================
 
 app.get('/where' ,(req,res) =>{
@@ -754,19 +759,15 @@ INNER JOIN ItemOption it
 LEFT JOIN ItemOptionIngredient ioi
   ON it.option_id = ioi.option_id;`;
 
-const check_if_there_available = `
+  const check_if_there_available = `
   SELECT 
     m.menu_id,
-    me.is_available,
     m.ingredient_id,
     m.quantity,
     i.stock_qty
   FROM MenuIngredient m
   INNER JOIN Ingredient i
-    ON m.ingredient_id = i.ingredient_id
-  INNER JOIN Menu me
-    ON me.menu_id = m.menu_id;
-`;
+    ON m.ingredient_id = i.ingredient_id`;
 
   const check_if_there_option_available = `  SELECT 
     mo.menu_id,
@@ -821,9 +822,6 @@ const check_if_there_available = `
                 if (!menuAvailability[menu_id]) menuAvailability[menu_id] = true; // เริ่มต้นให้พร้อมขาย
                 if (stock_qty < quantity) {
                   menuAvailability[menu_id] = false; // ถ้ามีอันใดไม่พอ → เมนูนี้หมด
-                }
-                 if (is_available == 0){
-                  menuAvailability[menu_id] = false;
                 }
               });
 
@@ -911,11 +909,10 @@ app.get("/cash-customer/:amount", async (req, res) => {
   try {
     const cart = req.session.cart || [];
     const total = req.session.total || 0;
-    const where = req.session.where || 'TAKE AWAY';
     const amount = parseInt(req.params.amount, 10);
     const left = amount - total;
 
-    console.log(" เริ่มบันทึกคำสั่งซื้อ, ตะกร้าปัจจุบัน:", JSON.stringify(cart, null, 2));
+    console.log("🛒 เริ่มบันทึกคำสั่งซื้อ, ตะกร้าปัจจุบัน:", JSON.stringify(cart, null, 2));
 
     if (cart.length === 0) {
       return res.status(400).send("ไม่มีสินค้าในตะกร้า");
@@ -944,12 +941,12 @@ app.get("/cash-customer/:amount", async (req, res) => {
     }
 
     const orderId = `${datePrefix}-${String(nextNumber).padStart(3, "0")}`;
-    console.log("สร้าง orderId:", orderId);
+    console.log("🆕 สร้าง orderId:", orderId);
 
     db.run(
       `INSERT INTO "Order" (order_id, total_price, order_type, status)
-      VALUES (?, ?, ?, 'pending')`,
-      [orderId, total,where],
+      VALUES (?, ?, 'TAKEAWAY', 'pending')`,
+      [orderId, total],
       function (err) {
         if (err) {
           console.error("❌ Insert order error:", err);
@@ -969,7 +966,7 @@ app.get("/cash-customer/:amount", async (req, res) => {
                   }
 
                   const orderItemId = this.lastID;
-                  console.log(`เพิ่มเมนู ${item.menu_name} (order_item_id=${orderItemId})`);
+                  console.log(`📦 เพิ่มเมนู ${item.menu_name} (order_item_id=${orderItemId})`);
 
                   // --- ถ้ามี options ---
                   if (item.options && item.options.length > 0) {
@@ -996,13 +993,13 @@ app.get("/cash-customer/:amount", async (req, res) => {
                                   console.error("❌ Insert option error:", err4.message);
                                 } else {
                                   console.log(
-                                    `เพิ่ม option '${opt.name}' (option_id=${row2.option_id}) extra=${finalExtra}`
+                                    `✅ เพิ่ม option '${opt.name}' (option_id=${row2.option_id}) extra=${finalExtra}`
                                   );
                                 }
                               }
                             );
                           } else {
-                            console.warn("ไม่พบ option ในฐานข้อมูล:", opt.name);
+                            console.warn("⚠️ ไม่พบ option ในฐานข้อมูล:", opt.name);
                           }
                         }
                       ); 
@@ -1015,7 +1012,7 @@ app.get("/cash-customer/:amount", async (req, res) => {
                         [item.quantity, item.menu_id],
                         (err5) => {
                           if (err5) console.error("❌ Update stock error:", err5.message);
-                          else console.log(`ลด stock ของเมนู ${item.menu_id} ลง ${item.quantity}`);
+                          else console.log(`📉 ลด stock ของเมนู ${item.menu_id} ลง ${item.quantity}`);
                         }
                       );
                 }
@@ -1068,10 +1065,13 @@ app.get('/pay_qr-customer', async (req, res) => {
 // // console.log(cart)
 //   res.send(cart)
 });
-// ================== bartender ==================
-// แสดงออเดอร์ทั้งหมด
+//listen
+// app.listen(port, (req, res) => {
+//     console.log(`Starting on port ${port}`)
+// })
 
-// แสดงออเดอร์ทั้งหมด
+
+
 
 // แสดงออเดอร์ทั้งหมด
   app.get('/bartender', function (req, res) {
@@ -1437,13 +1437,6 @@ app.post('/inventory/stock/:id', (req, res) => {
   });
 });
 
-// app.listen(3000, () => console.log(' running on port 3000'));
-// app.listen(4000, () => console.log('Customer running on port 4000'));
-const os = require("os");
-const ip = Object.values(os.networkInterfaces())
-  .flat()
-  .find(i => i.family === "IPv4" && !i.internal)?.address;
 
-app.listen(3000, "0.0.0.0", () => {
-  console.log(`✅ Server running on http://${ip}:3000`);
-});
+app.listen(3000, () => console.log(' running on port 3000'));
+// app.listen(4000, () => console.log('Customer running on port 4000'));
