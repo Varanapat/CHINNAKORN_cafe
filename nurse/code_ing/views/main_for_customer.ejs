@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ร้านกาแฟ</title>
+  <link rel="stylesheet" href="/style_main.css">
+  <link rel="stylesheet" href="/style_modal.css">
+  <link rel="stylesheet" href="/style_main_for_customer.css">
+</head>
+
+<body>
+  <div class="content">
+    <%- include('selecting_menu') %>
+  </div>
+
+  <!-- ตะกร้า -->
+<div class="cart-icon" id="cart-icon">🛒</div>
+
+<div class="modal" id="cart-modal">
+  <div class="modal-content">
+    <span class="close-btn" id="close-modal">&times;</span>
+    <h2>ตะกร้าสินค้า</h2>
+        <% if (cart.length === 0) { %>
+            <p>ยังไม่มีสินค้าในตะกร้า</p>
+        <% } else { %>
+            <ul id="cart-list">
+                <% cart.forEach((item) => { %>
+                    <li data-menu-id="<%= item.menu_id %>" data-options='<%= JSON.stringify(item.options) %>'>
+                        <img class="img" src="/picture/<%= item.menu_image %>" alt="<%= item.menu_name %>">
+                        <strong><%= item.menu_name %></strong><br>
+                        จำนวน: 
+                        <button type="button" class="qty-btn minus">&minus;</button>
+                        <span class="qty"><%= item.quantity %></span>
+                        <button type="button" class="qty-btn plus">&plus;</button>
+                        | ราคา/ชิ้น: <%= item.unitPrice %> | รวม: <span class="totalPrice"><%= item.totalPrice_forMenu %></span>
+                        <br>
+                        ตัวเลือก: 
+                        <%= item.options.map(opt => opt.name + (opt.extra && opt.extra > 0 ? ` (+${opt.extra})` : "")).join(" | ") %>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } %>
+        <a href="/confirm_order-customer">ยืนยันคำสั่งซื้อ</a>
+        <a href="/canceled_order-customer">ยกเลิกคำสั่งซื้อ</a>
+  </div>
+</div>
+
+  <!-- overlay -->
+  <div id="overlay"></div>
+
+  <!-- script --> 
+   <script src="/script_cart.js"></script>
+    <script src="/script_modal.js"></script>
+    <script src="/script_modal_cart.js"></script>
+    <script src="/script_main.js"></script>
+    <script src="/script_add_to_cart.js"></script>
+</body>
+</html>
