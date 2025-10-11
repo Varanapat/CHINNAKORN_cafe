@@ -754,15 +754,19 @@ INNER JOIN ItemOption it
 LEFT JOIN ItemOptionIngredient ioi
   ON it.option_id = ioi.option_id;`;
 
-  const check_if_there_available = `
+const check_if_there_available = `
   SELECT 
     m.menu_id,
+    me.is_available,
     m.ingredient_id,
     m.quantity,
     i.stock_qty
   FROM MenuIngredient m
   INNER JOIN Ingredient i
-    ON m.ingredient_id = i.ingredient_id`;
+    ON m.ingredient_id = i.ingredient_id
+  INNER JOIN Menu me
+    ON me.menu_id = m.menu_id;
+`;
 
   const check_if_there_option_available = `  SELECT 
     mo.menu_id,
@@ -817,6 +821,9 @@ LEFT JOIN ItemOptionIngredient ioi
                 if (!menuAvailability[menu_id]) menuAvailability[menu_id] = true; // เริ่มต้นให้พร้อมขาย
                 if (stock_qty < quantity) {
                   menuAvailability[menu_id] = false; // ถ้ามีอันใดไม่พอ → เมนูนี้หมด
+                }
+                 if (is_available == 0){
+                  menuAvailability[menu_id] = false;
                 }
               });
 
@@ -1063,39 +1070,44 @@ app.get('/pay_qr-customer', async (req, res) => {
 });
 // ================== bartender ==================
 // แสดงออเดอร์ทั้งหมด
-app.get('/bartender', function (req, res) {
-    const query = `
-        SELECT 
-            o.order_id,
-            time(o.order_time) AS order_time,
-            o.order_type,
-            json_group_array(
-                json_object(
-                    'quantity', oi.quantity,
-                    'menu_name', m.menu_name,
-                    'option_name', i.option_name
-                )
-            ) AS items
-        FROM 'Order' o
-        LEFT JOIN OrderItem oi 
-        ON oi.order_id = o.order_id
-        LEFT JOIN Menu m 
-        ON oi.menu_id = m.menu_id
-        LEFT JOIN OrderItemOption oip 
-        ON oip.order_item_id = oi.order_item_id
-        LEFT JOIN ItemOption i ON i.option_id = oip.option_id
-        WHERE m.category_id != 7 and o.status = 'pending'
-        GROUP BY o.order_id
-        ORDER BY o.order_time
-    `;
 
-    db.all(query, (err, rows) => {
-        if (err) {
-            console.log(err.message);
-        }
-        res.render('main', { data: rows });
-    });
-});
+// แสดงออเดอร์ทั้งหมด
+  app.get('/bartender', function (req, res) {
+      const query = `
+          SELECT 
+              o.order_id,
+              time(o.order_time) AS order_time,
+              o.order_type,
+              json_group_array(
+                  json_object(
+                      'quantity', oi.quantity,
+                      'menu_name', m.menu_name,
+                      'option_name', i.option_name
+                  )
+              ) AS items
+          FROM 'Order' o
+          LEFT JOIN OrderItem oi 
+          ON oi.order_id = o.order_id
+          LEFT JOIN Menu m 
+          ON oi.menu_id = m.menu_id
+          LEFT JOIN OrderItemOption oip 
+          ON oip.order_item_id = oi.order_item_id
+          LEFT JOIN ItemOption i ON i.option_id = oip.option_id
+          WHERE m.category_id != 7 and o.status = 'pending'
+          GROUP BY o.order_id
+          ORDER BY o.order_time
+      `;
+
+      db.all(query, (err, rows) => {
+          if (err) {
+              console.log(err.message);
+          }
+          res.render('main', { data: rows });
+      });
+  });
+
+
+
 app.post("/complete-order/:id", (req, res) => {
     const orderId = req.params.id;
     const sql = `UPDATE 'Order' SET status = 'complete' WHERE order_id = ?`;
@@ -1166,7 +1178,7 @@ app.get('/inventory_for_barrista', (req, res) => {
                 menu_id: d.menu_id,
                 menu_name: d.menu_name,
                 base_price: d.base_price,
-                is_available: d.is_avaliable === 1 ? true : false,
+                is_avaliable: d.is_avaliable === 1 ? true : false,
                 stock_qty: d.stock_qty
             }));
 
@@ -1175,7 +1187,7 @@ app.get('/inventory_for_barrista', (req, res) => {
                 menu_id: d.menu_id,
                 menu_name: d.menu_name,
                 base_price: d.base_price,
-                is_available: d.is_available === 1 ? true : false,
+                is_avaliable: d.is_avaliable === 1 ? true : false,
                 stock_qty: d.stock_qty
             }));
 
@@ -1191,6 +1203,7 @@ app.get('/inventory_for_barrista', (req, res) => {
         });
     });
 });
+
 //  toggle เครื่องดื่ม
 app.post('/inventory/toggle/:id', (req, res) => {
   const id = req.params.id;
@@ -1211,6 +1224,7 @@ app.post('/inventory/toggle/:id', (req, res) => {
     res.json({ success: true, is_avaliable });
   });
 });
+
 // ดึง stock จาก DB
 app.get('/api/stock/:id', (req, res) => {
   const id = req.params.id;
@@ -1225,6 +1239,7 @@ app.get('/api/stock/:id', (req, res) => {
     res.json({ stock_qty: row ? row.stock_qty : 0 });
   });
 });
+
 // เพิ่ม/ลดจำนวนเบเกอรี่ (เก็บ stock ที่ Ingredient)
 app.post('/inventory/stock/:id', (req, res) => {
   const id = req.params.id;
@@ -1260,6 +1275,8 @@ app.post('/inventory/stock/:id', (req, res) => {
     });
   });
 });
+
+
 // inventory_for_cashier
 app.get('/inventory_for_cashier', (req, res) => {
     // Query ออเดอร์
@@ -1344,6 +1361,7 @@ app.get('/inventory_for_cashier', (req, res) => {
         });
     });
 });
+
 //  toggle เครื่องดื่ม
 app.post('/inventory/toggle/:id', (req, res) => {
   const id = req.params.id;
@@ -1364,6 +1382,7 @@ app.post('/inventory/toggle/:id', (req, res) => {
     res.json({ success: true, is_avaliable });
   });
 });
+
 // ดึง stock จาก DB
 app.get('/api/stock/:id', (req, res) => {
   const id = req.params.id;
@@ -1378,6 +1397,7 @@ app.get('/api/stock/:id', (req, res) => {
     res.json({ stock_qty: row ? row.stock_qty : 0 });
   });
 });
+
 // เพิ่ม/ลดจำนวนเบเกอรี่ (เก็บ stock ที่ Ingredient)
 app.post('/inventory/stock/:id', (req, res) => {
   const id = req.params.id;
