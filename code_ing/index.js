@@ -93,32 +93,6 @@ app.get('/category', (req, res) => {
 });
 // ================== Cashier ==================
 // หน้าเเรกเพื่อยอกว่าส่งเข้าไปที่เมนู
-app.get('/', (req, res) => {
-    console.log('Web starting');
-    const sql = `SELECT category_id FROM Category ORDER BY category_id ASC LIMIT 1;`;
-
-    db.get(sql, (err, row) => {
-        if (err) {
-            console.log(err.message);
-            // console.log('/ not WORK!!!!')
-
-            return res.send("Error loading categories");
-        }
-        if (row) {
-            res.redirect(`/where`);
-            // console.log('/ WORK!!!!')
-
-        } else {
-          // ดักว่าไม่มีหมวดหมู่ เพื่อไม่ให้เกิด error
-            res.send("No categories found");
-            // console.log('/ WORK!!!!')
-
-        }
-    });
-});
-
-
-
 app.get('/main_cas/:where' , (req,res) =>{
   req.session.where = req.params.where;
   console.log(req.session.where)
@@ -726,18 +700,12 @@ app.post("/update-cart", (req, res) => {
     console.log("✅ session total for updating cart:", req.session.total);
 });
 app.get('/cart' , (req,res) =>{
-  // res.send('Is this all you need : ',req.session.cart)
-  // res.send('Total Price : ',req.session.total)
-  // console.log('Is this all you need : ',req.session.cart)
-  // console.log('Total Price : ',req.session.total)
-  // res.send('You are on the cart views')
-  // res.render('cart' ,{data :req.session.cart})
   const cart = req.session.cart || [];
   const total = req.session.total || 0;
   res.render("cart", { cart, total });
-
   // console.log('This is Cart menu',cart)
 });
+
 app.post('/update-total', (req, res) => {
   const { promotion_id, discountedTotal, discountValue } = req.body;
   req.session.total = discountedTotal;
@@ -746,7 +714,29 @@ app.post('/update-total', (req, res) => {
   res.json({ success: true });
 });
 // ================== Customer ==================
+app.get('/', (req, res) => {
+    console.log('Web starting');
+    const sql = `SELECT category_id FROM Category ORDER BY category_id ASC LIMIT 1;`;
 
+    db.get(sql, (err, row) => {
+        if (err) {
+            console.log(err.message);
+            // console.log('/ not WORK!!!!')
+
+            return res.send("Error loading categories");
+        }
+        if (row) {
+            res.redirect(`/where`);
+            // console.log('/ WORK!!!!')
+
+        } else {
+          // ดักว่าไม่มีหมวดหมู่ เพื่อไม่ให้เกิด error
+            res.send("No categories found");
+            // console.log('/ WORK!!!!')
+
+        }
+    });
+});
 app.get('/where' ,(req,res) =>{
   res.render('where_to_eat');
 });
@@ -796,7 +786,6 @@ const check_if_there_available = `
   INNER JOIN Menu me
     ON me.menu_id = m.menu_id;
 `;
-
   const check_if_there_option_available = `  SELECT 
     mo.menu_id,
     ioi.ingredient_id,
@@ -812,39 +801,19 @@ const check_if_there_available = `
     
   WHERE mo.option_group_id BETWEEN 3 and 5
 `;
-  
-  
-  
-
 
 
   db.all(cate_select_sql, (err, cate) => {
     if (err) return console.log(err.message);
-
     db.all(menu_select_sql, (err, data_menu) => {
       if (err) return console.log(err.message);
-
       db.all(option_selector_sql, (err, selector) => {
         if (err) return console.log(err.message);
-
         db.all(item_selector_sql, (err, item_selector) => {
           if (err) return console.log(err.message);
-
-           // บอกว่ามีหมวดหมู่อะไรบ้าง
-          // console.log('cate : ',cate)
-          // บอกว่ามีอะไรบ้าง
-          // console.log('data_menu : ',data_menu)
-          // บอกว่าเมนูนี้ต้องการอะไรบ้าง เเล้วก็บบังคับใส่ไหม
-          // console.log('Selector : ',selector)
-          // บอกว่าแต่ละ option ,มีอะไรบ้าง เเล้วก็มีจ่ายเงินไหม
-          // console.log('item_selector : ',item_selector)
             db.all(check_if_there_available , (err,check_qty) =>{
               if (err) return console.log(err.message);
               const menuAvailability = {};
-
-              // console.log(check_qty)
-
-
               check_qty.forEach(row => {
                 const { menu_id, quantity, stock_qty,is_available } = row;
                 if (!menuAvailability[menu_id]) menuAvailability[menu_id] = true; // เริ่มต้นให้พร้อมขาย
@@ -855,26 +824,13 @@ const check_if_there_available = `
                   menuAvailability[menu_id] = false;
                 }
               });
-
-              // ผนวก is_available ลงในแต่ละเมนู
               const data_menu_with_avail = data_menu.map(m => ({
                 ...m,
                 is_available: menuAvailability[m.menu_id] !== false // ถ้าไม่เจอใน false ถือว่ามีพอ
               }));
-
-              // console.log("เมนูที่ขายได้/ไม่ได้:", data_menu_with_avail);
-
-            
-              // บอกว่าเเต่ละ menu ต้องการอะไรบ้าง 
-              //  { menu_id: 1, ingredient_id: 1, quantity: 5, stock_qty: 100 },
-            // console.log('check_qty : ' , check_qty);
             db.all(check_if_there_option_available, (err, check_option) => {
               if (err) return console.log(err.message);
-              // console.log("check_option:", check_option);
 
-              // console.log(check_option)
-
-              // ตรวจวัดความพร้อมของแต่ละ option group
                 const optionAvailability = {}; 
                   check_option.forEach(row => {
                     const { menu_id, ingredient_id, quantity, stock_qty } = row;
@@ -886,9 +842,8 @@ const check_if_there_available = `
                     // ถ้า stock ไม่พอ → false
                     if (stock_qty < quantity) optionAvailability[key] = false;
                   });
-                // console.log(check_option); // ตรวจสอบ
-
-                // console.log(optionAvailability); // ตรวจสอบ
+                // console.log(check_option); //
+                // console.log(optionAvailability); // 
           res.render('main_for_customer', {
             cart,
             total,
@@ -917,11 +872,6 @@ app.get('/confirm_order-customer', (req, res) => {
   if (!req.session.cart || req.session.cart.length === 0) {
     return res.redirect('/main_for_customer');
   }
-  const promotion_sql = `SELECT * FROM Promotion`;
-  db.all(promotion_sql, (err,promotion) =>{
-    if (err) return console.log(err.message);
-    // console.log(promotion)
-
     // ส่งข้อมูลไป render
   res.render('confirm_order-customer', {
     cart: req.session.cart,
@@ -929,12 +879,11 @@ app.get('/confirm_order-customer', (req, res) => {
     pro: promotion
   });
 
-  })
 });
 app.get('/canceled_order-customer', (req, res) => {
     req.session.cart = [];
     req.session.total = 0;
-    res.redirect(`/where`);
+    res.redirect(`/`);
 });
 app.get("/cash-customer/:amount", async (req, res) => {
   try {
@@ -955,22 +904,22 @@ app.get("/cash-customer/:amount", async (req, res) => {
     const datePrefix = now.toISOString().slice(0, 10).replace(/-/g, "");
 
     // หาคำสั่งซื้อสุดท้ายของวันเดียวกัน
-    db.get(
-  `SELECT order_id FROM "Order"
-   WHERE order_id LIKE ?
-   ORDER BY order_id DESC LIMIT 1`,
-  [`${datePrefix}-%`],
-  (err, row) => {
-    if (err) {
-      console.error("❌ Query last order error:", err);
-      return res.status(500).send("เกิดข้อผิดพลาดในการอ่านเลขคำสั่งซื้อ");
-    }
+  db.get(
+    `SELECT order_id FROM "Order"
+    WHERE order_id LIKE ?
+    ORDER BY order_id DESC LIMIT 1`,
+    [`${datePrefix}-%`],
+    (err, row) => {
+      if (err) {
+        console.error("❌ Query last order error:", err);
+        return res.status(500).send("เกิดข้อผิดพลาดในการอ่านเลขคำสั่งซื้อ");
+      }
 
-    let nextNumber = 1;
-    if (row && row.order_id) {
-      const lastNum = parseInt(row.order_id.split("-")[1], 10);
-      nextNumber = lastNum + 1;
-    }
+      let nextNumber = 1;
+      if (row && row.order_id) {
+        const lastNum = parseInt(row.order_id.split("-")[1], 10);
+        nextNumber = lastNum + 1;
+      }
 
     const orderId = `${datePrefix}-${String(nextNumber).padStart(3, "0")}`;
     console.log("สร้าง orderId:", orderId);
@@ -1072,7 +1021,6 @@ app.get("/cash-customer/:amount", async (req, res) => {
                       )
                     `;
 
-                    // สมมติ item.option_id คือไอดีของตัวเลือก
                     db.run(del_stk_option, [item.quantity, item.option_id, item.option_id], function (err2) {
                       if (err2) {
                         console.error("❌ Update option stock error:", err2.message);
@@ -1080,6 +1028,7 @@ app.get("/cash-customer/:amount", async (req, res) => {
                         console.log(`✅ ลด stock ของ option ${item.option_id} ตามจำนวน ${item.quantity}`);
                         console.log(`📊 จำนวนวัตถุดิบที่อัปเดต (option): ${this.changes}`);
                       }
+                                          // สมมติ item.option_id คือไอดีของตัวเลือก
                     });
                 }
               );
@@ -1106,6 +1055,7 @@ app.get("/cash-customer/:amount", async (req, res) => {
     res.status(500).send("เกิดข้อผิดพลาดระหว่างบันทึกข้อมูลคำสั่งซื้อ");
   }
 });
+
 app.get('/pay_qr-customer', async (req, res) => {
   // const amount = 100000000000000000000;
 // const amount = req.session.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -1125,7 +1075,6 @@ app.get('/pay_qr-customer', async (req, res) => {
 });
 
 
-
 // ================== Bartender ==================
 // แสดงออเดอร์ทั้งหมด
 
@@ -1134,39 +1083,39 @@ app.get('/pay_qr-customer', async (req, res) => {
 // แสดงออเดอร์ทั้งหมด
 
 // แสดงออเดอร์ทั้งหมด
-  app.get('/bartender', function (req, res) {
-      const query = `
-          SELECT 
-              o.order_id,
-              time(o.order_time) AS order_time,
-              o.order_type,
-              json_group_array(
-                  json_object(
-                      'quantity', oi.quantity,
-                      'menu_name', m.menu_name,
-                      'option_name', i.option_name
-                  )
-              ) AS items
-          FROM 'Order' o
-          LEFT JOIN OrderItem oi 
-          ON oi.order_id = o.order_id
-          LEFT JOIN Menu m 
-          ON oi.menu_id = m.menu_id
-          LEFT JOIN OrderItemOption oip 
-          ON oip.order_item_id = oi.order_item_id
-          LEFT JOIN ItemOption i ON i.option_id = oip.option_id
-          WHERE m.category_id != 7 and o.status = 'pending'
-          GROUP BY o.order_id
-          ORDER BY o.order_time
-      `;
+app.get('/bartender', function (req, res) {
+    const query = `
+        SELECT 
+            o.order_id,
+            time(o.order_time) AS order_time,
+            o.order_type,
+            json_group_array(
+                json_object(
+                    'quantity', oi.quantity,
+                    'menu_name', m.menu_name,
+                    'option_name', i.option_name
+                )
+            ) AS items
+        FROM 'Order' o
+        LEFT JOIN OrderItem oi 
+        ON oi.order_id = o.order_id
+        LEFT JOIN Menu m 
+        ON oi.menu_id = m.menu_id
+        LEFT JOIN OrderItemOption oip 
+        ON oip.order_item_id = oi.order_item_id
+        LEFT JOIN ItemOption i ON i.option_id = oip.option_id
+        WHERE m.category_id != 7 and o.status = 'pending'
+        GROUP BY o.order_id
+        ORDER BY o.order_time
+    `;
 
-      db.all(query, (err, rows) => {
-          if (err) {
-              console.log(err.message);
-          }
-          res.render('main', { data: rows });
-      });
-  });
+    db.all(query, (err, rows) => {
+        if (err) {
+            console.log(err.message);
+        }
+        res.render('main', { data: rows });
+    });
+});
 app.post("/complete-order/:id", (req, res) => {
     const orderId = req.params.id;
     const sql = `UPDATE 'Order' SET status = 'complete' WHERE order_id = ?`;
@@ -1251,7 +1200,7 @@ app.get('/inventory_for_barrista', (req, res) => {
             }));
 
             // console.log(format_drink);
-            console.log(format_bakery);
+            // console.log(format_bakery);
 
             // ส่ง data ทั้งหมดไป render
             res.render('inventory_for_barrista', {
@@ -1262,7 +1211,6 @@ app.get('/inventory_for_barrista', (req, res) => {
         });
     });
 });
-
 //  toggle เครื่องดื่ม
 app.post('/inventory/toggle/:id', (req, res) => {
   const id = req.params.id;
@@ -1284,17 +1232,49 @@ app.post('/inventory/toggle/:id', (req, res) => {
   });
 });
 // ดึง stock จาก DB
+// app.get('/api/stock/:id', (req, res) => {
+//   const id = req.params.id;
+//   // console.log(id);
+//   const sql = `SELECT stock_qty FROM ingredient WHERE ingredient_name = (select menu_name from menu where menu_id = ${req.params.id})`;
+//   console.log(sql);
+//   // console.log('AAAAA');
+
+//   db.get(sql, (err, row) => {
+
+//     console.log(row)
+//     if (err) return res.status(500).json({ error: err.message });
+//     res.json({ stock_qty: row ? row.stock_qty : 0 });
+//   });
+// });
+
 app.get('/api/stock/:id', (req, res) => {
   const id = req.params.id;
-  // console.log(id);
-  const sql = `SELECT stock_qty FROM ingredient WHERE ingredient_name = (select menu_name from menu where menu_id = ${req.params.id})`;
-  console.log(sql);
 
-  db.get(sql, (err, row) => {
+  // ดึง stock ของ ingredient ที่เกี่ยวข้องกับเมนูนี้
+  const sql = `
+    SELECT i.stock_qty, m.menu_id
+    FROM ingredient i
+    JOIN menu m ON m.menu_name = i.ingredient_name
+    WHERE m.menu_id = ?
+  `;
 
-    console.log(row)
+  db.get(sql, [id], (err, row) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json({ stock_qty: row ? row.stock_qty : 0 });
+    console.log('❌❌❌',row);
+    const stockQty = row ? row.stock_qty : 0;
+    const isAvailable = stockQty > 0 ? 1 : 0;
+
+    // อัปเดต is_available ของเมนู
+    const updateSql = `
+      UPDATE menu
+      SET is_available = ?
+      WHERE menu_id = ?
+    `;
+    db.run(updateSql, [isAvailable, id], (updateErr) => {
+      if (updateErr) console.error("❌ Error updating is_available:", updateErr.message);
+    });
+
+    res.json({ stock_qty: stockQty, is_available: isAvailable });
   });
 });
 // เพิ่ม/ลดจำนวนเบเกอรี่ (เก็บ stock ที่ Ingredient)
@@ -1305,6 +1285,7 @@ app.post('/inventory/stock/:id', (req, res) => {
   if (typeof change !== 'number') {
     return res.status(400).json({ success: false, message: 'Invalid or missing change value' });
   }
+
 
   const sqlGet = `
     SELECT m.menu_id, m.menu_name, i.stock_qty 
@@ -1322,7 +1303,6 @@ app.post('/inventory/stock/:id', (req, res) => {
     const sqlUpdate = `UPDATE Ingredient SET stock_qty = ? WHERE ingredient_name = ?`;
     db.run(sqlUpdate, [newStock, row.menu_name], function (err2) {
       if (err2) return res.status(500).json({ success: false, message: 'Database update failed' , error: err2.message});
-
       res.json({
         success: true,
         menu_id: row.menu_id,
@@ -1332,7 +1312,6 @@ app.post('/inventory/stock/:id', (req, res) => {
     });
   });
 });
-
 // inventory_for_cashier
 app.get('/inventory_for_cashier', (req, res) => {
     // Query ออเดอร์
@@ -1379,7 +1358,7 @@ app.get('/inventory_for_cashier', (req, res) => {
             const bakery = menus.filter(m => m.category_id === 7);
             const drinks = menus.filter(m => m.category_id !== 7);
             // console.log(bakery);
-            console.log(drinks);
+            // console.log(drinks);
             
 
             // bakery.forEach(b => b.is_available = !!b.is_available);
@@ -1406,7 +1385,7 @@ app.get('/inventory_for_cashier', (req, res) => {
             }));
 
             // console.log(format_drink);
-            console.log(format_bakery);
+            // console.log(format_bakery);
 
             // ส่ง data ทั้งหมดไป render
             res.render('inventory_for_cashier', {
@@ -1443,6 +1422,7 @@ app.get('/api/stock/:id', (req, res) => {
   // console.log(id);
   const sql = `SELECT stock_qty FROM ingredient WHERE ingredient_name = (select menu_name from menu where menu_id = ${req.params.id})`;
   console.log(sql);
+  // console.log('AAAAAAA:');
 
   db.get(sql, (err, row) => {
 
@@ -1486,8 +1466,6 @@ app.post('/inventory/stock/:id', (req, res) => {
     });
   });
 });
-
-
 // app.listen(3000, () => console.log(' running on port 3000'));
 // app.listen(4000, () => console.log('Customer running on port 4000'));
 const os = require("os");
