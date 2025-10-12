@@ -13,6 +13,9 @@ try {
   execSync("npm install promptpay-qr qrcode express ejs express-session cookie-parser nodemon sqlite3", { stdio: "inherit" });
 
   console.log("✅ Setup completed successfully!");
+
+  console.log("Starting server...");
+  execSync("node index.js", { stdio: "inherit" });
 } catch (err) {
   console.error("❌ Error running setup:", err);
 }

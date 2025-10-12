@@ -30,7 +30,6 @@ let db = new sqlite3.Database(dbPath, (err) => {
     }
     console.log('✅ Connected to SQLite database at', dbPath);
 });
-
 // static resourse & templating engine
 app.use(express.static('public'));
 // Set EJS as templating engine
@@ -92,6 +91,7 @@ app.get('/category', (req, res) => {
         })
     });
 });
+// ================== Cashier ==================
 // หน้าเเรกเพื่อยอกว่าส่งเข้าไปที่เมนู
 app.get('/', (req, res) => {
     console.log('Web starting');
@@ -116,6 +116,9 @@ app.get('/', (req, res) => {
         }
     });
 });
+
+
+
 app.get('/main_cas/:where' , (req,res) =>{
   req.session.where = req.params.where;
   console.log(req.session.where)
@@ -437,6 +440,11 @@ app.get('/confirm_order', (req, res) => {
 
   })
 });
+app.get('/canceled_order', (req, res) => {
+    req.session.cart = [];
+    req.session.total = 0;
+    res.redirect(`/cashier`);
+});
 app.get("/cash/:amount", async (req, res) => {
   try {
     const cart = req.session.cart || [];
@@ -444,16 +452,14 @@ app.get("/cash/:amount", async (req, res) => {
     const amount = parseInt(req.params.amount, 10);
     const left = amount - total;
 
-    console.log("🛒 เริ่มบันทึกคำสั่งซื้อ, ตะกร้าปัจจุบัน:", JSON.stringify(cart, null, 2));
+    console.log("เริ่มบันทึกคำสั่งซื้อ, ตะกร้าปัจจุบัน:", JSON.stringify(cart, null, 2));
 
     if (cart.length === 0) {
       return res.status(400).send("ไม่มีสินค้าในตะกร้า");
     }
-
-    // 🕒 สร้าง prefix วันที่ เช่น 20251006
     const now = new Date();
     const datePrefix = now.toISOString().slice(0, 10).replace(/-/g, "");
-
+    
     // หาคำสั่งซื้อสุดท้ายของวันเดียวกัน
     db.get(
   `SELECT order_id FROM "Order"
@@ -498,11 +504,11 @@ app.get("/cash/:amount", async (req, res) => {
                   }
 
                   const orderItemId = this.lastID;
-                  console.log(`📦 เพิ่มเมนู ${item.menu_name} (order_item_id=${orderItemId})`);
+                  console.log(`เพิ่มเมนู ${item.menu_name} (order_item_id=${orderItemId})`);
 
                   // --- ถ้ามี options ---
                   if (item.options && item.options.length > 0) {
-                    console.log(`🧩 เมนู ${item.menu_name} มี options:`, item.options);
+                    console.log(`เมนู ${item.menu_name} มี options:`, item.options);
 
                     item.options.forEach((opt) => {
                       db.get(
@@ -531,12 +537,56 @@ app.get("/cash/:amount", async (req, res) => {
                               }
                             );
                           } else {
-                            console.warn("⚠️ ไม่พบ option ในฐานข้อมูล:", opt.name);
+                            console.warn("❌ no option in db:", opt.name);
                           }
                         }
                       );
                     });
                   }
+                  const del_stk = `
+                    UPDATE Ingredient
+                    SET stock_qty = stock_qty - (
+                      SELECT mi.quantity * ?  -- จำนวนวัตถุดิบที่ใช้ต่อเมนู × จำนวนที่ลูกค้าสั่ง
+                      FROM MenuIngredient mi
+                      WHERE mi.ingredient_id = Ingredient.ingredient_id
+                        AND mi.menu_id = ?
+                    )
+                    WHERE ingredient_id IN (
+                      SELECT ingredient_id FROM MenuIngredient WHERE menu_id = ?
+                    )
+                  `;
+
+                  db.run(del_stk, [item.quantity, item.menu_id, item.menu_id], function (err) {
+                    if (err) {
+                      console.error("❌ Update stock error:", err.message);
+                    }
+                    //  else {
+                      // console.log(` ลด stock ของเมนู ${item.menu_id} ลง ${item.quantity} ที่สั่ง`);
+                      // console.log(`จำนวนวัตถุดิบที่อัปเดต: ${this.changes}`);
+                    // }
+                  });
+                    const del_stk_option = `
+                      UPDATE Ingredient
+                      SET stock_qty = stock_qty - (
+                        SELECT ioi.quantity * ?
+                        FROM ItemOptionIngredient ioi
+                        WHERE ioi.ingredient_id = Ingredient.ingredient_id
+                          AND ioi.option_id = ?
+                      )
+                      WHERE ingredient_id IN (
+                        SELECT ingredient_id FROM ItemOptionIngredient WHERE option_id = ?
+                      )
+                    `;
+
+                    // สมมติ item.option_id คือไอดีของตัวเลือก
+                    db.run(del_stk_option, [item.quantity, item.option_id, item.option_id], function (err2) {
+                      if (err2) {
+                        console.error("❌ Update option stock error:", err2.message);
+                      } else {
+                        console.log(`✅ ลด stock ของ option ${item.option_id} ตามจำนวน ${item.quantity}`);
+                        console.log(`📊 จำนวนวัตถุดิบที่อัปเดต (option): ${this.changes}`);
+                      }
+                    });
                 }
               );
             });
@@ -563,8 +613,6 @@ app.get("/cash/:amount", async (req, res) => {
   }
 });
 app.get('/pay_qr', async (req, res) => {
-  // const amount = 100000000000000000000;
-// const amount = req.session.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const amount = req.session.total;
   const promptPayID = '0984242409'; // ใส่เบอร์พร้อมเพย์
 
@@ -575,19 +623,8 @@ app.get('/pay_qr', async (req, res) => {
   const qrDataUrl = await qrcode.toDataURL(payload);
   // console.log(cart)
 
-  // res.send(`
-  //   <h1>สแกนเพื่อชำระเงิน</h1>
-  //   <p>จำนวนเงิน: ${finalAmount} บาท</p>
-  //   <img src="${qrDataUrl}" alt="QR Code" />
-  // `);
   res.render('pay_qr',{amount: finalAmount, qr :qrDataUrl})
-
-//   const cart = req.session.cart || [];
-
-// // console.log(cart)
-//   res.send(cart)
 });
-
 
 // ================== Helper Function ==================
 function recalcCart(session) {
@@ -701,12 +738,6 @@ app.get('/cart' , (req,res) =>{
 
   // console.log('This is Cart menu',cart)
 });
-
-app.get('/canceled_order', (req, res) => {
-    req.session.cart = [];
-    req.session.total = 0;
-    res.redirect(`/main_for_cashier`);
-});
 app.post('/update-total', (req, res) => {
   const { promotion_id, discountedTotal, discountValue } = req.body;
   req.session.total = discountedTotal;
@@ -714,13 +745,11 @@ app.post('/update-total', (req, res) => {
   req.session.discount = discountValue;
   res.json({ success: true });
 });
-
-
-// ================== customer ==================
+// ================== Customer ==================
 
 app.get('/where' ,(req,res) =>{
   res.render('where_to_eat');
-})
+});
 app.get('/main_for_customer', (req, res) => {
   const cart = req.session.cart || [];
   const total = req.session.total || 0;
@@ -1008,16 +1037,50 @@ app.get("/cash-customer/:amount", async (req, res) => {
                       ); 
                     });
                   }
-                  db.run(
-                        `UPDATE Ingredient 
-                        SET stock_qty = stock_qty - ? 
-                        WHERE ingredient_name = (SELECT menu_name FROM Menu WHERE menu_id = ?)`,
-                        [item.quantity, item.menu_id],
-                        (err5) => {
-                          if (err5) console.error("❌ Update stock error:", err5.message);
-                          else console.log(`ลด stock ของเมนู ${item.menu_id} ลง ${item.quantity}`);
-                        }
-                      );
+                  const del_stk = `
+                    UPDATE Ingredient
+                    SET stock_qty = stock_qty - (
+                      SELECT mi.quantity * ?  -- จำนวนวัตถุดิบที่ใช้ต่อเมนู × จำนวนที่ลูกค้าสั่ง
+                      FROM MenuIngredient mi
+                      WHERE mi.ingredient_id = Ingredient.ingredient_id
+                        AND mi.menu_id = ?
+                    )
+                    WHERE ingredient_id IN (
+                      SELECT ingredient_id FROM MenuIngredient WHERE menu_id = ?
+                    )
+                  `;
+
+                  db.run(del_stk, [item.quantity, item.menu_id, item.menu_id], function (err) {
+                    if (err) {
+                      console.error("❌ Update stock error:", err.message);
+                    }
+                    //  else {
+                      // console.log(` ลด stock ของเมนู ${item.menu_id} ลง ${item.quantity} ที่สั่ง`);
+                      // console.log(`จำนวนวัตถุดิบที่อัปเดต: ${this.changes}`);
+                    // }
+                  });
+                    const del_stk_option = `
+                      UPDATE Ingredient
+                      SET stock_qty = stock_qty - (
+                        SELECT ioi.quantity * ?
+                        FROM ItemOptionIngredient ioi
+                        WHERE ioi.ingredient_id = Ingredient.ingredient_id
+                          AND ioi.option_id = ?
+                      )
+                      WHERE ingredient_id IN (
+                        SELECT ingredient_id FROM ItemOptionIngredient WHERE option_id = ?
+                      )
+                    `;
+
+                    // สมมติ item.option_id คือไอดีของตัวเลือก
+                    db.run(del_stk_option, [item.quantity, item.option_id, item.option_id], function (err2) {
+                      if (err2) {
+                        console.error("❌ Update option stock error:", err2.message);
+                      } else {
+                        console.log(`✅ ลด stock ของ option ${item.option_id} ตามจำนวน ${item.quantity}`);
+                        console.log(`📊 จำนวนวัตถุดิบที่อัปเดต (option): ${this.changes}`);
+                      }
+                    });
                 }
               );
             });
@@ -1056,19 +1119,14 @@ app.get('/pay_qr-customer', async (req, res) => {
   const qrDataUrl = await qrcode.toDataURL(payload);
   // console.log(cart)
 
-  // res.send(`
-  //   <h1>สแกนเพื่อชำระเงิน</h1>
-  //   <p>จำนวนเงิน: ${finalAmount} บาท</p>
-  //   <img src="${qrDataUrl}" alt="QR Code" />
-  // `);
+
   res.render('pay_qr-customer',{amount: finalAmount, qr :qrDataUrl})
 
-//   const cart = req.session.cart || [];
-
-// // console.log(cart)
-//   res.send(cart)
 });
-// ================== bartender ==================
+
+
+
+// ================== Bartender ==================
 // แสดงออเดอร์ทั้งหมด
 
 // แสดงออเดอร์ทั้งหมด
@@ -1109,8 +1167,6 @@ app.get('/pay_qr-customer', async (req, res) => {
           res.render('main', { data: rows });
       });
   });
-
-
 app.post("/complete-order/:id", (req, res) => {
     const orderId = req.params.id;
     const sql = `UPDATE 'Order' SET status = 'complete' WHERE order_id = ?`;
@@ -1123,8 +1179,6 @@ app.post("/complete-order/:id", (req, res) => {
         res.json({ success: true });
     });
 });
-
-
 app.get('/inventory_for_barrista', (req, res) => {
     // Query ออเดอร์
     const orderQuery = `
@@ -1229,7 +1283,6 @@ app.post('/inventory/toggle/:id', (req, res) => {
     res.json({ success: true, is_available });
   });
 });
-
 // ดึง stock จาก DB
 app.get('/api/stock/:id', (req, res) => {
   const id = req.params.id;
@@ -1244,7 +1297,6 @@ app.get('/api/stock/:id', (req, res) => {
     res.json({ stock_qty: row ? row.stock_qty : 0 });
   });
 });
-
 // เพิ่ม/ลดจำนวนเบเกอรี่ (เก็บ stock ที่ Ingredient)
 app.post('/inventory/stock/:id', (req, res) => {
   const id = req.params.id;
@@ -1280,7 +1332,6 @@ app.post('/inventory/stock/:id', (req, res) => {
     });
   });
 });
-
 
 // inventory_for_cashier
 app.get('/inventory_for_cashier', (req, res) => {
@@ -1366,7 +1417,6 @@ app.get('/inventory_for_cashier', (req, res) => {
         });
     });
 });
-
 //  toggle เครื่องดื่ม
 app.post('/inventory/toggle/:id', (req, res) => {
   const id = req.params.id;
@@ -1387,7 +1437,6 @@ app.post('/inventory/toggle/:id', (req, res) => {
     res.json({ success: true, is_available });
   });
 });
-
 // ดึง stock จาก DB
 app.get('/api/stock/:id', (req, res) => {
   const id = req.params.id;
@@ -1402,7 +1451,6 @@ app.get('/api/stock/:id', (req, res) => {
     res.json({ stock_qty: row ? row.stock_qty : 0 });
   });
 });
-
 // เพิ่ม/ลดจำนวนเบเกอรี่ (เก็บ stock ที่ Ingredient)
 app.post('/inventory/stock/:id', (req, res) => {
   const id = req.params.id;
