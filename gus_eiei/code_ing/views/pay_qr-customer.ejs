@@ -1,63 +1,98 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ข้อมูลการชำระเงิน</title>
-    <link rel="stylesheet" href="/style_pay_qr_customer.css">
-
+  <link rel="stylesheet" href="/style_pay_qr.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@300;400;500;600;700&family=Kodchasan:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet">
 </head>
+
+<style>
+  body {
+    font-family: kodchasan !important;
+  }
+    .my-btn-cancel {
+    background: whitesmoke;
+    color: gray;
+  }
+  .my-btn-cancel:hover {
+    background: lightgrey;
+  }
+
+  .my-btn-confirm {
+    background: #5682b1;
+    color: white;
+  }
+  .my-btn-confirm:hover {
+    background: lightblue;
+  }
+</style>
+
 <body>
-  <div class="header">
-        <a href="confirm_order">&#11013;</a>
+  <div>
+    <div class="header">
+      <a href="confirm_order" 
+        style="display: inline-block; 
+                font-size: 48px;
+                width: 80px;      
+                height: 10px;   
+                text-align: center;
+                line-height: 40px; 
+                border-radius: 12px;
+                color: #111827;
+                text-decoration: none;">&#11013;</a>
     </div>
-  <div class="page">
-    <div class="title">ข้อมูลการชำระเงิน</div>
-    <div class="main">
-      <!-- QR Code ฝั่งซ้าย -->
-      <div class="qr-section">
-        <div class="qr-header">THAI QR PAYMENT</div>
-        <img src="<%=qr%>" alt="QR Code">
-        <div class="amount">฿ <%=amount%></div>
-        <div class="company">
-          บริษัท ยังไม่มีชื่อ<br>
-          
-        </div>
-        <div class="ref">หมายเลขอ้างอิง : ยังไม่ี</div>
+    <div class="page">
+      <div class="title">ข้อมูลการชำระเงิน</div>
+      <div class="main">
+        <!-- QR Code ฝั่งซ้าย -->
+        <div class="qr-section">
+          <div class="qr-header">THAI QR PAYMENT</div>
+          <img src="<%=qr%>" alt="QR Code">
+          <div class="amount">฿ <%=amount%>
+          </div>
+          <div class="company">
+            บริษัท ยังไม่มีชื่อ<br>
 
-        <div class="payment-info">
-          <p>ยอดชำระเงินทั้งหมด <b>฿ <%=amount%></b></p>
-          <p>กรุณาชำระภายใน <b>2 นาที</b></p>
-          <p>หมดเวลา ยังไม่ได้ทำ ,ยังไม่ได้ใส่</p>
+          </div>
+          <div class="ref">หมายเลขอ้างอิง : 0012345558</div>
+
+          <div class="payment-info">
+            <p>ยอดชำระเงินทั้งหมด <b>฿ <%=amount%></b></p>
+            <p>กรุณาชำระภายใน <b>2 นาที</b></p>
+            <p>หมดเวลา ยังไม่ได้ทำ ,ยังไม่ได้ใส่</p>
+          </div>
+        </div>
+
+        <!-- ข้อแนะนำฝั่งขวา -->
+        <div class="right-panel">
+          <h3>กรุณาทำตามขั้นตอนที่แนะนำ</h3>
+          <ol>
+            <li>เปิดแอปพลิเคชันธนาคารบนอุปกรณ์ของท่าน</li>
+            <li>สแกน QR code ที่อยู่บนหน้าจอ</li>
+            <li>กดยืนยัน</li>
+            <li>คำสั่งซื้อจะได้รับการยืนยันทันทีหลังจากชำระเงินสำเร็จ</li>
+          </ol>
+          <div class="note">
+            หมายเหตุ:
+            ช่องทางชำระเงินพร้อมเพย์ใช้ได้กับแอปพลิเคชันธนาคารหรือวอลเล็ทที่รองรับการชำระเงินด้วยพร้อมเพย์เท่านั้น
+          </div>
         </div>
       </div>
 
-      <!-- ข้อแนะนำฝั่งขวา -->
-      <div class="right-panel">
-        <h3>กรุณาทำตามขั้นตอนที่แนะนำ</h3>
-        <ol>
-          <li>เปิดแอปพลิเคชันธนาคารบนอุปกรณ์ของท่าน</li>
-          <li>สแกน QR code ที่อยู่บนหน้าจอ</li>
-          <li>กดยืนยัน</li>
-          <li>คำสั่งซื้อจะได้รับการยืนยันทันทีหลังจากชำระเงินสำเร็จ</li>
-        </ol>
-        <div class="note">
-          หมายเหตุ: ช่องทางชำระเงินพร้อมเพย์ใช้ได้กับแอปพลิเคชันธนาคารหรือวอลเล็ทที่รองรับการชำระเงินด้วยพร้อมเพย์เท่านั้น
-        </div>
+      <!-- ปุ่ม -->
+      <div class="btns">
+        <a href="/canceled_order" class="btn my-btn-cancel">ยกเลิกคำสั่งซื้อ</a>
+        <a href="/cash/<%=amount%>" class="btn my-btn-confirm">สั่งซื้อเสร็จสิ้น</a>
       </div>
-    </div>
-
-    <!-- ปุ่ม -->
-    <div class="btns">
-      <a href="/cash-customer/<%=amount%>" class="btn btn-back">สั่งซื้อเสร็จสิ้น</a>
-      <a href="/canceled_order" class="btn btn-cancel">ยกเลิกคำสั่งซื้อ</a>
     </div>
   </div>
 </body>
-<script>
-   
-    setTimeout(() => {
-      window.location.href = "/cash-customer/<%=amount%>";
-    }, 3000);
-  </script>
+
 </html>

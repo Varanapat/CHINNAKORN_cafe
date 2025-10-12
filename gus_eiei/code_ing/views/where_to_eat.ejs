@@ -1,73 +1,101 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CHINNAKORN CAFÉ - Kiosk</title>
+  <title>Chinakorn Cafe</title>
+  <link rel="shortcut icon" href="/pictures/logo.PNG" type="image/x-icon">
+  <link rel="stylesheet" href="/bootstrap.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@300;400;500;600;700&family=Kodchasan:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
+    rel="stylesheet">
 
   <style>
+    /* พื้นหลังและฟอนต์รวม */
     body {
       margin: 0;
-      font-family: "Prompt", "Sarabun", sans-serif;
+      font-family: Kodchasan;
       background-color: #fffdf9;
-      color: #3b2f2f;
-      overflow: hidden;
+      background-image: url("pictures/main_bg.png");
+      background-repeat: no-repeat;
+    }
+
+    .img_logo {
+      height: 2%;
+      width: 2%;
     }
 
     /* โลโก้ใหญ่หน้าแรก */
     .logo-and-header.large {
       position: absolute;
-      top: 12vh;
+      top: 10vh;
       left: 50%;
       transform: translateX(-50%);
       text-align: center;
-      color: #4b2e2b;
+      color: #124b7e;
+      animation: fadeIn 1.2s ease;
     }
 
-    .logo-and-header.large .logo-bear span {
-      font-size: 14vh;
+    .logo-and-header.large img {
+      width: 110px;
+      height: auto;
+      margin-bottom: 1vh;
     }
 
     .logo-and-header.large h1 {
+
       font-size: 7vh;
       margin: 0;
       letter-spacing: 2px;
-      color: #4b2e2b;
+      color: #124b7e;
       font-weight: 700;
     }
 
     .logo-and-header.large h2 {
       font-size: 4vh;
       margin: 0;
-      color: #a3836d;
+      color: #124b7e;
       font-weight: 600;
     }
 
-    /* โลโก้มุมขวาบน */
-    .logo-and-header.small {
+    /* ภาพเมนูด้านล่างโลโก้ */
+    .menu-showcase {
       position: absolute;
-      top: 2vh;
-      right: 3vw;
-      text-align: right;
-      color: #4b2e2b;
+      top: 42vh;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 8vh;
+      animation: fadeInUp 1.4s ease;
     }
 
-    .logo-and-header.small .logo-bear span {
-      font-size: 5vh;
+    .menu-item {
+      position: relative;
+      text-align: center;
     }
 
-    .logo-and-header.small h1 {
-      margin: 0;
-      font-size: 3vh;
-      color: #4b2e2b;
-      font-weight: 700;
+    .menu-item img {
+      width: 120px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
-    .logo-and-header.small h2 {
-      margin: -0.5vh 0 0;
-      font-size: 2vh;
-      color: #a3836d;
-      font-weight: 600;
+    .badge {
+      position: absolute;
+      top: -15px;
+      left: -20px;
+      background-color: #e53935;
+      color: white;
+      font-size: 1.8vh;
+      padding: 6px 10px;
+      border-radius: 50%;
+      transform: rotate(-15deg);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     }
 
     /* ปุ่มเริ่ม */
@@ -80,26 +108,69 @@
       background-color: #fffaf5;
       border: none;
       border-radius: 40px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
       font-size: 3vh;
-      color: #8a4a36;
+      color: #483434;
       font-weight: 600;
       cursor: pointer;
-      transition: 0.2s;
+      transition: 0.25s;
+      animation: floatUpDown 2s ease-in-out infinite, fadeInUp 1.8s ease;
     }
 
     .footer-text:hover {
       background-color: #fff3eb;
-      transform: translateX(-50%) translateY(-3px);
+      transform: translateX(-50%) translateY(-4px);
     }
 
-    /* หน้าหลังเลือก */
+    /* keyframes ขยับขึ้นลง */
+    @keyframes floatUpDown {
+      0% {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      50% {
+        transform: translateX(-50%) translateY(-8px);
+      }
+
+      100% {
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    /* โลโก้มุมขวาบน (หน้าถัดไป) */
+    .logo-and-header.small {
+      position: absolute;
+      top: 2vh;
+      right: 3vw;
+      text-align: right;
+      color: #124b7e;
+    }
+
+    .logo-and-header.small span {
+      font-size: 5vh;
+    }
+
+    .logo-and-header.small h1 {
+      margin: 0;
+      font-size: 3vh;
+      color: #124b7e;
+      font-weight: 700;
+    }
+
+    .logo-and-header.small h2 {
+      margin: -0.5vh 0 0;
+      font-size: 2vh;
+      color: #124b7e;
+      font-weight: 600;
+    }
+
+    /* หน้าหลังเลือกบริการ */
     .selection-title {
       font-size: 4vh;
       font-weight: 600;
       margin-top: 25vh;
       text-align: center;
-      color: #4b2e2b;
+      color: #483434;
     }
 
     .choice-options {
@@ -119,72 +190,101 @@
       background-color: #fffdf9;
       border: none;
       border-radius: 12px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
       transition: 0.25s ease;
       text-align: center;
     }
 
     .service-button:hover {
       transform: translateY(-3px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
     }
 
     .icon-mockup span {
       font-size: 9vh;
-      color: #5a4237;
+      color: #483434;
     }
 
     .text {
       margin-top: 2vh;
       font-size: 3.3vh;
       font-weight: 600;
-      color: #3b2f2f;
+      color: #483434;
     }
 
     .hidden {
       display: none !important;
     }
+
+    /* แอนิเมชัน */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .fade-out {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
   </style>
 </head>
+
 <body>
 
-  <!-- หน้าแรก -->
-  <div class="full-screen-container" id="welcomeScreen">
-    <div class="logo-and-header large">
-      <div class="logo-bear">
-        <span>🐻</span>
+  <!-- <div class="h-100 w-100">
+    <video autoplay muted loop id="bg-video">
+      <source src="/pictures/preview_chinnakorn.mp4" type="video/mp4">
+    </video> -->
+    <!-- หน้าแรก -->
+    <div class="full-screen-container" id="welcomeScreen">
+      <div class="logo-and-header large">
+        <img src="/pictures/logo.PNG" alt="logo">
+        <h1 class="cormorant font-weight-bold blue_color">CHINNAKORN</h1>
+        <h2 class="cormorant blue_color">CAFÉ</h2>
       </div>
-      <div class="header-text">
-        <h1>CHINNAKORN</h1>
-        <h2>CAFÉ</h2>
-      </div>
+      <div class="footer-text text-center" id="startButton">แตะเพื่อเริ่มใช้บริการ</div>
     </div>
 
-    <div class="footer-text" id="startButton">แตะเพื่อเริ่มใช้บริการ</div>
-  </div>
-
-  <!-- หน้าหลังเลือก -->
-  <div class="full-screen-container hidden" id="selectionScreen">
-    <div class="logo-and-header small">
-      <div class="logo-bear"><span>🐻</span></div>
-      <div class="header-text">
-        <h1>CHINNAKORN</h1>
-        <h2>CAFÉ</h2>
+    <!-- หน้าหลังเลือก -->
+    <div class="full-screen-container hidden" id="selectionScreen">
+      <div class="logo-and-header small">
+        <div class="header-text">
+          <img class="img_logo" src="/pictures/logo.PNG" alt="logo">
+          <h1>CHINNAKORN</h1>
+          <h2>CAFÉ</h2>
+        </div>
       </div>
-    </div>
 
-    <h1 class="selection-title">เลือกการให้บริการ</h1>
+      <h1 class="selection-title">เลือกการให้บริการ</h1>
 
-    <div class="choice-options">
-      <a href="/main/dine-in" class="service-button">
-        <div class="icon-mockup"><span>☕</span></div>
-        <span class="text">ทานที่ร้าน</span>
-      </a>
+      <div class="choice-options">
+        <a style="outline: none;
+                  text-decoration: none;" href="/main/DINE_IN" class="service-button">
+          <div class="icon-mockup"><span>☕</span></div>
+          <span class="text">ทานที่ร้าน</span>
+        </a>
 
-      <a href="/main/takeaway" class="service-button">
-        <div class="icon-mockup"><span>🥤</span></div>
-        <span class="text">กลับบ้าน</span>
-      </a>
+        <a style="outline: none;
+                  text-decoration: none;" href="/main/TAKEAWAY" class="service-button">
+          <div class="icon-mockup"><span>🥤</span></div>
+          <span class="text">กลับบ้าน</span>
+        </a>
+      </div>
     </div>
   </div>
 
@@ -192,11 +292,62 @@
     const welcomeScreen = document.getElementById('welcomeScreen');
     const selectionScreen = document.getElementById('selectionScreen');
     const startButton = document.getElementById('startButton');
+    const serviceButtons = document.querySelectorAll('.service-button');
 
-    startButton.addEventListener('click', () => {
-      welcomeScreen.classList.add('hidden');
-      selectionScreen.classList.remove('hidden');
+    let hasSwitched = false;
+    let returnTimeout;
+
+    // ฟังก์ชันเปลี่ยนจาก welcome -> selection
+    function goToSelection() {
+      if (hasSwitched) return;
+      hasSwitched = true;
+
+      welcomeScreen.classList.add('fade-out');
+      setTimeout(() => {
+        welcomeScreen.classList.add('hidden');
+        selectionScreen.classList.remove('hidden');
+        welcomeScreen.classList.remove('fade-out');
+
+        // เริ่มนับเวลา 30 วินาทีเพื่อกลับหน้าแรก
+        startReturnTimer();
+      }, 500);
+    }
+
+    // ฟังก์ชันกลับหน้าแรก
+    function returnToWelcome() {
+      selectionScreen.classList.add('fade-out');
+      setTimeout(() => {
+        selectionScreen.classList.add('hidden');
+        welcomeScreen.classList.remove('hidden');
+        selectionScreen.classList.remove('fade-out');
+        hasSwitched = false; // reset
+      }, 500);
+    }
+
+    // เริ่มนับเวลากลับหน้าแรก
+    function startReturnTimer() {
+      clearTimeout(returnTimeout);
+      returnTimeout = setTimeout(returnToWelcome, 10000); // 10 วินาที
+    }
+
+    // แตะปุ่ม start
+    startButton.addEventListener('click', goToSelection);
+
+    // แตะ background welcomeScreen
+    welcomeScreen.addEventListener('click', (e) => {
+      if (e.target === welcomeScreen) {
+        goToSelection();
+      }
     });
+
+    // กดเลือกบริการ → เคลียร์ timer กลับหน้าแรก
+    serviceButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        clearTimeout(returnTimeout);
+      });
+    });
+
   </script>
 </body>
+
 </html>

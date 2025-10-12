@@ -705,7 +705,7 @@ app.get('/cart' , (req,res) =>{
 app.get('/canceled_order', (req, res) => {
     req.session.cart = [];
     req.session.total = 0;
-    res.redirect(`/main_for_cashier`);
+    res.redirect(`/cashier`);
 });
 app.post('/update-total', (req, res) => {
   const { promotion_id, discountedTotal, discountValue } = req.body;

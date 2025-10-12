@@ -1,20 +1,21 @@
 .cart-icon {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 20px;   /* ห่างจากขอบล่าง */
+    right: 20px;    /* ห่างจากขอบขวา */
     background-color: #ff6600;
     color: white;
     font-size: 28px;
-    padding: 12px 16px;
+    padding: 14px 18px;
     border-radius: 50%;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     cursor: pointer;
-    z-index: 1001;
-    transition: background-color 0.3s ease;
+    z-index: 2000;  /* มากกว่า modal */
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .cart-icon:hover {
     background-color: #e65c00;
+    transform: scale(1.05);
 }
 
 .modal {

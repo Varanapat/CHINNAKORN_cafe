@@ -1,27 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-</head>
-<body>
-    <header>
-        <a href="" class="logo">
-            <img src="/picture/icon.PNG" alt="Logo" style="height: 50px;">
-        </a>
+    <link rel="stylesheet" href="/bootstrap.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@300;400;500;600;700&family=Kodchasan:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet">
 
-        <nav>
-            <% cate.forEach(item=> { %>
-                <a href="#<%= item.category_id %>" class="<%= item.category_id == activeCateId ? 'active' : '' %>">
-                    <%= item.category_name %>
-                </a>
-                <% }); %>
-                <!-- <a href="/cart" class="cart">CART</a> -->
-        </nav>
+</head>
+
+<style>
+    * {
+        font-family: 'Kodchasan', sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        scroll-behavior: smooth;
+    }
+
+    header {
+        margin: 0;
+        padding: 0;
+    }
+
+    .blue_color {
+        color: #5682b1;
+    }
+
+    nav a {
+        position: relative;
+        color: #ccc;
+        /* สีเริ่มต้นเทาอ่อน (หรืออะไรก็ได้) */
+        text-decoration: none;
+        /* ❌ เอาเส้นใต้แท้ก a ออก */
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin-left: 1rem;
+        transition: color 0.3s ease;
+    }
+
+    /* เส้นขีดล่าง */
+    nav a::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -4px;
+        width: 0;
+        height: 2px;
+        background: white;
+        transition: width 0.3s ease;
+    }
+
+    /* ตอน hover → ตัวหนังสือสีขาว + เส้นใต้ค่อย ๆ โผล่ */
+    nav a:hover {
+        color: white;
+    }
+
+    nav a:hover::after {
+        width: 100%;
+    }
+
+    /* ตอน active (คลิกค้างไว้ / หน้าปัจจุบัน) */
+    nav a.active {
+        color: white;
+        font-weight: bolder;
+    }
+
+    nav a.active::after {
+        width: 100%;
+    }
+</style>
+
+<body>
+    <header style="background-color: #FBF8F1;">
+        <div class="d-flex py-3 justify-content-center">
+            <h3 class="cormorant blue_color"><span class="font-weight-bold">CHINNAKORN </span>CAFÉ</h3>
+            <img src="/picture/icon.PNG" alt="Logo" style="height: 45px;" class="pl-3">
+        </div>
+        <div class="w-100">
+            <nav style="background-color: #483434; 
+                    height: 60px; width: 100%;" class="d-flex justify-content-center align-items-center">
+                <% cate.forEach(item=> { %>
+                    <a href="#<%= item.category_id %>" style="text-decoration: none;"
+                        class="<%= item.category_id == activeCateId ? 'active' : '' %> px-1">
+                        <%= item.category_name %>
+                    </a>
+                    <% }); %>
+                        <!-- <a href="/cart" class="cart">CART</a> -->
+            </nav>
+        </div>
         <!-- <span id="cart-count">0</span> -->
 
     </header>
 
+    <script>
+        const links = document.querySelectorAll('nav a');
+
+        links.forEach(link => {
+            link.addEventListener('click', () => {
+                // ลบ active ออกจากลิงก์อื่นทั้งหมด
+                links.forEach(l => l.classList.remove('active'));
+                // เพิ่ม active ให้ลิงก์ที่คลิก
+                link.classList.add('active');
+            });
+        });
+    </script>
+
 </body>
+
 </html>

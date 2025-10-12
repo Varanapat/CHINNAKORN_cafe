@@ -91,7 +91,7 @@ async function selectItem(id, name, category, isAvailable, stock_qty) {
     <div class="d-flex gap-2 mb-2 mt-5">
       <button class="btn btn-sm btn-long flex-fill" onclick="updateStock(${id}, -1)">–</button>
       <button class="btn btn-sm btn-long flex-fill" onclick="updateStock(${id}, 1)">+</button>
-      <button class="btn btn-sm btn-bg flex-fill" onclick="editStock(${id})">Edit</button>
+      <button class="btn btn-sm btn-bg flex-fill" onclick="editStock(${id})">แก้ไข</button>
     </div>
   </div>
 `;
@@ -193,7 +193,7 @@ function clearSelection() {
   selectedItem = null;
   document.getElementById('selectedItems').innerHTML = `
         <div class="empty-state">
-            <p>Please Select Products</p>
+            <p>เลือกสินค้า</p>
         </div>`;
 }
 

@@ -6,42 +6,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="/style_cart.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@300;400;500;600;700&family=Kodchasan:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet">
 </head>
 
+<style>
+    body {
+        font-family: kodchasan !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .my-btn {
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .my-btn-cancel {
+        background: lightgrey;
+        color: gray;
+    }
+
+    .my-btn-cancel:hover {
+        background: whitesmoke;
+    }
+
+    .my-btn-confirm {
+        background: #5682b1;
+        color: white;
+    }
+
+    .my-btn-confirm:hover {
+        background: lightblue;
+    }
+</style>
+
 <body>
-<h1>ตะกร้าสินค้า</h1>
+    <h1 class="text-center mt-5">ตะกร้าสินค้า</h1>
 
 
-<% if (cart.length === 0) { %>
-  <p>ยังไม่มีสินค้าในตะกร้า</p>
-<% } else { %>
-    <ul id="cart-list">
-        <% cart.forEach((item, index) => { %>
-            <li data-menu-id="<%= item.menu_id %>" data-options='<%= JSON.stringify(item.options) %>'>
-                <img class="img" src="/picture/<%= item.menu_image %>" alt="<%= item.menu_name %>">
-                <strong><%= item.menu_name %></strong><br>
-                จำนวน: 
-                <button type="button" class="qty-btn minus">&minus;</button>
-                <span class="qty"><%= item.quantity %></span>
-                <button type="button" class="qty-btn plus">&plus;</button>
-                | ราคา/ชิ้น: <%= item.unitPrice %> | รวม: <span class="totalPrice"><%= item.totalPrice_forMenu %></span>
-                <br>
-                ตัวเลือก: 
-                <%= item.options.map(opt => opt.name + (opt.extra && opt.extra > 0 ? ` (+${opt.extra})` : "")).join(" | ") %>
-            </li>
-        <% }) %>
-    </ul>
-    <!-- <p>รวมทั้งหมด: <span id="cart-total"><%= total %></span> บาท</p> -->
+    <% if (cart.length===0) { %>
+        <p style="color: red;" class="text-center">!! ยังไม่มีสินค้าในตะกร้า !!</p>
+        <% } else { %>
+            <ul id="cart-list">
+                <% cart.forEach((item, index)=> { %>
+                    <li data-menu-id="<%= item.menu_id %>" data-options='<%= JSON.stringify(item.options) %>'>
+                        <img class="img" src="/picture/<%= item.menu_image %>" alt="<%= item.menu_name %>">
+                        <strong>
+                            <%= item.menu_name %>
+                        </strong><br>
+                        จำนวน:
+                        <button type="button" class="qty-btn minus">&minus;</button>
+                        <span class="qty">
+                            <%= item.quantity %>
+                        </span>
+                        <button type="button" class="qty-btn plus">&plus;</button>
+                        | ราคา/ชิ้น: <%= item.unitPrice %> | รวม: <span class="totalPrice">
+                                <%= item.totalPrice_forMenu %>
+                            </span>
+                            <br>
+                            ตัวเลือก:
+                            <%= item.options.map(opt=> opt.name + (opt.extra && opt.extra > 0 ? ` (+${opt.extra})` :
+                                "")).join(" | ") %>
+                    </li>
+                    <% }) %>
+            </ul>
+            <!-- <p>รวมทั้งหมด: <span id="cart-total"><%= total %></span> บาท</p> -->
 
 
-<% } %>
-<a href="/confirm_order">ยืนยันคำสั่งซื้อ</a>
-<a href="/canceled_order">ยกเลิกคำสั่งซื้อ</a>
+            <% } %>
+            <div class="my-btn my-btn-confirm action-buttons m-5">
+                <a href="/confirm_order" style="color: white; text-decoration: none; outline: none;">ยืนยันคำสั่งซื้อ</a>
+            </div>
+
+                <div class="my-btn my-btn-cancel action-buttons m-5">
+                    <a href="/canceled_order" style="color: white; text-decoration: none; outline: none;">ยกเลิกคำสั่งซื้อ</a>
+                </div>
 
 
 
-               
-<script src="/script_cart.js"></script>
+
+                <script src="/script_cart.js"></script>
 </body>
 
 </html>
