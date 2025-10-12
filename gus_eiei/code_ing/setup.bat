@@ -7,5 +7,4 @@ echo Installing dependencies...
 npm install promptpay-qr qrcode express ejs express-session cookie-parser sqlite3 nodemon
 
 echo Done!
-
 pause
