@@ -11,29 +11,37 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Bungee&family=Cormorant+Unicase:wght@300;400;500;600;700&family=Inknut+Antiqua:wght@300;400;500;600;700;800;900&family=Mitr:wght@200;300;400;500;600;700&family=Noto+Serif+Thai:wght@100..900&family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
-        rel="stylesheet">
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@300;400;500;600;700&family=Kodchasan:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
+    rel="stylesheet">
 </head>
+
+<style>
+    body {
+        background: #FBF8F1;
+        color: #483434;
+        font-family: Cormorant Unicase, Kodchasan;
+    }
+</style>
 
 <body>
     <p class="chinnakorn">CHINNAKORN CAFE</p>
     <div class="sidebar">
         <div class="text-center bartop pb-4">
-            <a href="/bartender">
-                <h1 class="cormorant">
+            <a style="text-decoration: none; color: #483434;" href="/bartender">
+                <h1>
                     <% if (data && data.length) { %>
                         <%= data.length %>
                             <% } else { %>
                                 0
                                 <% } %>
                 </h1>
-                <h4 class="cormorant">Orders</h4>
+                <h4>ออเดอร์</h4>
             </a>
         </div>
         <div class="bartop text-center py-4">
-            <a href="/inventory_for_barrista">
+            <a style="text-decoration: none; color: #483434;" href="/inventory_for_barrista">
                 <img src="/pictures/package-box.PNG" alt="box">
-                <h4 class="cormorant">Inventory</h4>
+                <h4>คลังสินค้า</h4>
             </a>
         </div>
     </div>
@@ -79,7 +87,7 @@
                                     <% }) %>
                     </div>
                     <div class="card-footer text-center bg-white p-0 border-0">
-                        <button class="btn" onclick="addCompleteListener(this);">Confirm</button>
+                        <button class="btn" onclick="addCompleteListener(this);">เสร็จสิ้น</button>
                     </div>
                 </div>
                 <% }) %>
@@ -97,7 +105,7 @@
             const orderId = card.dataset.orderId;  // สมมติว่าใน HTML ใส่ data-order-id ไว้
 
             // แสดง pop-up ยืนยัน
-            const confirmDelete = confirm("Confirm order completion? Once confirmed, this action cannot be undone.");
+            const confirmDelete = confirm("ออเดอร์เสร็จสิ้น? หากยืนยันจะไม่สามารถยกเลิกได้");
             if (confirmDelete) {
                 // เรียก API ไปอัปเดตสถานะใน DB
                 fetch(`/complete-order/${orderId}`, {

@@ -21,7 +21,7 @@
         background: #FBF8F1;
         color: #483434;
         -webkit-overflow-scrolling: touch;
-        font-family: Cormorant Unicase;
+        font-family: Cormorant Unicase, Kodchasan;
         font-weight: 800;
     }
 
@@ -36,6 +36,7 @@
 
     a {
         text-decoration: none;
+        outline: none;
         color: #483434;
     }
 
@@ -84,8 +85,8 @@
     <div class="w-100 h-100">
         <p class="chinnakorn">CHINNAKORN CAFE</p>
         <div class="sidebar">
-            <div class="text-center bartop pb-4">
-                <a href="/bartender">
+            <div style="outline: none; text-decoration: none;" class="text-center bartop pb-4">
+                <a style="outline: none; text-decoration: none; color: #483434;" href="/bartender">
                     <h1>
                         <%= data.length %>
                     </h1>
@@ -93,7 +94,7 @@
                 </a>
             </div>
             <div class="bartop text-center py-4">
-                <a href="/inventory_for_barista">
+                <a style="outline: none; text-decoration: none; color: #483434;" href="/inventory_for_barista">
                     <img src="/pictures/package-box.PNG" alt="box">
                     <h4 class="cormorant">คลังสินค้า</h4>
                 </a>
