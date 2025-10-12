@@ -10,11 +10,12 @@ body {
 }
 
 .page {
-  max-width: 80vw;
+  min-width: 80vw;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   padding: 8px;
+  min-height: 50vh;
 }
 
 .title {

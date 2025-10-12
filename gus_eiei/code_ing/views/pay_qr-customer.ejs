@@ -9,18 +9,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@300;400;500;600;700&family=Kodchasan:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
-        rel="stylesheet">
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@300;400;500;600;700&family=Kodchasan:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
+    rel="stylesheet">
 </head>
 
 <style>
   body {
     font-family: kodchasan !important;
   }
-    .my-btn-cancel {
+
+  .my-btn-cancel {
     background: whitesmoke;
     color: gray;
   }
+
   .my-btn-cancel:hover {
     background: lightgrey;
   }
@@ -29,6 +31,7 @@
     background: #5682b1;
     color: white;
   }
+
   .my-btn-confirm:hover {
     background: lightblue;
   }
@@ -37,8 +40,7 @@
 <body>
   <div>
     <div class="header">
-      <a href="confirm_order" 
-        style="display: inline-block; 
+      <a href="confirm_order" style="display: inline-block; 
                 font-size: 48px;
                 width: 80px;      
                 height: 10px;   
@@ -50,27 +52,27 @@
     </div>
     <div class="page">
       <div class="title">ข้อมูลการชำระเงิน</div>
-      <div class="main">
-        <!-- QR Code ฝั่งซ้าย -->
-        <div class="qr-section">
-          <div class="qr-header">THAI QR PAYMENT</div>
-          <img src="<%=qr%>" alt="QR Code">
-          <div class="amount">฿ <%=amount%>
-          </div>
-          <div class="company">
-            บริษัท ยังไม่มีชื่อ<br>
-
-          </div>
-          <div class="ref">หมายเลขอ้างอิง : 0012345558</div>
-
-          <div class="payment-info">
-            <p>ยอดชำระเงินทั้งหมด <b>฿ <%=amount%></b></p>
-            <p>กรุณาชำระภายใน <b>2 นาที</b></p>
-            <p>หมดเวลา ยังไม่ได้ทำ ,ยังไม่ได้ใส่</p>
-          </div>
+      <!-- <div class="main"> -->
+      <!-- QR Code ฝั่งซ้าย -->
+      <div class="qr-section">
+        <div class="qr-header">THAI QR PAYMENT</div>
+        <img src="<%=qr%>" alt="QR Code">
+        <div class="amount">฿ <%=amount%>
         </div>
+        <div class="company">
+          บริษัท ยังไม่มีชื่อ<br>
 
-        <!-- ข้อแนะนำฝั่งขวา -->
+        </div>
+        <div class="ref">หมายเลขอ้างอิง : 0012345558</div>
+
+        <div class="payment-info">
+          <p>ยอดชำระเงินทั้งหมด <b>฿ <%=amount%></b></p>
+          <p>กรุณาชำระภายใน <b>2 นาที</b></p>
+          <p>หมดเวลา ยังไม่ได้ทำ ,ยังไม่ได้ใส่</p>
+        </div>
+      </div>
+
+      <!-- ข้อแนะนำฝั่งขวา
         <div class="right-panel">
           <h3>กรุณาทำตามขั้นตอนที่แนะนำ</h3>
           <ol>
@@ -84,7 +86,7 @@
             ช่องทางชำระเงินพร้อมเพย์ใช้ได้กับแอปพลิเคชันธนาคารหรือวอลเล็ทที่รองรับการชำระเงินด้วยพร้อมเพย์เท่านั้น
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- ปุ่ม -->
       <div class="btns">
