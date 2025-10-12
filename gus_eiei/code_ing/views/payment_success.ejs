@@ -1,36 +1,49 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ชำระเงินสำเร็จ</title>
-    <link rel="stylesheet" href="/style_payment_success.css">
+  <link rel="stylesheet" href="/style_payment_success.css">
 </head>
+
+<style>
+  .blue_color {
+    color: #5682b1;
+  }
+</style>
+
 <body>
-    <div class="header">
-        <h2>ชำระเงินสำเร็จ</h2>
-    </div>
+  <div class="header">
+    <h2>ชำระเงินสำเร็จ</h2>
+  </div>
 
-    <div class="d-flex py-3 justify-content-center">
-      <h3 class="cormorant blue_color"><span class="font-weight-bold">CHINNAKORN </span>CAFÉ</h3>
-      <img src="/picture/icon.PNG" alt="Logo" style="height: 45px;" class="pl-3">
-    </div>
-
-   
-
-    <div class="check-icon"> ✔️ ยอดคำสั่งซื้อ <%= total %> บาท</div>
-    <br>
-    <div class="total-amount">฿ <%= total %></div><br>
-    <div class="description">ยอดรวมทั้งหมด</div>
+  <div class="d-flex align-items-center position-relative py-3">
+    <h3 class="cormorant blue_color text-center flex-grow-1 m-0">
+      <span class="font-weight-bold">CHINNAKORN </span>CAFÉ
+      <span><img src="/picture/icon.PNG" alt="Logo" style="height: 45px; position: absolute;">
+      </span>
+    </h3>
+  </div>
 
 
-    <% if (left) { %>
-        <div class="left" style="color: rgba(255, 0, 0, 0.914); font-size: 1rem;">ทอนเงิน <%= left %> ฿</div>
+
+  <div class="check-icon"> ✔️ ยอดคำสั่งซื้อ <%= total %> บาท</div>
+  <br>
+  <div class="total-amount">฿ <%= total %>
+  </div><br>
+  <div class="description">ยอดรวมทั้งหมด</div>
+
+
+  <% if (left) { %>
+    <div class="left" style="color: rgba(255, 0, 0, 0.914); font-size: 1rem;">ทอนเงิน <%= left %> ฿</div>
     <% } %>
 
-    
-  </div>
-<br>
-  <a href="/cashier" class="home-btn">กลับหน้าแรก</a>
+
+      </div>
+      <br>
+      <a href="/cashier" class="home-btn">กลับหน้าแรก</a>
 </body>
+
 </html>

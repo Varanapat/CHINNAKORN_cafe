@@ -14,7 +14,7 @@ body {
   display: flex;
   gap: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  min-height: 70vh;
+  min-height: 80vh;
   margin-top: 5%;
 }
 
@@ -133,32 +133,24 @@ h2 {
 
 .header {
   display: flex;
-  justify-content: space-between;
-  padding: 10px 100px;
-  /* border: 1px solid brown; */
-  position: fixed;
-  width: 100%;
-  /* text-align: center; */
   align-items: center;
-  background-color: #ffffff;
-  z-index: 10;
-  box-shadow: 0 4px 12px #9ba1a7;
-  top: 0;
-  left: 0;
-}
-
-.header h2 {
-  margin: 0 auto;
+  justify-content: center; /* ให้ h2 อยู่ตรงกลาง */
+  position: relative; /* ใช้เพื่อจัดตำแหน่ง a */
+  padding-top: 4%;
 }
 
 .header a {
-  text-decoration: none;
-  font-size: 2rem;
-  font-weight: 500;
   position: absolute;
-  color: #000;
+  left: 0; /* ชิดซ้าย */
+  padding-left: 5%;
+  text-decoration: none;
+  font-size: 24px;
+  color: black; /* ปรับสีได้ตามธีม */
 }
 
+.header h2 {
+  margin: 0;
+}
 .amount-buttons button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
