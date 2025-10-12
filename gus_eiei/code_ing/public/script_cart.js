@@ -1,6 +1,3 @@
-
-
-
 document.addEventListener("DOMContentLoaded", () => {
     const cartList = document.getElementById("cart-list");
 

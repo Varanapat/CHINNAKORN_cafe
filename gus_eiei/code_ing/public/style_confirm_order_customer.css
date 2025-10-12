@@ -139,8 +139,6 @@ body {
       color: #000;
   }
 
-
-
 .amount-buttons button:disabled {
   opacity: 0.5;
   cursor: not-allowed;

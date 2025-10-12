@@ -907,6 +907,175 @@ app.get('/canceled_order-customer', (req, res) => {
     req.session.total = 0;
     res.redirect(`/where`);
 });
+
+app.get("/cash/:amount", async (req, res) => {
+  try {
+    const cart = req.session.cart || [];
+    const total = req.session.total || 0;
+    const amount = parseInt(req.params.amount, 10);
+    const left = amount - total;
+
+    console.log("เริ่มบันทึกคำสั่งซื้อ, ตะกร้าปัจจุบัน:", JSON.stringify(cart, null, 2));
+
+    if (cart.length === 0) {
+      return res.status(400).send("ไม่มีสินค้าในตะกร้า");
+    }
+    const now = new Date();
+    const datePrefix = now.toISOString().slice(0, 10).replace(/-/g, "");
+    
+    // หาคำสั่งซื้อสุดท้ายของวันเดียวกัน
+    db.get(
+  `SELECT order_id FROM "Order"
+   WHERE order_id LIKE ?
+   ORDER BY order_id DESC LIMIT 1`,
+  [`${datePrefix}-%`],
+  (err, row) => {
+    if (err) {
+      console.error("❌ Query last order error:", err);
+      return res.status(500).send("เกิดข้อผิดพลาดในการอ่านเลขคำสั่งซื้อ");
+    }
+
+    let nextNumber = 1;
+    if (row && row.order_id) {
+      const lastNum = parseInt(row.order_id.split("-")[1], 10);
+      nextNumber = lastNum + 1;
+    }
+
+    const orderId = `${datePrefix}-${String(nextNumber).padStart(3, "0")}`;
+    console.log("🆕 สร้าง orderId:", orderId);
+
+    db.run(
+      `INSERT INTO "Order" (order_id, total_price, order_type)
+       VALUES (?, ?, 'TAKEAWAY')`,
+      [orderId, total],
+      function (err) {
+        if (err) {
+          console.error("❌ Insert order error:", err);
+          return res.status(500).send("บันทึกคำสั่งซื้อไม่สำเร็จ");
+        }
+
+            // --- บันทึกเมนูแต่ละรายการในตะกร้า ---
+            cart.forEach((item) => {
+              db.run(
+                `INSERT INTO "OrderItem" (order_id, menu_id, quantity, price)
+                 VALUES (?, ?, ?, ?)`,
+                [orderId, item.menu_id, item.quantity, item.unitPrice],
+                function (err2) {
+                  if (err2) {
+                    console.error("❌ Insert order item error:", err2);
+                    return;
+                  }
+
+                  const orderItemId = this.lastID;
+                  console.log(`เพิ่มเมนู ${item.menu_name} (order_item_id=${orderItemId})`);
+
+                  // --- ถ้ามี options ---
+                  if (item.options && item.options.length > 0) {
+                    console.log(`เมนู ${item.menu_name} มี options:`, item.options);
+
+                    item.options.forEach((opt) => {
+                      db.get(
+                        `SELECT option_id, extra_price FROM ItemOption WHERE option_name = ?`,
+                        [opt.name],
+                        (err3, row2) => {
+                          if (err3) {
+                            console.error("❌ Error finding option:", err3.message);
+                            return;
+                          }
+
+                          if (row2) {
+                            const finalExtra = opt.extra || row2.extra_price || 0;
+                            db.run(
+                              `INSERT INTO "OrderItemOption" (order_item_id, option_id, extra_price)
+                               VALUES (?, ?, ?)`,
+                              [orderItemId, row2.option_id, finalExtra],
+                              (err4) => {
+                                if (err4) {
+                                  console.error("❌ Insert option error:", err4.message);
+                                } else {
+                                  console.log(
+                                    `✅ เพิ่ม option '${opt.name}' (option_id=${row2.option_id}) extra=${finalExtra}`
+                                  );
+                                }
+                              }
+                            );
+                          } else {
+                            console.warn("❌ no option in db:", opt.name);
+                          }
+                        }
+                      );
+                    });
+                  }
+                  const del_stk = `
+                    UPDATE Ingredient
+                    SET stock_qty = stock_qty - (
+                      SELECT mi.quantity * ?  -- จำนวนวัตถุดิบที่ใช้ต่อเมนู × จำนวนที่ลูกค้าสั่ง
+                      FROM MenuIngredient mi
+                      WHERE mi.ingredient_id = Ingredient.ingredient_id
+                        AND mi.menu_id = ?
+                    )
+                    WHERE ingredient_id IN (
+                      SELECT ingredient_id FROM MenuIngredient WHERE menu_id = ?
+                    )
+                  `;
+
+                  db.run(del_stk, [item.quantity, item.menu_id, item.menu_id], function (err) {
+                    if (err) {
+                      console.error("❌ Update stock error:", err.message);
+                    }
+                    //  else {
+                      // console.log(` ลด stock ของเมนู ${item.menu_id} ลง ${item.quantity} ที่สั่ง`);
+                      // console.log(`จำนวนวัตถุดิบที่อัปเดต: ${this.changes}`);
+                    // }
+                  });
+                    const del_stk_option = `
+                      UPDATE Ingredient
+                      SET stock_qty = stock_qty - (
+                        SELECT ioi.quantity * ?
+                        FROM ItemOptionIngredient ioi
+                        WHERE ioi.ingredient_id = Ingredient.ingredient_id
+                          AND ioi.option_id = ?
+                      )
+                      WHERE ingredient_id IN (
+                        SELECT ingredient_id FROM ItemOptionIngredient WHERE option_id = ?
+                      )
+                    `;
+
+                    // สมมติ item.option_id คือไอดีของตัวเลือก
+                    db.run(del_stk_option, [item.quantity, item.option_id, item.option_id], function (err2) {
+                      if (err2) {
+                        console.error("❌ Update option stock error:", err2.message);
+                      } else {
+                        console.log(`✅ ลด stock ของ option ${item.option_id} ตามจำนวน ${item.quantity}`);
+                        console.log(`📊 จำนวนวัตถุดิบที่อัปเดต (option): ${this.changes}`);
+                      }
+                    });
+                }
+              );
+            });
+
+            // --- เคลียร์ session หลังบันทึกเสร็จ ---
+            req.session.cart = [];
+            req.session.total = 0;
+
+            // --- แสดงหน้า payment_success ---
+            res.render("payment_success", {
+              total,
+              left,
+              orderId,
+            });
+
+            console.log("✅ บันทึกคำสั่งซื้อสำเร็จ:", orderId);
+          }
+        );
+      }
+    );
+  } catch (err) {
+    console.error("❌ Error inserting order:", err);
+    res.status(500).send("เกิดข้อผิดพลาดระหว่างบันทึกข้อมูลคำสั่งซื้อ");
+  }
+});
+
 app.get("/cash-customer/:amount", async (req, res) => {
   try {
     const cart = req.session.cart || [];
@@ -1008,16 +1177,50 @@ app.get("/cash-customer/:amount", async (req, res) => {
                       ); 
                     });
                   }
-                  db.run(
-                        `UPDATE Ingredient 
-                        SET stock_qty = stock_qty - ? 
-                        WHERE ingredient_name = (SELECT menu_name FROM Menu WHERE menu_id = ?)`,
-                        [item.quantity, item.menu_id],
-                        (err5) => {
-                          if (err5) console.error("❌ Update stock error:", err5.message);
-                          else console.log(`ลด stock ของเมนู ${item.menu_id} ลง ${item.quantity}`);
-                        }
-                      );
+                  const del_stk = `
+                    UPDATE Ingredient
+                    SET stock_qty = stock_qty - (
+                      SELECT mi.quantity * ?  -- จำนวนวัตถุดิบที่ใช้ต่อเมนู × จำนวนที่ลูกค้าสั่ง
+                      FROM MenuIngredient mi
+                      WHERE mi.ingredient_id = Ingredient.ingredient_id
+                        AND mi.menu_id = ?
+                    )
+                    WHERE ingredient_id IN (
+                      SELECT ingredient_id FROM MenuIngredient WHERE menu_id = ?
+                    )
+                  `;
+
+                  db.run(del_stk, [item.quantity, item.menu_id, item.menu_id], function (err) {
+                    if (err) {
+                      console.error("❌ Update stock error:", err.message);
+                    }
+                    //  else {
+                      // console.log(` ลด stock ของเมนู ${item.menu_id} ลง ${item.quantity} ที่สั่ง`);
+                      // console.log(`จำนวนวัตถุดิบที่อัปเดต: ${this.changes}`);
+                    // }
+                  });
+                    const del_stk_option = `
+                      UPDATE Ingredient
+                      SET stock_qty = stock_qty - (
+                        SELECT ioi.quantity * ?
+                        FROM ItemOptionIngredient ioi
+                        WHERE ioi.ingredient_id = Ingredient.ingredient_id
+                          AND ioi.option_id = ?
+                      )
+                      WHERE ingredient_id IN (
+                        SELECT ingredient_id FROM ItemOptionIngredient WHERE option_id = ?
+                      )
+                    `;
+
+                    // สมมติ item.option_id คือไอดีของตัวเลือก
+                    db.run(del_stk_option, [item.quantity, item.option_id, item.option_id], function (err2) {
+                      if (err2) {
+                        console.error("❌ Update option stock error:", err2.message);
+                      } else {
+                        console.log(`✅ ลด stock ของ option ${item.option_id} ตามจำนวน ${item.quantity}`);
+                        console.log(`📊 จำนวนวัตถุดิบที่อัปเดต (option): ${this.changes}`);
+                      }
+                    });
                 }
               );
             });
@@ -1043,6 +1246,7 @@ app.get("/cash-customer/:amount", async (req, res) => {
     res.status(500).send("เกิดข้อผิดพลาดระหว่างบันทึกข้อมูลคำสั่งซื้อ");
   }
 });
+
 app.get('/pay_qr-customer', async (req, res) => {
   // const amount = 100000000000000000000;
 // const amount = req.session.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
