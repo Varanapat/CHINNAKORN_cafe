@@ -113,18 +113,20 @@
                                 </div>
 
                                 <!-- ฝั่งขวา -->
-                                <div class="container_right">
+                                
+
+                                    <!-- ส่วนเลือก option -->
+                                    <!-- <form> -->
+                                    <form method="post" action="/add-to-cart" class="cart-form" data-menu-id="<%= item_menu.menu_id %>">
+                                        <div class="form">
+
+                                            <div class="container_right">
                                     <div class="head_container_right">
                                         <b>รายละเอียดของเมนู: </b>
                                         <p class="menu-description">
                                             <%= item_menu.description %>
                                         </p>
                                     </div>
-
-                                    <!-- ส่วนเลือก option -->
-                                    <!-- <form> -->
-                                    <form method="post" action="/add-to-cart" class="cart-form" data-menu-id="<%= item_menu.menu_id %>">
-                                        <div class="form">
 
                                             <% slt.forEach(sl=> { %>
                                                 <% if (item_menu.menu_id===sl.menu_id) { %>
@@ -148,7 +150,9 @@
                                                                             name="menu-<%= item_menu.menu_id %>-<%= itsl.group_name %>"
                                                                             value="<%= itsl.option_name %>"
                                                                             id="opt-<%= item_menu.menu_id %>-<%= itsl.option_name %>"
+                                                                            data-extra="<%= itsl.extra_price %>"
                                                                             <%= !isOptAvailable ? 'disabled' : (sl.is_required ? 'required' : '') %> />
+
                                                                         <label for="opt-<%= item_menu.menu_id %>-<%= itsl.option_name %>">
                                                                         <%= itsl.option_name %>
                                                                         <% if (!isOptAvailable) { %>

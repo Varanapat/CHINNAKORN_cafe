@@ -19,6 +19,7 @@
   <script src="/script_modal_cart.js"></script>
   <script src="/script_main.js"></script>
   <script src="/script_add_to_cart.js"></script>
+
 </head>
 
 <style>
@@ -61,6 +62,62 @@
   .my-btn-confirm:hover {
     background: lightblue;
   }
+@media (max-width: 1024px) {
+    .modal {
+        display: flex;
+        flex-direction: column;
+        max-height: 90vh; /* ให้สูงสุดเต็มจอ */
+    }
+
+    .modal-header {
+        flex-shrink: 0;
+    }
+
+    .modal-body {
+        flex: 1;             /* ขยายเต็มพื้นที่ */
+        overflow-y: auto;    /* เปลี่ยนจาก hidden เป็น auto */
+        -webkit-overflow-scrolling: touch; /* smooth scroll บน iPad */
+    }
+
+    .container_menu {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+    }
+
+    .container_left {
+        flex: 0 0 auto;  /* ให้ image ปรับสูงตามเนื้อหา */
+        max-height: 40vh;
+        overflow: hidden;
+    }
+
+    .modal-img_left {
+        height: 100%;   /* เติม container */
+        width: auto;
+    }
+
+    .container_right {
+        flex: 1;            /* ขยายเต็มพื้นที่ด้านขวา */
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .form {
+        flex: 1;
+        min-height: 0;      /* จำเป็นสำหรับ flex scroll */
+    }
+
+    .bottom_container_right {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        background: white;
+        flex-shrink: 0;
+    }
+}
+
+
 </style>
 
 <body>

@@ -152,6 +152,7 @@
                                                                             name="menu-<%= item_menu.menu_id %>-<%= itsl.group_name %>"
                                                                             value="<%= itsl.option_name %>"
                                                                             id="opt-<%= item_menu.menu_id %>-<%= itsl.option_name %>"
+                                                                            data-extra="<%= itsl.extra_price %>"
                                                                             <%= !isOptAvailable ? 'disabled' : (sl.is_required ? 'required' : '') %> />
                                                                         <label for="opt-<%= item_menu.menu_id %>-<%= itsl.option_name %>">
                                                                         <%= itsl.option_name %>
