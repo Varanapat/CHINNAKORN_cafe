@@ -53,6 +53,10 @@
   .my-btn-confirm:hover {
     background: lightblue;
   }
+  .quantity{
+    padding: 0px;
+
+  }
 </style>
 
 <body>
@@ -178,7 +182,7 @@
 
                                         <!-- ส่วนด้านล่าง -->
                                         <div class="bottom_container_right">
-                                            <div class="price-container mt-3">
+                                            <div class="price-container mt-1">
                                                 <p class="price" data-base-price="<%= item_menu.base_price %>">
                                                     <%= item_menu.base_price %> ฿
                                                 </p>
@@ -186,7 +190,7 @@
                                             </div>
 
                                             <!-- ปุ่มเพิ่ม/ลดจำนวน -->
-                                            <div class="quantity">
+                                            <div class="quantity mt-1">
                                                 <button type="button" class="qty-btn minus btn">&minus;</button>
                                                 <span class="qty">1</span>
                                                 <button type="button" class="qty-btn plus btn">&plus;</button>
@@ -196,7 +200,7 @@
                                             <input type="hidden" name="quantity" value="1">
                                             <input type="hidden" name="options" value="">
                                             <input type="hidden" name="totalPrice" value="">
-                                            <button type="submit" class="add-to-cart mt-5 my-btn my-btn-confirm">เพิ่มลงตะกร้า</button>
+                                            <button type="submit" class="add-to-cart mt-1 my-btn my-btn-confirm">เพิ่มลงตะกร้า</button>
                                         </div>
                                     </form>
 
