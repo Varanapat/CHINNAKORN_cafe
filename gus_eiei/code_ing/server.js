@@ -450,6 +450,7 @@ app.get("/cash/:amount", async (req, res) => {
     const cart = req.session.cart || [];
     const total = req.session.total || 0;
     const amount = parseInt(req.params.amount, 10);
+    const where = req.session.where
     const left = amount - total;
 
     console.log("เริ่มบันทึกคำสั่งซื้อ, ตะกร้าปัจจุบัน:", JSON.stringify(cart, null, 2));
@@ -483,8 +484,8 @@ app.get("/cash/:amount", async (req, res) => {
 
     db.run(
       `INSERT INTO "Order" (order_id, total_price, order_type)
-       VALUES (?, ?, 'TAKEAWAY')`,
-      [orderId, total],
+       VALUES (?, ?, ?)`,
+      [orderId, total,where],
       function (err) {
         if (err) {
           console.error("❌ Insert order error:", err);
