@@ -171,41 +171,13 @@ npm run dev
 ## 📊 Workflow / Pipeline
 
 ```
-User Request
-     │
-     ▼
-┌─────────────┐
-│  Express.js │  ← Routing Layer (routes/)
-│   Router    │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│ Controller  │  ← Business Logic (controllers/)
-│   Layer     │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│   Model /   │  ← Database Queries (models/)
-│  DB Layer   │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│    MySQL    │  ← Persistent Storage
-│  Database   │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│  EJS View   │  ← Template Rendering (views/)
-│  Template   │
-└──────┬──────┘
-       │
-       ▼
-  HTML Response
-  → Browser
+flowchart TD
+    A[User Request] --> B[Express.js Router (Routing Layer)]
+    B --> C[Controller Layer (Business Logic)]
+    C --> D[Model / DB Layer (Database Queries)]
+    D --> E[(SQLite Database)]
+    E --> F[EJS View Template (Rendering)]
+    F --> G[HTML Response → Browser]
 ```
 
 **Flow Summary:**
