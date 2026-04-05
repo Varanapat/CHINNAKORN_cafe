@@ -177,7 +177,7 @@ flowchart TD
     C --> D[Model / DB Layer (Database Queries)]
     D --> E[(SQLite Database)]
     E --> F[EJS View Template (Rendering)]
-    F --> G[HTML Response → Browser]
+    F --> G[HTML Response to Browser]
 ```
 
 **Flow Summary:**
