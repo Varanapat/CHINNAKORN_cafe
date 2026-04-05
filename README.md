@@ -327,9 +327,8 @@ Select Items → Add to Cart → Review Order → Confirm → Order Placed ✅
 
 | Field | Info |
 |-------|------|
-| 👤 **Name** | Varanapat & pngkcwtk  |
+| 👤 **Author** | [@Varanapat](https://github.com/Varanapat) & [@pngkcwtk](https://github.com/pngkcwtk)  |
 | 🎓 **Project** | Web Programming Project 2568 |
-| 🔗 **GitHub** | [@Varanapat](https://github.com/Varanapat)& [@pngkcwtk](https://github.com/pngkcwtk)|
 | 📁 **Repository** | [CHINNAKORN_cafe](https://github.com/Varanapat/CHINNAKORN_cafe) |
 
 ---
