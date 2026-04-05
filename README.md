@@ -166,7 +166,7 @@ flowchart TD
 1. 🌐 **Client** sends an HTTP request
 2. 🚦 **Express Router** matches the URL to a route handler
 3. 🧠 **Controller** processes business logic
-4. 🗄️ **Model** executes SQL queries against SQLite 3
+4. 🗄️ **Model** executes SQL queries against SQLite
 5. 🎨 **EJS View** renders the HTML with dynamic data
 6. 📤 **Response** is sent back to the browser
 
@@ -174,56 +174,81 @@ flowchart TD
 
 ## 🧠 Model / Method
 
-This project follows the **MVC (Model-View-Controller)** architectural pattern:
+This project follows a **simplified MVC (Model-View-Controller)** architectural pattern:
 
-| Layer | Role | Technology |
-|-------|------|------------|
-| **Model** | Data access & database queries | MySQL + custom query functions |
-| **View** | UI rendering with dynamic data | EJS templating engine |
-| **Controller** | Business logic & request handling | Node.js functions |
-| **Router** | URL routing & middleware | Express.js |
+| Layer          | Role                              | Technology                      |
+| -------------- | --------------------------------- | ------------------------------- |
+| **Model**      | Data access & database queries    | SQLite (`sqlite3`)              |
+| **View**       | UI rendering with dynamic data    | EJS templating engine           |
+| **Controller** | Business logic & request handling | Node.js (within route handlers) |
+| **Router**     | URL routing & middleware          | Express.js                      |
 
-### Authentication Flow
+> Note: MVC layers are not fully separated. Routing, business logic, and database queries are handled together in `index.js`.
 
-- Passwords are hashed using **bcrypt** before storage
-- Sessions are managed with **express-session**
-- Protected routes use middleware to verify authentication status
-- Admin routes have role-based access control
+### Session Management
+
+* Sessions are managed using **express-session**
+* Shopping cart and order data are stored in session
+* Used to maintain state for both customer and cashier workflows
+
+> Note: This project does not implement a full authentication system (e.g., login, password hashing, or role-based access control).
+
 
 ### Database Design (Key Tables)
 
-| Table | Description |
-|-------|-------------|
-| `users` | Customer and admin accounts |
-| `products` | Café menu items with prices and categories |
-| `orders` | Customer orders with status tracking |
-| `order_items` | Individual items within each order |
-| `categories` | Product categories (drinks, food, desserts) |
+| Table             | Description                                          |
+| ----------------- | ---------------------------------------------------- |
+| `Menu`            | Café menu items with pricing and availability        |
+| `Category`        | Menu categories (e.g., drinks, bakery)               |
+| `Order`           | Customer orders with total price and status          |
+| `OrderItem`       | Individual items within each order                   |
+| `OrderItemOption` | Selected options for each order item                 |
+| `OptionGroup`     | Groups of selectable options (e.g., size, sweetness) |
+| `ItemOption`      | Specific options within each group                   |
+| `Ingredient`      | Raw materials with stock tracking                    |
+| `MenuIngredient`  | Mapping between menu items and required ingredients  |
+
 
 ---
 
 ## 📈 Evaluation / Results
 
-### Language Breakdown
+### 🧾 System Overview
 
-| Language | Percentage | Role |
-|----------|-----------|------|
-| JavaScript | 48.2% | Server-side logic, routing, controllers |
-| EJS | 34.6% | HTML templating and dynamic views |
-| CSS | 16.8% | Styling and responsive design |
-| Other | 0.4% | Config files, assets |
+The system successfully implements a café ordering and management workflow, including:
+
+* Menu browsing with dynamic options (e.g., size, add-ons)
+* Session-based shopping cart for customers and cashier
+* Order processing with automatic order ID generation
+* QR code payment integration (PromptPay)
+* Real-time stock deduction based on ingredients
+* Inventory management interface for barista and cashier
+
+---
+
+### 💻 Technology Breakdown
+
+| Language   | Percentage | Role                                         |
+| ---------- | ---------- | -------------------------------------------- |
+| JavaScript | 48.2%      | Server-side logic, routing, session handling |
+| EJS        | 34.6%      | Dynamic UI rendering                         |
+| CSS        | 16.8%      | Styling and layout                           |
+| Other      | 0.4%       | Configuration and assets                     |
+
 
 ### Project Goals vs Outcomes
 
-| Goal | Status |
-|------|--------|
-| Functional menu browsing | ✅ Achieved |
-| User registration & login | ✅ Achieved |
-| Shopping cart system | ✅ Achieved |
-| Admin product management | ✅ Achieved |
-| Order management | ✅ Achieved |
-| Responsive UI | ✅ Achieved |
-| Database persistence | ✅ Achieved |
+| Goal                                 | Status            |
+| ------------------------------------ | ----------------- |
+| Functional menu browsing             | ✅ Achieved        |
+| Session-based cart system            | ✅ Achieved        |
+| Order processing system              | ✅ Achieved        |
+| QR code payment integration          | ✅ Achieved        |
+| Inventory & stock management         | ✅ Achieved        |
+| Order management (barista & cashier) | ✅ Achieved        |
+| Responsive UI                        | ✅ Achieved        |
+| Database persistence                 | ✅ Achieved        |
+| User authentication system           | ❌ Not implemented |
 
 ---
 
@@ -231,74 +256,87 @@ This project follows the **MVC (Model-View-Controller)** architectural pattern:
 
 ### Backend
 
-| Library | Purpose |
-|---------|---------|
-| [Node.js](https://nodejs.org/) | JavaScript runtime environment |
-| [Express.js](https://expressjs.com/) | Web framework for routing and middleware |
-| [mysql2](https://www.npmjs.com/package/mysql2) | MySQL database driver |
-| [express-session](https://www.npmjs.com/package/express-session) | Session management |
-| [bcrypt](https://www.npmjs.com/package/bcrypt) | Password hashing |
-| [multer](https://www.npmjs.com/package/multer) | File/image upload handling |
-| [dotenv](https://www.npmjs.com/package/dotenv) | Environment variable management |
+| Library                                                          | Purpose                                  |
+| ---------------------------------------------------------------- | ---------------------------------------- |
+| [Node.js](https://nodejs.org/)                                   | JavaScript runtime environment           |
+| [Express.js](https://expressjs.com/)                             | Web framework for routing and middleware |
+| [sqlite3](https://www.npmjs.com/package/sqlite3)                 | SQLite database driver                   |
+| [express-session](https://www.npmjs.com/package/express-session) | Session management                       |
+| [qrcode](https://www.npmjs.com/package/qrcode)                   | Generate QR code for payment             |
+| [promptpay-qr](https://www.npmjs.com/package/promptpay-qr)       | Generate PromptPay payment payload       |
+
 
 ### Frontend
 
-| Technology | Purpose |
-|-----------|---------|
-| EJS | Server-side HTML templating |
-| CSS3 | Custom styling and responsive layout |
-| Vanilla JS | Client-side interactivity |
+| Technology | Purpose                              |
+| ---------- | ------------------------------------ |
+| EJS        | Server-side HTML templating          |
+| CSS3       | Custom styling and responsive layout |
+| Vanilla JS | Client-side interactivity            |
 
 ### Database
 
-| Tool | Purpose |
-|------|---------|
-| MySQL | Relational database for all persistent data |
+| Tool   | Purpose                                 |
+| ------ | --------------------------------------- |
+| SQLite | Relational database for persistent data |
 
 ### Dev Tools
 
-| Tool | Purpose |
-|------|---------|
+| Tool    | Purpose                                |
+| ------- | -------------------------------------- |
 | nodemon | Auto-restart server during development |
-| npm | Package management |
+| npm     | Package management                     |
+
 
 ---
 
 ## 📄 Example Output
 
-### 🏠 Home Page
-The landing page greets visitors with the CHINNAKORN Cafe branding, featured menu highlights, and a call-to-action to explore the menu.
+### 🏠 Entry Page
+
+The system starts with a **dine-in or takeaway selection page**, allowing users to choose how they want to order before accessing the menu.
+
+---
 
 ### 📋 Menu Page
+
 ```
 ┌──────────────────────────────────────┐
 │         ☕ Our Menu                  │
 │  ─────────────────────────────────  │
-│  [Drinks] [Food] [Desserts]          │
+│  [Drinks] [Bakery]                  │
 │                                      │
 │  🧋 Thai Milk Tea      ฿ 60         │
 │  ☕ Americano          ฿ 55         │
-│  🍰 Basque Cheesecake  ฿ 120        │
+│  🥐 Croissant         ฿ 45          │
 │                                      │
-│  [Add to Cart]  [View Details]       │
+│  [Add to Cart]  [Customize Options] │
 └──────────────────────────────────────┘
 ```
 
+---
+
 ### 🛒 Cart & Order Flow
+
 ```
-Select Items → Add to Cart → Review Order → Confirm → Order Placed ✅
+Select Items → Customize Options → Add to Cart → 
+Review Order → Confirm → Payment (QR) → Success ✅
 ```
 
-### 🛠️ Admin Dashboard
+---
+
+### ☕ Staff Interface (Barista / Cashier)
+
 ```
 ┌──────────────────────────────────────┐
-│  Admin Panel - CHINNAKORN Cafe       │
+│  Order Management Panel             │
 │  ─────────────────────────────────  │
-│  📦 Products: 24 items               │
-│  🧾 Pending Orders: 5                │
-│  ✅ Completed Today: 18              │
+│  🧾 Pending Orders                  │
+│  • Order #20260405-001             │
+│    - 2x Americano                  │
+│    - 1x Thai Milk Tea (Less Sugar) │
 │                                      │
-│  [Manage Products] [View Orders]     │
+│  [Mark as Complete]                │
 └──────────────────────────────────────┘
 ```
 
