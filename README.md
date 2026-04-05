@@ -147,7 +147,6 @@ npm run dev
 
 ---
 
-```mermaid
 ## 📊 Workflow / Pipeline
 
 ```mermaid
@@ -160,7 +159,7 @@ flowchart TD
     F --> G["HTML Response to Browser"]
 ```
 
-```
+---
 
 **Flow Summary:**
 
