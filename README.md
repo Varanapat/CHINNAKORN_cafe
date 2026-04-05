@@ -5,7 +5,7 @@
 ![EJS](https://img.shields.io/badge/EJS-B4CA65?style=for-the-badge&logo=ejs&logoColor=black)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
 
 > 🎓 **2568 Academic Project** — A full-stack web application for managing and showcasing a café business online.
 
@@ -13,22 +13,21 @@
 
 ## 📖 Project Overview
 
-**CHINNAKORN Cafe** is a full-stack web application built as part of a **Web Programming Project (2568)**. It serves as an online platform for a café business, allowing customers to browse the menu, learn about the café, and place orders — while giving administrators tools to manage products and orders efficiently.
+**CHINNAKORN Cafe** is a full-stack web application with server-side rendering, developed as part of a **Web Programming Project (2568)**. It serves as an online platform for a café business, allowing customers to browse the menu, learn about the café, and place orders — while also providing staff-oriented pages for managing orders and inventory.
 
-The project is developed using **Node.js** with the **Express.js** framework on the backend and **EJS** (Embedded JavaScript) as the templating engine for server-side rendered views, styled with custom **CSS**.
+The project is built using **Node.js** with the **Express.js** framework on the backend, and **EJS (Embedded JavaScript)** as the templating engine for dynamic server-side rendered views, styled with custom **CSS**.
 
 ---
 
 ## ✨ Features
 
-- 🏠 **Home Page** — Welcoming landing page with café branding and highlights
-- 📋 **Menu Browsing** — Browse categorized café items (drinks, food, desserts)
-- 🛒 **Order System** — Customers can add items to cart and place orders
-- 🔐 **User Authentication** — Register and login system for customers and admins
-- 🛠️ **Admin Dashboard** — Manage menu items, view and process customer orders
-- 📱 **Responsive Design** — Mobile-friendly UI across all screen sizes
-- 🗃️ **Database Integration** — Persistent data storage with MySQL
-- 🖼️ **Product Image Support** — Upload and display product images
+- 🏠 **Home Page** — Welcoming landing page with café branding and highlights  
+- 📋 **Menu Browsing** — Browse categorized café items (drinks, food, desserts)  
+- 🛒 **Order System** — Customers can add items to cart and place orders  
+- 🧾 **Order & Inventory Management** — Staff can view and manage orders and product inventory  
+- 📱 **Responsive Design** — Mobile-friendly UI across all screen sizes  
+- 🗃️ **Database Integration** — Persistent data storage using SQLite  
+- 🖼️ **Product Image Support** — Upload and display product images  
 
 ---
 
@@ -37,36 +36,35 @@ The project is developed using **Node.js** with the **Express.js** framework on 
 ```
 CHINNAKORN_cafe/
 │
-├── code_ing/                   # Main application source code
-│   ├── public/                 # Static assets
-│   │   ├── css/                # Stylesheets
-│   │   ├── images/             # Product and UI images
-│   │   └── js/                 # Client-side JavaScript
-│   │
-│   ├── views/                  # EJS templates (server-side rendered pages)
-│   │   ├── partials/           # Reusable components (header, footer, navbar)
-│   │   ├── index.ejs           # Home page
-│   │   ├── menu.ejs            # Menu listing page
-│   │   ├── cart.ejs            # Shopping cart page
-│   │   ├── login.ejs           # Login page
-│   │   ├── register.ejs        # Registration page
-│   │   └── admin/              # Admin panel views
-│   │
-│   ├── routes/                 # Express route handlers
-│   │   ├── index.js            # Public routes
-│   │   ├── auth.js             # Authentication routes
-│   │   ├── menu.js             # Menu routes
-│   │   └── admin.js            # Admin routes
-│   │
-│   ├── controllers/            # Business logic controllers
-│   ├── models/                 # Database models / query logic
-│   ├── config/                 # Database & app configuration
-│   │   └── db.js               # MySQL connection setup
-│   │
-│   ├── app.js                  # Express application entry point
-│   └── package.json            # Project dependencies and scripts
+├── code_ing/                           # Main application source code
+│ ├── public/                           # Static assets
+│ │ ├── css/                            # Stylesheets
+│ │ ├── images/                         # Product and UI images
+│ │ └── js/                             # Client-side JavaScript
+│ │ ├── ...
+│ ├── views/                            # EJS templates (server-side rendered pages)
+│ │ ├── main.ejs                        # Main / landing page
+│ │ ├── selecting_menu.ejs              # Menu selection page
+│ │ ├── selecting_menu_header.ejs       # Menu header component
+│ │ ├── cart.ejs                        # Shopping cart
+│ │ ├── confirm_order.ejs               # Order confirmation (staff)
+│ │ ├── confirm_order-customer.ejs      # Order confirmation (customer)
+│ │ ├── pay_qr.ejs                      # QR payment (staff)
+│ │ ├── pay_qr-customer.ejs             # QR payment (customer)
+│ │ ├── payment_success.ejs             # Payment success (staff)
+│ │ ├── payment_success-customer.ejs    # Payment success (customer)
+│ │ ├── inventory_for_barista.ejs       # Barista interface
+│ │ ├── inventory_for_cashier.ejs       # Cashier interface
+│ │ └── where_to_eat.ejs                # Dine-in selection
+│ │
+│ ├── Database/                         # SQLite database files
+│ │ ├── *.db
+│ │
+│ ├── index.js                          # Main Express app (routes + logic)
+│ ├── setup.js                          # Database setup script
+│ └── package.json                      # Project dependencies
 │
-└── README.md                   # Project documentation
+└── README.md                           # Project documentation
 ```
 
 ---
@@ -81,7 +79,8 @@ Make sure you have the following installed on your machine:
 |------|---------|----------|
 | Node.js | v18+ | [nodejs.org](https://nodejs.org) |
 | npm | v8+ | Bundled with Node.js |
-| MySQL | v8+ | [mysql.com](https://www.mysql.com) |
+
+---
 
 ### Step-by-Step Setup
 
@@ -89,7 +88,6 @@ Make sure you have the following installed on your machine:
    ```bash
    git clone https://github.com/Varanapat/CHINNAKORN_cafe.git
    cd CHINNAKORN_cafe/code_ing
-   ```
 
 2. **Install dependencies**
    ```bash
@@ -97,35 +95,17 @@ Make sure you have the following installed on your machine:
    ```
 
 3. **Configure the database**
-   - Create a MySQL database:
-     ```sql
-     CREATE DATABASE chinnakorn_cafe;
-     ```
-   - Import the SQL schema (if provided):
-     ```bash
-     mysql -u root -p chinnakorn_cafe < database/schema.sql
-     ```
+   - This project uses SQLite3, and the database is already included in the Database/ folder.
+   - No additional setup is required.
 
-4. **Set up environment variables**
-
-   Create a `.env` file in the `code_ing/` directory:
-   ```env
-   DB_HOST=localhost
-   DB_USER=root
-   DB_PASSWORD=your_password
-   DB_NAME=chinnakorn_cafe
-   SESSION_SECRET=your_secret_key
-   PORT=3000
-   ```
-
-5. **Start the application**
+4. **Run the application**
    ```bash
-   npm start
+   node index.js
    ```
 
    Or with auto-reload during development:
    ```bash
-   npx nodemon app.js
+   npx nodemon index.js
    ```
 
 ---
@@ -142,25 +122,24 @@ http://localhost:3000
 
 | Route | Method | Description |
 |-------|--------|-------------|
-| `/` | GET | Home / landing page |
-| `/menu` | GET | Browse menu items |
+| `/` | GET | Main / landing page |
+| `/menu` | GET | Menu selection page |
 | `/cart` | GET | View shopping cart |
-| `/order` | POST | Place an order |
-| `/register` | GET/POST | User registration |
-| `/login` | GET/POST | User login |
-| `/logout` | GET | Logout |
-| `/admin` | GET | Admin dashboard (protected) |
-| `/admin/products` | GET/POST | Manage menu items |
-| `/admin/orders` | GET | View all orders |
+| `/confirm-order` | GET/POST | Confirm customer order |
+| `/payment` | GET | QR code payment page |
+| `/payment-success` | GET | Display successful payment |
+| `/inventory-barista` | GET | Barista interface for managing orders |
+| `/inventory-cashier` | GET | Cashier interface for handling orders |
+| `/where-to-eat` | GET | Select dine-in or takeaway option |
 
 ### Example: Starting the Server
 
 ```bash
 # Production
-node app.js
+node index.js
 
 # Development (with hot reload)
-npx nodemon app.js
+npx nodemon index.js
 
 # With npm script
 npm run dev
@@ -168,16 +147,19 @@ npm run dev
 
 ---
 
+```mermaid
 ## 📊 Workflow / Pipeline
 
 ```mermaid
 flowchart TD
-    A[User Request] --> B["Express.js Router (Routing Layer)"]
-    B --> C["Controller Layer (Business Logic)"]
-    C --> D["Model / DB Layer (Database Queries)"]
+    A[User Request] --> B["Express.js Route (index.js)"]
+    B --> C["Business Logic + Session Handling"]
+    C --> D["SQLite Queries (sqlite3)"]
     D --> E[("SQLite Database")]
-    E --> F["EJS View Template (Rendering)"]
-    F --> G[HTML Response to Browser]
+    E --> F["EJS Template Rendering"]
+    F --> G["HTML Response to Browser"]
+```
+
 ```
 
 **Flow Summary:**
