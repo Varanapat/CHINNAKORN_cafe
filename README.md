@@ -172,11 +172,11 @@ npm run dev
 
 ```mermaid
 flowchart TD
-    A[User Request] --> B[Express.js Router (Routing Layer)]
-    B --> C[Controller Layer (Business Logic)]
-    C --> D[Model / DB Layer (Database Queries)]
-    D --> E[(SQLite Database)]
-    E --> F[EJS View Template (Rendering)]
+    A[User Request] --> B["Express.js Router (Routing Layer)"]
+    B --> C["Controller Layer (Business Logic)"]
+    C --> D["Model / DB Layer (Database Queries)"]
+    D --> E[("SQLite Database")]
+    E --> F["EJS View Template (Rendering)"]
     F --> G[HTML Response to Browser]
 ```
 
