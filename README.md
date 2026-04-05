@@ -185,7 +185,7 @@ flowchart TD
 1. 🌐 **Client** sends an HTTP request
 2. 🚦 **Express Router** matches the URL to a route handler
 3. 🧠 **Controller** processes business logic
-4. 🗄️ **Model** executes SQL queries against MySQL
+4. 🗄️ **Model** executes SQL queries against SQLite 3
 5. 🎨 **EJS View** renders the HTML with dynamic data
 6. 📤 **Response** is sent back to the browser
 
