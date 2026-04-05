@@ -170,7 +170,7 @@ npm run dev
 
 ## 📊 Workflow / Pipeline
 
-```
+```mermaid
 flowchart TD
     A[User Request] --> B[Express.js Router (Routing Layer)]
     B --> C[Controller Layer (Business Logic)]
